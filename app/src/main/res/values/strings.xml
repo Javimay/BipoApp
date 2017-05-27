@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">bipo</string>
+    <string name="str_cd_barlogo">BarLogo</string>
+    <string name="str_cd_wheellogo">wheelLogo</string>
+    <string name="sr_txt_inicio_de_sesion">Inicio de sesion</string>
+    <string name="divider">Divider</string>
+    <string name="sr_txt_usuario">Usuario:</string>
+    <string name="sr_txt_contrasena">Contraseña:</string>
+    <string name="sr_btn_registrate">Regístrate</string>
+    <string name="sr_btn_entrar">Entrar</string>
+    <string name="sr_txt_olvidaste_tu_contrasena">¿Olvidaste tu contraseña?</string>
+    <string name="sr_txt_iniciar_con">Iniciar con:</string>
+    <string name="sr_btn_facebook">facebook</string>
+    <string name="sr_btn_google">Google +</string>
+    <string name="sr_btn_twitter">twitter</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="sr_txt_informacin_personal">Información personal</string>
+    <string name="sr_btn_cancelar">Cancelar</string>
+    <string name="sr_txt_apellidos">Apellidos:</string>
+    <string name="sr_txt_confirmar_contrasena">Confirmar contraseña:</string>
+    <string name="sr_txt_correo">Correo:</string>
+    <string name="sr_txt_cedula">Cédula:</string>
+    <string name="sr_txt_fecha_de_nacimiento">Fecha de nacimiento:</string>
+    <string name="sr_txt_nombres">Nombres:</string>
+    <string name="sr_txt_numero_celular">Número celular:</string>
+    <string name="sr_btn_siguiente">Siguiente</string>
+    <string name="sr_txt_informacion_de_la_bicicleta">Información de la bicicleta</string>
+    <string name="sr_txt_photo_button">Photo button</string>
+    <string name="sr_txt_tipo">Tipo:</string>
+    <string name="sr_txt_acepto_fotos">Acepto publicación de fotos.</string>
+    <string name="sr_txt_acepto_terminos">Acepto terminos y condiciones.</string>
+    <string name="sr_txt_caracteristicas">Caracteristicas:</string>
+    <string name="sr_txt_color">Color:</string>
+    <string name="sr_txt_confirmacion_del_id">Confirmación del Id:</string>
+    <string name="sr_txt_id_del_marco">Id del marco:</string>
+    <string name="sr_txt_marca">Marca:</string>
+    <string name="sr_btn_registrar">Registrar</string>
+    <string name="sr_btn_anterior">Anterior</string>
+    <string name="sr_cd_loginwindow">loginWindow</string>
+    <string name="sr_cd_wheel">wheel</string>
+    <string name="sr_cd_ventana_redondeada" />
+    <string name="sr_cd_bici1">Bicicleta 1</string>
+    <string name="sr_btn_restaurar_contrasena">Restaurar contraseña</string>
+    <string name="sr_txt_restaurarar_contrasena_text">Restauraremos tu contraseña por medio del correo electrónico.</string>
+    <string name="sr_cd_boton_de_la_galeria">Boton de la galeria</string>
+    <string name="sr_txt_nombre_bicicleta">Nombre de la bicicleta:</string>
+    <string name="sr_btn_vi_esta_bibicleta">Ví esta bibicleta</string>
+    <string name="sr_cd_bicicleta_reportada">Bicicleta reportada</string>
+    <string name="sr_cd_sombra_ventana">Sombra de la ventana</string>
+    <string name="sr_cd_boton_izquierdo_actionbar">Botón izquierdo del ActionBar</string>
+    <string name="sr_cd_boton_derecho_actionbar">Botón derecho del ActionBar</string>
+    <string name="sr_itmtxt_bike_brand">Marca: %s</string>
+    <string name="sr_itmtxt_bike_type">Tipo: %s</string>
+    <string name="sr_itmtxt_bike_color">Color: %s</string>
+</resources>

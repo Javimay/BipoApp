@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="yellowBipo">#F2E042</color>
+    <color name="darkGray">#868383</color>
+    <color name="darkYellow">#C1B019</color>
+    <color name="darkBlue">#283593</color>
+    <color name="lightBlue">#6800F9</color>
+    <color name="facebookColor">#3b5998</color>
+    <color name="twitterColor">#00aced</color>
+    <color name="googleColor">#d62d20</color>
+    <color name="lightGray">#e0e0e0</color>
+    <color name="stolenBikeColor">#d50000</color>
+    <color name="recoveredBikeColor">#00C853</color>
+    <color name="shadowWindow">#46000000</color>
+    <color name="stolen_bike_area">#64fc0707</color>
+    <color name="recovered_bike_area">#6415ed02</color>
+
+</resources>
