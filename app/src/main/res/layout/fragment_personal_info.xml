@@ -133,7 +133,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="2dp"
                 android:layout_weight="1"
-                android:text="@string/sr_btn_siguiente"
+                android:text="@string/sr_btn_registrar"
                 android:textAppearance="@style/TextAppearance.AppCompat.Button" />
         </LinearLayout>
     </LinearLayout>

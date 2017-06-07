@@ -22,7 +22,6 @@ import com.bipo.javier.bipo.home.models.Report;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -31,13 +30,13 @@ import retrofit.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class EventsFragment extends Fragment {
+public class TabRecovered extends Fragment {
 
-    private RecyclerView rvEvents;
+    private RecyclerView rvRecoveredBikes;
     private String fhInicio = "";
     private String fhFin = "";
 
-    public EventsFragment() {
+    public TabRecovered() {
         // Required empty public constructor
     }
 
@@ -46,29 +45,20 @@ public class EventsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_events, container, false);
-        rvEvents = (RecyclerView)view.findViewById(R.id.RvEvents);
+        View view = inflater.inflate(R.layout.fragment_tab_recovered, container, false);
+        rvRecoveredBikes = (RecyclerView)view.findViewById(R.id.RvRecoveredBikes);
 
         //TODO:obtener la lista de bicicletas
-        reportList(1);
-
+        stolenList(1);
         return view;
     }
 
-    private void goToItemEventFragment(Bundle arguments) {
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        EventItemsFragment itemsFragment = new EventItemsFragment();
-        itemsFragment.setArguments(arguments);
-        ft.replace(R.id.RlyEvents,itemsFragment).commit();
-    }
-
-    private void reportList(int reportType) {
-       /* List<String> reportList = new ArrayList<>();
-        reportList.add("Robada");
-        reportList.add("Marca: GW");
-        reportList.add("Tipo: MONTAÑA");
-        reportList.add("Color: AZUL");*/
+    private void stolenList(int reportType) {
+       /* List<String> stolenList = new ArrayList<>();
+        stolenList.add("Robada");
+        stolenList.add("Marca: GW");
+        stolenList.add("Tipo: MONTAÑA");
+        stolenList.add("Color: AZUL");*/
         initDates();
         HomeRepository repo = new HomeRepository(getContext());
         //Call<GetReportResponse> call = repo.getReports(reportType, fhInicio, fhFin);
@@ -114,10 +104,6 @@ public class EventsFragment extends Fragment {
         });
     }
 
-    private void showMessage(String message) {
-
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-    }
     private void initDates() {
 
         Calendar calendar = Calendar.getInstance();
@@ -138,14 +124,31 @@ public class EventsFragment extends Fragment {
         System.out.println(fhInicio);
     }
 
+    public String dateFormat(int year, int month, int day) {
+
+        month += 1;
+        String monthFormat = String.valueOf(month);
+        //String monthFormat = "";
+        String dayFormat = String.valueOf(day);
+        //String dayFormat = "";
+        String date = "";
+        if (month < 10) {
+            monthFormat = "0" + month;
+        }
+        if (day < 10) {
+            dayFormat = "0" + day;
+        }
+        date = "" + year + monthFormat + dayFormat;
+        return date;
+    }
 
     public void initEvents(final ArrayList<Report> reportList) {
 
 
         RvEventsAdapter rvAdapter = new RvEventsAdapter(getActivity(), reportList);
-        rvEvents.setAdapter(rvAdapter);
-        rvEvents.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvEvents.addOnItemTouchListener(
+        rvRecoveredBikes.setAdapter(rvAdapter);
+        rvRecoveredBikes.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvRecoveredBikes.addOnItemTouchListener(
                 new RVItemTouchListener(getContext(), new RVItemTouchListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
@@ -174,7 +177,7 @@ public class EventsFragment extends Fragment {
 
                         //Argumentos del Bundle
                         Bundle arguments = new Bundle();
-                        arguments.putString("activity", "home");
+                        arguments.putString("activity", "reportBikes");
                         arguments.putInt("image", image);
                         arguments.putString("status", status);
                         arguments.putString("brand", brand);
@@ -188,22 +191,16 @@ public class EventsFragment extends Fragment {
         );
     }
 
-    public String dateFormat(int year, int month, int day) {
-
-        month += 1;
-        String monthFormat = String.valueOf(month);
-        //String monthFormat = "";
-        String dayFormat = String.valueOf(day);
-        //String dayFormat = "";
-        String date = "";
-        if (month < 10) {
-           monthFormat = "0" + month;
-        }
-        if (day < 10) {
-           dayFormat = "0" + day;
-        }
-        date = "" + year + monthFormat + dayFormat;
-        return date;
+    private void goToItemEventFragment(Bundle arguments) {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        EventItemsFragment itemsFragment = new EventItemsFragment();
+        itemsFragment.setArguments(arguments);
+        ft.replace(R.id.RlyBikesReports,itemsFragment).commit();
     }
 
+    private void showMessage(String message) {
+
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
 }

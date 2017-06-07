@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bipo.javier.bipo">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <uses-permission-sdk-23
         android:name="android.permission.INTERNET"
         android:required="true" />
@@ -11,9 +12,11 @@
     <uses-permission
         android:name="android.permission.INTERNET"
         android:required="true" />
+
     <uses-feature
         android:glEsVersion="0x00020000"
-        android:required="true"/>
+        android:required="true" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/bipologo"
@@ -23,12 +26,20 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"/>
+            android:value="@integer/google_play_services_version" />
 
-        <!--android:name="com.google.android.maps.v2.API_KEY" -->
+        <!-- android:name="com.google.android.maps.v2.API_KEY" -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA7-yBJAiBSJCJDBlFEvBBDaSj2zlSBTCw"/>
+            android:value="AIzaSyA7-yBJAiBSJCJDBlFEvBBDaSj2zlSBTCw" />
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/sr_facebook_app_id" />
+
+        <provider
+            android:name="com.facebook.FacebookContentProvider"
+            android:authorities="com.facebook.app.FacebookContentProvider374501632951706"
+            android:exported="true" />
 
         <activity android:name=".splashScreen.SplashScreenActivity">
             <intent-filter>
@@ -37,11 +48,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
         <activity android:name=".login.activities.LoginActivity" />
         <activity android:name=".login.register.RegisterActivity" />
         <activity android:name=".login.activities.PassRestaurationActivity" />
         <activity android:name=".login.register.ItemColorActivity" />
-        <activity android:name=".home.activities.HomeActivity"></activity>
+        <activity android:name=".home.activities.HomeActivity" />
+        <activity android:name=".home.activities.SettingsActivity" />
+        <activity android:name=".home.activities.InfoBipoActivity" />
+        <activity android:name=".home.activities.AccountActivity" />
+        <activity android:name=".home.activities.InsecureAreaActivity" />
+        <activity android:name=".home.activities.ReportBikesActivity" />
+        <activity android:name=".home.activities.PanicButtonActivity"></activity>
     </application>
 
 </manifest>

@@ -7,9 +7,13 @@ import com.bipo.javier.bipo.login.models.BikeStatesResponse;
 import com.bipo.javier.bipo.login.models.BikeTypesResponse;
 import com.bipo.javier.bipo.login.models.EmailResponse;
 import com.bipo.javier.bipo.login.models.LoginResponse;
+import com.bipo.javier.bipo.login.models.UserResponse;
 
 import retrofit.Call;
+import retrofit.http.Field;
+import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
+import retrofit.http.POST;
 import retrofit.http.Path;
 import retrofit.http.Query;
 
@@ -45,15 +49,15 @@ public interface IRestClient {
     Call<GetReportResponse> getReports(@Path("reportType") int reportType,
                                        @Query("fhInicio") String fcInicio,
                                        @Query("fhFin") String fhFin);
-/*
+
     @FormUrlEncoded
-    @POST("/api/Account/Register")
-    Call<RegisterResponse> registerUser(@Field("Email") String email,@Field("Name") String name,
-                                        @Field("LastName") String lastName,@Field("Password") String password,
-                                        @Field("ConfirmPassword") String confirmPass,@Field("Provider") String provider,
-                                        @Field("Identifier") String identifier,
-                                        @Field("DocumentTypeId")String docType,@Field("Document")String Document);
-    @GET("/api/Profile/GetStatus")
+    @POST("register")
+    Call<UserResponse> registerUser(@Field("name") String name, @Field("lastName") String lastName,
+                                    @Field("email") String email, @Field("birthdate") String birthdate,
+                                    @Field("cellphone") String cellphone, @Field("document") String document,
+                                    @Field("password") String password);
+
+   /* @GET("/api/Profile/GetStatus")
     Call<GetStatusResponse> getStatus();
 
     @GET("/api/Profile/GetImages")

@@ -17,8 +17,8 @@ public class AccountRepository {
         apiService = new RestClient(context, token).getApiService();
     }
 
-    public Call<LoginResponse> login(String user, String pwd) {
-        return apiService.login(user, pwd);
+    public Call<LoginResponse> login(String email, String pwd) {
+        return apiService.login(email, pwd);
     }
 
     public Call<EmailResponse> verifyEmail(String email) {
@@ -35,6 +35,11 @@ public class AccountRepository {
 
     public Call<BikeTypesResponse> getBikeTypes() {
         return apiService.getBikeTypes();
+    }
+
+    public Call<UserResponse> userRegister(String name, String lastName, String email, String birthDate,
+                                           String cellphone, String document, String password){
+        return apiService.registerUser(name, lastName, email, birthDate, cellphone, document, password);
     }
 
    /* public Call<RegisterResponse> RegisterUser(String email, String name, String lastName, String password,

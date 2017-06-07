@@ -1,0 +1,164 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="30dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginTop="30dp"
+    android:background="@drawable/gradient_window"
+    android:orientation="vertical"
+    tools:context="com.bipo.javier.bipo.home.fragments.ViewBikeFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="5dp"
+        tools:ignore="UselessParent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/titles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sr_title_bicicleta_vista" />
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="@string/sr_subtitle_donde_viste_bicicleta"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/EtViewAddress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:ems="10"
+                    android:hint="@string/sr_txt_agregar_direccion"
+                    android:inputType="textPostalAddress" />
+
+                <ImageButton
+                    android:id="@+id/imageButton"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/sr_cd_icon_googlemaps"
+                    android:tint="@color/colorPrimary"
+                    app:srcCompat="@android:drawable/ic_menu_mylocation" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/sr_txt_sube_fotos_bicicleta"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/ImgBtnFotoNuevaView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/app_name"
+                    app:srcCompat="@mipmap/ic_camera" />
+
+                <ImageButton
+                    android:id="@+id/ImgBtnPrevView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/sr_btn_anterior"
+                    app:srcCompat="@mipmap/ic_left_arrow" />
+
+                <ImageButton
+                    android:id="@+id/ImgBtnNextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/sr_btn_siguiente"
+                    app:srcCompat="@mipmap/ic_right_arrow" />
+
+                <ImageButton
+                    android:id="@+id/ImgBtnDeleteView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="0"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/app_name"
+                    app:srcCompat="@mipmap/ic_delete" />
+
+            </LinearLayout>
+
+            <ViewFlipper
+                android:id="@+id/VfpFlipperView"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginTop="10dp">
+
+            </ViewFlipper>
+
+            <TextView
+                android:id="@+id/textView9"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="@string/sr_txt_como_la_viste"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/editText3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/sr_txt_agrega_una_descripci_n"
+                android:inputType="textMultiLine" />
+
+            <Button
+                android:id="@+id/BtnViewBikeSend"
+                style="@style/defaultButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="@string/sr_btn_enviar" />
+        </LinearLayout>
+
+
+    </ScrollView>
+
+
+</LinearLayout>

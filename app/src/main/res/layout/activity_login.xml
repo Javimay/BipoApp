@@ -13,7 +13,7 @@
         android:id="@+id/textView7"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="25dp"
         android:text="@string/app_name"
         android:textAlignment="center"
         android:textColor="@android:color/black"
@@ -34,12 +34,11 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="320dp"
-        android:layout_height="345dp"
-        android:layout_centerInParent="false"
+        android:layout_height="280dp"
         android:layout_centerVertical="true"
         android:layout_marginEnd="50dp"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="105dp"
+        android:layout_marginTop="110dp"
         android:alpha="0.8"
         android:background="@drawable/gradient_window"
         android:contentDescription="@string/sr_cd_loginwindow"
@@ -50,7 +49,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="false"
         android:layout_centerVertical="true"
         android:layout_marginEnd="50dp"
         android:layout_marginStart="50dp"
@@ -127,59 +125,19 @@
                 android:text="@string/sr_btn_entrar" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView3"
+        <!-- <Button
+            android:id="@+id/BtnLoginFacebook"
+            style="@style/socialButtons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="@string/sr_txt_iniciar_con"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat"
-            android:textColor="@android:color/black"
-            android:textSize="20sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal"
-            android:weightSum="100">
-
-            <Button
-                android:id="@+id/button5"
-                style="@style/socialButtons"
-                android:layout_weight="33"
-                android:background="@color/facebookColor"
-                android:drawablePadding="1dp"
-                android:drawableStart="@mipmap/ic_facebook"
-                android:padding="5dp"
-                android:text="@string/sr_btn_facebook"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
-
-            <Button
-                android:id="@+id/button4"
-                style="@style/socialButtons"
-                android:layout_weight="33"
-                android:background="@color/twitterColor"
-                android:drawablePadding="1dp"
-                android:drawableStart="@mipmap/ic_twitter"
-                android:padding="8dp"
-                android:text="@string/sr_btn_twitter"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
-
-            <Button
-                android:id="@+id/button3"
-                style="@style/socialButtons"
-                android:layout_weight="33"
-                android:background="@color/googleColor"
-                android:drawablePadding="2dp"
-                android:drawableStart="@mipmap/ic_google"
-                android:padding="5dp"
-                android:text="@string/sr_btn_google"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
-
-
-        </LinearLayout>
+            android:background="@color/facebookColor"
+            android:drawablePadding="-30dp"
+            android:drawableStart="@mipmap/ic_facebook"
+            android:paddingEnd="30dp"
+            android:paddingStart="70dp"
+            android:text="@string/sr_btn_facebook"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textSize="18sp" />-->
 
     </LinearLayout>
 

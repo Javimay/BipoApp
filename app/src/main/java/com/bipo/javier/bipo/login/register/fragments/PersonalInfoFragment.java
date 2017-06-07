@@ -2,8 +2,8 @@ package com.bipo.javier.bipo.login.register.fragments;
 
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -18,29 +18,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
+import com.bipo.javier.bipo.home.activities.HomeActivity;
 import com.bipo.javier.bipo.login.models.AccountRepository;
-import com.bipo.javier.bipo.login.models.BikeBrand;
-import com.bipo.javier.bipo.login.models.BikeBrandsResponse;
-import com.bipo.javier.bipo.login.models.BikeColor;
-import com.bipo.javier.bipo.login.models.BikeColorsResponse;
-import com.bipo.javier.bipo.login.models.BikeType;
-import com.bipo.javier.bipo.login.models.BikeTypesResponse;
 import com.bipo.javier.bipo.login.models.EmailResponse;
+import com.bipo.javier.bipo.login.models.LoginResponse;
+import com.bipo.javier.bipo.login.models.User;
+import com.bipo.javier.bipo.login.models.UserResponse;
 import com.bipo.javier.bipo.login.utilities.Teclado;
-import com.squareup.okhttp.ResponseBody;
 
-import java.lang.annotation.Annotation;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 
 import retrofit.Call;
 import retrofit.Callback;
-import retrofit.Converter;
 import retrofit.Retrofit;
 
 
@@ -52,7 +44,7 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
 
     private EditText etNombres, etApellidos, etNumeroCel, etCedula, etCorreo, etContraseña, etConfirmación;
     private TextView tvFecha;
-    private String message;
+    private String message, birthdate;
     private static SimpleDateFormat simpleDateFormat;
     private boolean date, validateDate, okEmail;
     private int year, month, day;
@@ -104,7 +96,7 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
         } else if (v.getId() == R.id.BtNext) {
             //Todo: volver a activar la validacion y quitar el metodo de ir al otro fragment
             validatePersonalFields();
-            //ToBikeFragment();
+            //toHomeActivity();
         } else if (v.getId() == R.id.TvFecha) {
 
             showDatePicker();
@@ -134,11 +126,11 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
         }
         //Validacion de edad +12
         if (!date) {
-            Toast.makeText(getContext(), "Escoge tu fecha de nacimiento.", Toast.LENGTH_LONG).show();
+            showMessage("Escoge tu fecha de nacimiento.");
             return;
         }
         if (!validateDate) {
-            Toast.makeText(getContext(), "Debes ser mayor de 12 años para registrarte.", Toast.LENGTH_LONG).show();
+            showMessage("Debes ser mayor de 12 años para registrarte.");
             return;
         }
         //Validación del numero de celular.
@@ -184,8 +176,116 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
             return;
         }
 
-        ToBikeFragment();
+        registerUser();
     }
+
+    private void registerUser() {
+        String name = etNombres.getText().toString();
+        String lastName = etApellidos.getText().toString();
+        final String email = etCorreo.getText().toString();
+        String cellphone = etNumeroCel.getText().toString();
+        String document = etCedula.getText().toString();
+        final String password = etContraseña.getText().toString();
+
+        AccountRepository repo = new AccountRepository(getContext());
+        Call<UserResponse> call = repo.userRegister(name, lastName, email, birthdate, cellphone,
+                                                        document,password);
+        final UserResponse userResponse = new UserResponse();
+        call.enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<UserResponse> response, Retrofit retrofit) {
+
+                if ((response.body().getError()) && response.message() == null){
+
+                    showMessage("Ocurrió un error en la red.");
+                    System.out.println(userResponse.getMessage());
+                    System.out.println(response.isSuccess());
+                    System.out.println(response.message());
+                    System.out.println(response.code());
+
+                }
+
+                if (response.isSuccess() && !response.body().getError()){
+
+                    System.out.println(response.message());
+                    showMessage("Te has registrado exitosamente. \n¡Bienvenido a bipo!");
+                    getInHome(email, password);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                userResponse.setMessage(t.getMessage());
+                showMessage("No se pudo establecer la conexión de la red. " +
+                        "Verifica que tengas conexión a internet.");
+            }
+        });
+
+    }
+
+    private void getInHome(String email, String password) {
+
+        AccountRepository repo = new AccountRepository(getContext());
+        Call<LoginResponse> call = repo.login(email, password);
+        final LoginResponse loginResponse = new LoginResponse();
+        call.enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<LoginResponse> response, Retrofit retrofit) {
+
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    if (response.code() == 400) {
+                        showMessage("Correo o contraseña incorrecta.");
+                        System.out.println(response.isSuccess());
+                        System.out.println(response.message());
+                        System.out.println(response.code());
+                        loginResponse.setMessage(response.message());
+                    } else {
+                        showMessage("Ocurrió un error en la red.");
+                        System.out.println(loginResponse.getMessage());
+                    }
+                }
+                if (response != null && response.isSuccess() && response.message() != null) {
+                    String name = "", lastName = "", email = "", birthday = "", phone = "", documentid = "", token = "";
+                    ArrayList<User> userList = response.body().getUser();
+                    if (!response.body().getUser().isEmpty()) {
+
+                        for (User user : userList) {
+                            name = user.getName();
+                            lastName = user.getLastname();
+                            email = user.getEmail();
+                            birthday = user.getBirthdate();
+                            phone = user.getCellphone();
+                            documentid = user.getDocumentid();
+                            token = user.getToken();
+
+                            System.out.println("\nNombre: " + user.getName() +
+                                    "\nApellido: " + user.getLastname() +
+                                    "\nCorreo: " + user.getEmail() +
+                                    "\nNacimiento: " + user.getBirthdate() +
+                                    "\nCelular: " + user.getCellphone() +
+                                    "\nCedula: " + user.getDocumentid() +
+                                    "\nNickname: " + user.getNickname() +
+                                    "\nToken: " + user.getToken());
+                        }
+                        goToHomeActivity(name, lastName, email, birthday, phone, documentid, token);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                loginResponse.setMessage(t.getMessage());
+                showMessage("No se pudo establecer la conexión de la red. " +
+                        "Verifica que tengas conexión a internet.");
+            }
+        });
+
+    }
+
 
     private void validateDate(int userYear, int userMonth, int userDay) {
         int currentMonth = 0, currentDay = 0, userYears = 0;
@@ -199,8 +299,27 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
         if (userYears < 12) {
             validateDate = false;
         } else {
+            birthdate = dateFormat(userYear, userMonth, userDay);
             validateDate = true;
         }
+    }
+
+    public String dateFormat(int year, int month, int day) {
+
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        String monthFormat = String.valueOf(month);
+        String dayFormat = String.valueOf(day);
+        String date;
+        if (month < 10) {
+            monthFormat = "0" + month;
+        }
+        if (day < 10) {
+            dayFormat = "0" + day;
+        }
+        date = year + "-" + monthFormat + "-" + dayFormat;
+        return date;
     }
 
     private boolean validateDocument() {
@@ -239,12 +358,19 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
         return ok;
     }
 
-    private void ToBikeFragment() {
-        BikeFragment fragment = new BikeFragment();
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.FlFragmentRegister, fragment);
-        ft.commit();
+    private void goToHomeActivity(String name, String lastName, String email, String birthday, String phone,
+                                  String documentId, String token) {
+
+        Intent intent = new Intent(getActivity(), HomeActivity.class);
+        intent.putExtra("name", name);
+        intent.putExtra("lastName", lastName);
+        intent.putExtra("email", email);
+        intent.putExtra("birthdate", birthday);
+        intent.putExtra("phone", phone);
+        intent.putExtra("documentId", documentId);
+        intent.putExtra("token", token);
+
+        startActivity(intent);
     }
 
     @Override

@@ -1,0 +1,14 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/RlyStolenBikes"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.bipo.javier.bipo.home.fragments.TabStolen">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/RvStolenBikes"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</RelativeLayout>

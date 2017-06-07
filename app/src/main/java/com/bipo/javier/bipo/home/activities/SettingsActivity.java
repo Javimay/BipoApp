@@ -1,7 +1,7 @@
 package com.bipo.javier.bipo.home.activities;
 
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
@@ -10,62 +10,47 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.Toast;
-import android.content.Intent;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.home.fragments.EventsFragment;
 import com.bipo.javier.bipo.login.activities.LoginActivity;
 
-public class HomeActivity extends AppCompatActivity implements View.OnClickListener,
-                                                    PopupMenu.OnMenuItemClickListener {
+public class SettingsActivity extends AppCompatActivity implements View.OnClickListener,
+        PopupMenu.OnMenuItemClickListener {
 
     private ImageButton ibtnLeftButton;
-    private ImageButton ibtnRigthButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_settings);
+
         Toolbar bipoActionBar = (Toolbar)findViewById(R.id.bipoActionBar);
-        ibtnRigthButton = (ImageButton)findViewById(R.id.ImbRight);
-        ibtnRigthButton.setImageResource(R.mipmap.ic_settings);
+
+        ImageButton ibtnRigthButton = (ImageButton)findViewById(R.id.ImbRight);
+        ibtnRigthButton.setImageResource(R.mipmap.ic_back_arrow);
+        //ibtnRigthButton.setImageResource(R.mipmap.ic_settings);
         ibtnLeftButton = (ImageButton)findViewById(R.id.ImbLeft);
         setSupportActionBar(bipoActionBar);
         ibtnLeftButton.setOnClickListener(this);
         ibtnRigthButton.setOnClickListener(this);
-        wellcomeUser();
-        initRvEvents();
-
     }
 
-    private void wellcomeUser() {
-        String name = getIntent().getExtras().getString("name");
-        String lastName = getIntent().getExtras().getString("lastName");
-        showMessage("Bienvenido " + name + " " + lastName);
-    }
+    /*@Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
 
-    /**Inicia el fragmento con el RecyclerView de los eventos del home*/
-    private void initRvEvents() {
-        Bundle bundle = getIntent().getExtras();
-        /*String name = bundle.getString("name");
-        String lastName = bundle.getString("lastName");
-        String email = bundle.getString("email");
-        String birthdate = bundle.getString("birthdate");
-        String phone = bundle.getString("phone");
-        String documentId = bundle.getString("documentId");
-        String token = bundle.getString("token");*/
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        EventsFragment eventsFragment = new EventsFragment();
-        eventsFragment.setArguments(bundle);
-        ft.add(R.id.RlyEvents, eventsFragment).commit();
-    }
+        Toolbar bipoActionBar = (Toolbar)findViewById(R.id.bipoActionBar);
 
-    public void showMessage(String message) {
+        ImageButton ibtnRigthButton = (ImageButton)findViewById(R.id.ImbRight);
+        //ibtnRigthButton.setImageResource(R.mipmap.ic_left_arrow);
+        //ibtnRigthButton.setImageResource(R.mipmap.ic_settings);
+        ibtnLeftButton = (ImageButton)findViewById(R.id.ImbLeft);
+        setSupportActionBar(bipoActionBar);
+        //ibtnLeftButton.setOnClickListener(this);
+        //ibtnRigthButton.setOnClickListener(this);
 
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
+        return super.onPrepareOptionsMenu(menu);
+    }*/
+
 
     @Override
     public void onClick(View v) {
@@ -73,13 +58,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             openMenu();
         }
         if (v.getId() == R.id.ImbRight){
-            openSettings();
+            this.onBackPressed();
         }
-    }
-
-    private void openSettings() {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
     }
 
     private void openMenu() {
@@ -92,9 +72,10 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-
         switch (item.getItemId()){
 
+            case R.id.homeItem:
+                goToHomeActivity();
             case R.id.panicButtonItem:
                 goToButtonPanicActivity();
                 return true;
@@ -122,6 +103,11 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void goToHomeActivity() {
+        Intent intent = new Intent(this, HomeActivity.class);
+        startActivity(intent);
     }
 
     private void goToButtonPanicActivity() {

@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -113,7 +115,16 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
     }
 
     private void goToSawBikeFragment() {
-
+        int idContainerFragment = 0;
+        if (getArguments().getString("activity") == "home"){
+            idContainerFragment = R.id.RlyEvents;
+        }else  if (getArguments().getString("activity") == "reportBikes"){
+            idContainerFragment = R.id.RlyBikesReports;
+        }
+        FragmentManager fr = getFragmentManager();
+        FragmentTransaction ft = fr.beginTransaction();
+        ViewBikeFragment viewBikeFragment = new ViewBikeFragment();
+        ft.replace(idContainerFragment, viewBikeFragment).commit();
     }
 
     @Override

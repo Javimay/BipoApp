@@ -1,32 +1,38 @@
 package com.bipo.javier.bipo.home.activities;
 
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.animation.ObjectAnimator;
+import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.content.Intent;
+import android.content.Context;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.home.fragments.EventsFragment;
 import com.bipo.javier.bipo.login.activities.LoginActivity;
 
-public class HomeActivity extends AppCompatActivity implements View.OnClickListener,
-                                                    PopupMenu.OnMenuItemClickListener {
+public class PanicButtonActivity extends AppCompatActivity implements View.OnClickListener,
+                                                            PopupMenu.OnMenuItemClickListener{
 
     private ImageButton ibtnLeftButton;
     private ImageButton ibtnRigthButton;
+    private ProgressBar progressBar;
+    private ImageButton imgBtnPanicButton;
+    private Runnable rotationRunnable = null;
+    private ObjectAnimator anim;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_panic_button);
         Toolbar bipoActionBar = (Toolbar)findViewById(R.id.bipoActionBar);
         ibtnRigthButton = (ImageButton)findViewById(R.id.ImbRight);
         ibtnRigthButton.setImageResource(R.mipmap.ic_settings);
@@ -34,37 +40,56 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(bipoActionBar);
         ibtnLeftButton.setOnClickListener(this);
         ibtnRigthButton.setOnClickListener(this);
-        wellcomeUser();
-        initRvEvents();
+        initComponets();
 
     }
 
-    private void wellcomeUser() {
-        String name = getIntent().getExtras().getString("name");
-        String lastName = getIntent().getExtras().getString("lastName");
-        showMessage("Bienvenido " + name + " " + lastName);
+    private void initComponets() {
+
+        imgBtnPanicButton = (ImageButton) findViewById(R.id.ImgBtnPanicButton);
+        progressBar = (ProgressBar) findViewById(R.id.PgBarPanicButton);
+        imgBtnPanicButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+                    anim = ObjectAnimator.ofInt(progressBar, "progress", 0, 100);
+                    anim.setDuration(4000);
+                    anim.setInterpolator(new DecelerateInterpolator());
+                    anim.start();
+
+                    v.post(rotationRunnable);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+
+                    if (progressBar.getProgress() == 100) {
+
+                        progressBar.setProgressDrawable(ContextCompat.getDrawable(getApplicationContext(),
+                                R.drawable.ok_circular_progress_bar));
+                        anim = ObjectAnimator.ofInt(progressBar, "progress", 99, 100);
+                        anim.start();
+
+                        sendReport();
+                    } else {
+                        anim.cancel();
+                        anim = ObjectAnimator.ofInt(progressBar, "progress", progressBar.getProgress(), 0);
+                        anim.setDuration(2000);
+                        anim.setInterpolator(new DecelerateInterpolator());
+                        anim.start();
+                    }
+                }
+                return true;
+            }
+        });
     }
 
-    /**Inicia el fragmento con el RecyclerView de los eventos del home*/
-    private void initRvEvents() {
-        Bundle bundle = getIntent().getExtras();
-        /*String name = bundle.getString("name");
-        String lastName = bundle.getString("lastName");
-        String email = bundle.getString("email");
-        String birthdate = bundle.getString("birthdate");
-        String phone = bundle.getString("phone");
-        String documentId = bundle.getString("documentId");
-        String token = bundle.getString("token");*/
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        EventsFragment eventsFragment = new EventsFragment();
-        eventsFragment.setArguments(bundle);
-        ft.add(R.id.RlyEvents, eventsFragment).commit();
-    }
+    private void sendReport() {
 
-    public void showMessage(String message) {
-
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        showMessage("Creando Reporte.");
+        //TODO: Des comentar para cambiar el color de la ProgressBar al finalizar el servicio.
+        /*progressBar.setProgressDrawable(ContextCompat.getDrawable(getApplicationContext(),
+                R.drawable.circular_progress_bar));*/
     }
 
     @Override
@@ -95,8 +120,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
         switch (item.getItemId()){
 
-            case R.id.panicButtonItem:
-                goToButtonPanicActivity();
+            case R.id.homeItem:
+                goToHomeActivity();
                 return true;
 
             case R.id.reportBikesItem:
@@ -124,8 +149,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void goToButtonPanicActivity() {
-        Intent intent = new Intent(this, PanicButtonActivity.class);
+    private void goToHomeActivity() {
+        Intent intent = new Intent(this, HomeActivity.class);
         startActivity(intent);
     }
 
@@ -152,5 +177,10 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private void logoutAccount() {
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
+    }
+
+    public void showMessage(String message) {
+
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }
