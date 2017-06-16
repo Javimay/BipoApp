@@ -82,7 +82,7 @@ public interface IRestClient {
     @Multipart
     @POST("bikePhoto")
     Call<BikesResponse> registerBikePhoto(@Query("bikeName") String bikeName, @Query("token") String token,
-                                          @Part("image") RequestBody bikeImage);
+                                          @Part("image\"; filename=\"bike1.jpg\"") RequestBody image);
 
 
 
