@@ -1,5 +1,8 @@
 package com.bipo.javier.bipo.data;
 
+import com.bipo.javier.bipo.home.data.BikeNameFile;
+import com.bipo.javier.bipo.home.models.BikesResponse;
+import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.GetReportResponse;
 import com.bipo.javier.bipo.login.models.BikeBrandsResponse;
 import com.bipo.javier.bipo.login.models.BikeColorsResponse;
@@ -8,12 +11,21 @@ import com.bipo.javier.bipo.login.models.BikeTypesResponse;
 import com.bipo.javier.bipo.login.models.EmailResponse;
 import com.bipo.javier.bipo.login.models.LoginResponse;
 import com.bipo.javier.bipo.login.models.UserResponse;
+import com.squareup.okhttp.MultipartBuilder;
+import com.squareup.okhttp.RequestBody;
+
+import java.io.File;
+import java.util.Map;
 
 import retrofit.Call;
+import retrofit.http.Body;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
+import retrofit.http.Multipart;
 import retrofit.http.POST;
+import retrofit.http.Part;
+import retrofit.http.PartMap;
 import retrofit.http.Path;
 import retrofit.http.Query;
 
@@ -22,7 +34,6 @@ import retrofit.http.Query;
  */
 
 public interface IRestClient {
-
 
     //LOGIN
     //@FormUrlEncoded
@@ -56,6 +67,24 @@ public interface IRestClient {
                                     @Field("email") String email, @Field("birthdate") String birthdate,
                                     @Field("cellphone") String cellphone, @Field("document") String document,
                                     @Field("password") String password);
+
+    @GET("bikes/{userName}")
+    Call<GetBikesResponse> getAccountBikes(@Path("userName") String token);
+
+    @FormUrlEncoded
+    @POST("bike")
+    Call<BikesResponse> registerBike(@Field("bikeName") String bikeName, @Field("idBrand") int idBrand,
+                                     @Field("idColor") int idcolor, @Field("idFrame") String idFrame,
+                                     @Field("idType") int idType, @Field("bikeFeatures") String bikeFeatures,
+                                     @Field("idBikeState") int idBikeState, @Field("token") String token);
+
+    //@FormUrlEncoded
+    @Multipart
+    @POST("bikePhoto")
+    Call<BikesResponse> registerBikePhoto(@Query("bikeName") String bikeName, @Query("token") String token,
+                                          @Part("image") RequestBody bikeImage);
+
+
 
    /* @GET("/api/Profile/GetStatus")
     Call<GetStatusResponse> getStatus();

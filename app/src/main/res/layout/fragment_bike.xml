@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/BackShadow"
     tools:context=".login.register.fragments.BikeFragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -14,12 +15,14 @@
         android:layout_margin="10dp"
         android:alpha="0.9"
         android:contentDescription="@string/sr_cd_ventana_redondeada"
+        android:visibility="invisible"
         app:srcCompat="@drawable/gradient_window" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="10dp"
+        android:background="@drawable/gradient_window"
         android:fillViewport="true"
         tools:ignore="UselessParent">
 

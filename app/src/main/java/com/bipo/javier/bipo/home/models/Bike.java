@@ -16,7 +16,16 @@ public class Bike {
     private String bikeType;
     private String bikeStatus;
     private String bikeFeatures;
+    private boolean defaultBike;
     private List<File> bikePhotos;
+
+    public boolean isDefaultBike() {
+        return defaultBike;
+    }
+
+    public void setDefaultBike(boolean defaultBike) {
+        this.defaultBike = defaultBike;
+    }
 
     public String getBikeStatus() {
         return bikeStatus;

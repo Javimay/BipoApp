@@ -4,6 +4,10 @@ import android.content.Context;
 
 import com.bipo.javier.bipo.data.IRestClient;
 import com.bipo.javier.bipo.data.RestClient;
+import com.squareup.okhttp.RequestBody;
+
+import java.io.File;
+import java.util.Map;
 
 import retrofit.Call;
 
@@ -22,5 +26,20 @@ public class HomeRepository {
 
     public Call<GetReportResponse> getReports(int reportType, String fhInicio, String fhFin) {
         return apiService.getReports(reportType, fhInicio, fhFin);
+    }
+
+    public Call<GetBikesResponse> getAccountBikes(String token) {
+        return apiService.getAccountBikes(token);
+    }
+
+    public Call<BikesResponse> bikeRegister(String bikeName, int idBrand,int idColor,String idFrame,
+                                            int idType, String bikeFeatures, int idBikeState, String token){
+        return apiService.registerBike(bikeName, idBrand, idColor, idFrame, idType, bikeFeatures,
+                idBikeState, token);
+    }
+
+    public Call<BikesResponse> registerBikePhoto(String bikeName, String token,
+                                                 RequestBody bikePhoto){
+        return apiService.registerBikePhoto(bikeName, token, bikePhoto);
     }
 }

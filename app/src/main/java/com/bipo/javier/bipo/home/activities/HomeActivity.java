@@ -1,7 +1,9 @@
 package com.bipo.javier.bipo.home.activities;
 
+import android.content.SharedPreferences;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
@@ -12,10 +14,13 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import android.content.Intent;
+import android.content.Context;
 
 import com.bipo.javier.bipo.R;
 import com.bipo.javier.bipo.home.fragments.EventsFragment;
 import com.bipo.javier.bipo.login.activities.LoginActivity;
+
+
 
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener,
                                                     PopupMenu.OnMenuItemClickListener {
@@ -34,9 +39,35 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(bipoActionBar);
         ibtnLeftButton.setOnClickListener(this);
         ibtnRigthButton.setOnClickListener(this);
+        getUserInformation();
         wellcomeUser();
         initRvEvents();
 
+    }
+
+    private void getUserInformation() {
+
+        SharedPreferences preferences = getSharedPreferences("UserInfo", 0);
+        SharedPreferences.Editor editor = preferences.edit();
+        Intent intent = getIntent();
+
+        String name = intent.getStringExtra("name");
+        String lastName = intent.getStringExtra("lastName");
+        String email = intent.getStringExtra("email");
+        String birthdate = intent.getStringExtra("birthdate");
+        String phone = intent.getStringExtra("phone");
+        String documentId = intent.getStringExtra("documentId");
+        String userName= intent.getStringExtra("userName");
+        String token = intent.getStringExtra("token");
+        editor.putString("name", name);
+        editor.putString("lastName", lastName);
+        editor.putString("email", email);
+        editor.putString("birthdate", birthdate);
+        editor.putString("phone", phone);
+        editor.putString("documentId", documentId);
+        editor.putString("userName", userName);
+        editor.putString("token", token);
+        editor.apply();
     }
 
     private void wellcomeUser() {
@@ -47,18 +78,12 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     /**Inicia el fragmento con el RecyclerView de los eventos del home*/
     private void initRvEvents() {
-        Bundle bundle = getIntent().getExtras();
-        /*String name = bundle.getString("name");
-        String lastName = bundle.getString("lastName");
-        String email = bundle.getString("email");
-        String birthdate = bundle.getString("birthdate");
-        String phone = bundle.getString("phone");
-        String documentId = bundle.getString("documentId");
-        String token = bundle.getString("token");*/
+        //Bundle bundle = new Bundle();
+
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         EventsFragment eventsFragment = new EventsFragment();
-        eventsFragment.setArguments(bundle);
+        //eventsFragment.setArguments(bundle);
         ft.add(R.id.RlyEvents, eventsFragment).commit();
     }
 

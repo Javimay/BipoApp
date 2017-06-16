@@ -10,6 +10,26 @@
         android:id="@+id/bipoActionBar"
         layout="@layout/bipo_actionbar" />
 
+    <RelativeLayout
+        android:id="@+id/RlyMakeReport"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/bipoActionBar">
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/TvMakeReport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/bipoActionBar"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/sr_txt_crear_reporte"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="20sp" />
+
     <ImageButton
         android:id="@+id/ImgBtnPanicButton"
         android:layout_width="250dp"
@@ -19,18 +39,30 @@
         android:background="@android:color/transparent"
         android:contentDescription="@string/sr_cd_boton_panico"
         android:onClick="sendReport"
-        app:srcCompat="@drawable/wheel" />
+        app:srcCompat="@drawable/panic_button" />
 
     <ProgressBar
         android:id="@+id/PgBarPanicButton"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="30dp"
         android:indeterminate="false"
         android:max="100"
         android:progress="0"
-        android:progressDrawable="@drawable/circular_progress_bar" />
+        android:progressDrawable="@drawable/circular_progress_bar"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="false"
+        android:layout_below="@+id/PgBarPanicButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="@string/sr_txt_panic_button"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="20sp" />
 </RelativeLayout>

@@ -99,7 +99,8 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
-                    String name = "", lastName = "", email = "", birthday = "", phone = "", documentid = "", token = "";
+                    String name = "", lastName = "", email = "", birthday = "", phone = "",
+                            documentid = "", userName = "", token = "";
                     ArrayList<User> userList = response.body().getUser();
                     if (!response.body().getUser().isEmpty()) {
 
@@ -110,6 +111,7 @@ public class LoginActivity extends AppCompatActivity {
                             birthday = user.getBirthdate();
                             phone = user.getCellphone();
                             documentid = user.getDocumentid();
+                            userName = user.getNickname();
                             token = user.getToken();
 
                             System.out.println("\nNombre: " + user.getName() +
@@ -121,7 +123,8 @@ public class LoginActivity extends AppCompatActivity {
                                     "\nNickname: " + user.getNickname() +
                                     "\nToken: " + user.getToken());
                         }
-                        goToHomeActivity(name, lastName, email, birthday, phone, documentid, token);
+                        goToHomeActivity(name, lastName, email, birthday, phone, documentid,
+                                userName, token);
                     }
                 }
             }
@@ -139,7 +142,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void goToHomeActivity(String name, String lastName, String email, String birthday, String phone,
-                                  String documentId, String token) {
+                                  String documentId, String userName, String token) {
         Intent intent = new Intent(this, HomeActivity.class);
         intent.putExtra("name", name);
         intent.putExtra("lastName", lastName);
@@ -147,6 +150,7 @@ public class LoginActivity extends AppCompatActivity {
         intent.putExtra("birthdate", birthday);
         intent.putExtra("phone", phone);
         intent.putExtra("documentId", documentId);
+        intent.putExtra("userName", userName);
         intent.putExtra("token", token);
 
         startActivity(intent);

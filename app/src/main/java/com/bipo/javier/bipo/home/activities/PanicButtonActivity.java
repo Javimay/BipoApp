@@ -2,6 +2,8 @@ package com.bipo.javier.bipo.home.activities;
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,6 +19,7 @@ import android.widget.Toast;
 import android.content.Context;
 
 import com.bipo.javier.bipo.R;
+import com.bipo.javier.bipo.home.fragments.MakeReportFragment;
 import com.bipo.javier.bipo.login.activities.LoginActivity;
 
 public class PanicButtonActivity extends AppCompatActivity implements View.OnClickListener,
@@ -100,6 +103,17 @@ public class PanicButtonActivity extends AppCompatActivity implements View.OnCli
         if (v.getId() == R.id.ImbRight){
             openSettings();
         }
+        if (v.getId() == R.id.TvMakeReport){
+            goToMakeReport();
+        }
+    }
+
+    private void goToMakeReport() {
+
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        MakeReportFragment reportFragment = new MakeReportFragment();
+        ft.add(R.id.RlyMakeReport, reportFragment).commit();
     }
 
     private void openSettings() {

@@ -54,6 +54,12 @@
     <string name="sr_itmtxt_bike_brand">Marca: %s</string>
     <string name="sr_itmtxt_bike_type">Tipo: %s</string>
     <string name="sr_itmtxt_bike_color">Color: %s</string>
+    <string name="sr_itmtxt_bike_id">Id: %s</string>
+    <string name="sr_account_info_name">Nombres: %s</string>
+    <string name="sr_account_info_last_name">Apellidos: %s</string>
+    <string name="sr_account_info_email">Correo: %s</string>
+    <string name="sr_account_info_document_id">Cédula: %s</string>
+    <string name="sr_account_info_phone">Celular: %s</string>
     <string name="sr_facebook_app_id">374501632951706</string>
     <string name="sr_menu_home">Home</string>
     <string name="sr_menu_boton_panico">Boton de pánico</string>
@@ -85,4 +91,14 @@
     <string name="sr_txt_bipo_information_app">bipo es creado por ingenieros de la unicersidad los Libertadores.</string>
     <string name="sr_cd_bipo_logo">logo bipo</string>
     <string name="sr_cd_boton_panico">Botón de pánico</string>
+    <string name="sr_txt_panic_button">Mantén oprimido el botón de pánico para reportar una bicicleta robada.</string>
+    <string name="sr_txt_crear_reporte">Crear reporte</string>
+    <string name="sr_txt_cambiar_contrasena">Cambiar contraseña</string>
+    <string name="sr_title_bicicletas">Bicicletas</string>
+    <string name="sr_title_perfil_usuario">Perfil de usuario</string>
+    <string name="sr_cd_bicicleta">Bicicleta</string>
+    <string name="sr_cd_borrar_bicicleta">Borrar bicicleta</string>
+    <string name="sr_cd_bicicleta_default">Bicicleta por default</string>
+    <string name="sr_cd_editar">Botón editar</string>
+    <string name="sr_btn_registrar_nueva_bicicleta">Registrar una nueva bicicleta</string>
 </resources>
