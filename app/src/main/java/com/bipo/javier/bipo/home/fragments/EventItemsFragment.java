@@ -70,24 +70,6 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
         return view;
     }
 
-    //TODO:Método para obtener los permisos de GPS del usuario.
-    /*private void getMapLocation() {
-
-        googleMap.getUiSettings().setMyLocationButtonEnabled(false);
-        *//*if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-            googleMap.setMyLocationEnabled(true);
-
-        }
-
-        MapsInitializer.initialize(this.getActivity());*//*
-
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(43.1, -87.9), 10);
-        googleMap.animateCamera(cameraUpdate);
-    }*/
-
     private void initComponents() {
 
         resources = getResources();
@@ -119,12 +101,12 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
         if (getArguments().getString("activity") == "home"){
             idContainerFragment = R.id.RlyEvents;
         }else  if (getArguments().getString("activity") == "reportBikes"){
-            idContainerFragment = R.id.RlyBikesReports;
+            idContainerFragment = R.id.pager;
         }
         FragmentManager fr = getFragmentManager();
         FragmentTransaction ft = fr.beginTransaction();
         ViewBikeFragment viewBikeFragment = new ViewBikeFragment();
-        ft.replace(idContainerFragment, viewBikeFragment).commit();
+        ft.replace(idContainerFragment, viewBikeFragment).addToBackStack(null).commit();
     }
 
     @Override

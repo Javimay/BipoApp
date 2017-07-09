@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/BackShadow"
-    tools:context=".login.register.fragments.BikeFragment">
+    tools:context=".account.fragments.BikeFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -237,7 +237,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="2dp"
                     android:layout_weight="1"
-                    android:text="@string/sr_btn_anterior"
+                    android:text="@string/sr_btn_cancelar"
                     android:textAppearance="@style/TextAppearance.AppCompat.Button"
                     tools:ignore="NestedWeights" />
 

@@ -4,11 +4,10 @@ import android.content.Context;
 
 import com.bipo.javier.bipo.data.IRestClient;
 import com.bipo.javier.bipo.data.RestClient;
+import com.bipo.javier.bipo.account.models.BikesResponse;
 import com.squareup.okhttp.RequestBody;
 
-import java.io.File;
-import java.util.Map;
-
+import okhttp3.MultipartBody;
 import retrofit.Call;
 
 /**
@@ -32,7 +31,7 @@ public class HomeRepository {
         return apiService.getAccountBikes(token);
     }
 
-    public Call<BikesResponse> bikeRegister(String bikeName, int idBrand,int idColor,String idFrame,
+    public Call<BikesResponse> bikeRegister(String bikeName, int idBrand, int idColor, String idFrame,
                                             int idType, String bikeFeatures, int idBikeState, String token){
         return apiService.registerBike(bikeName, idBrand, idColor, idFrame, idType, bikeFeatures,
                 idBikeState, token);

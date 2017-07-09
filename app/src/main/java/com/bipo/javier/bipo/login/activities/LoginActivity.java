@@ -2,6 +2,7 @@ package com.bipo.javier.bipo.login.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,15 +18,6 @@ import com.bipo.javier.bipo.login.models.User;
 import com.bipo.javier.bipo.login.models.LoginResponse;
 import com.bipo.javier.bipo.login.register.RegisterActivity;
 import com.bipo.javier.bipo.login.utilities.Teclado;
-import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,7 +32,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
     private String email, password;
-    private AccessToken accessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,8 +114,19 @@ public class LoginActivity extends AppCompatActivity {
                                     "\nNickname: " + user.getNickname() +
                                     "\nToken: " + user.getToken());
                         }
-                        goToHomeActivity(name, lastName, email, birthday, phone, documentid,
-                                userName, token);
+                        SharedPreferences preferences = getSharedPreferences("UserInfo", 0);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putString("name", name);
+                        editor.putString("lastName", lastName);
+                        editor.putString("email", email);
+                        editor.putString("birthdate", birthday);
+                        editor.putString("phone", phone);
+                        editor.putString("documentId", documentid);
+                        editor.putString("userName", userName);
+                        editor.putString("token", token);
+                        editor.apply();
+                        goToHomeActivity();
+                        wellcomeUser(name, lastName);
                     }
                 }
             }
@@ -141,18 +143,8 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void goToHomeActivity(String name, String lastName, String email, String birthday, String phone,
-                                  String documentId, String userName, String token) {
+    private void goToHomeActivity() {
         Intent intent = new Intent(this, HomeActivity.class);
-        intent.putExtra("name", name);
-        intent.putExtra("lastName", lastName);
-        intent.putExtra("email", email);
-        intent.putExtra("birthdate", birthday);
-        intent.putExtra("phone", phone);
-        intent.putExtra("documentId", documentId);
-        intent.putExtra("userName", userName);
-        intent.putExtra("token", token);
-
         startActivity(intent);
     }
 
@@ -169,6 +161,10 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void wellcomeUser(String name, String lastName) {
+
+        showMessage("Bienvenido " + name + " " + lastName);
+    }
     public void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }

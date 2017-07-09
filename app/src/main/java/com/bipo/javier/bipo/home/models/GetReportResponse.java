@@ -1,5 +1,7 @@
 package com.bipo.javier.bipo.home.models;
 
+import com.bipo.javier.bipo.report.models.Report;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 

@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import android.content.Context;
 
-import com.bipo.javier.bipo.login.models.AccountRepository;
-import com.bipo.javier.bipo.login.models.BikeState;
-import com.bipo.javier.bipo.login.models.BikeStatesResponse;
-import com.bipo.javier.bipo.report.ReportRepository;
+import com.bipo.javier.bipo.report.models.BikeState;
+import com.bipo.javier.bipo.report.models.BikeStatesResponse;
+import com.bipo.javier.bipo.report.models.ReportRepository;
 
 import retrofit.Call;
 import retrofit.Callback;

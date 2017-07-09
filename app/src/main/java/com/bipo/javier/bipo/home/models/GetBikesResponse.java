@@ -1,5 +1,7 @@
 package com.bipo.javier.bipo.home.models;
 
+import com.bipo.javier.bipo.account.models.Bike;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 

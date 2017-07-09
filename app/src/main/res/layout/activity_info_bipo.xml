@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.bipo.javier.bipo.home.activities.InfoBipoActivity">
+    tools:context="com.bipo.javier.bipo.info.activities.InfoBipoActivity">
 
     <include
         android:id="@+id/bipoActionBar"
@@ -15,6 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/bipoActionBar"
+        android:layout_margin="10dp"
+        android:background="@drawable/gradient_window"
         android:orientation="vertical"
         android:padding="5dp"
         tools:ignore="UseCompoundDrawables">
@@ -70,13 +72,5 @@
             android:contentDescription="@string/divider" />
 
     </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/RlyInfoContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/bipoActionBar">
-
-    </RelativeLayout>
 
 </RelativeLayout>

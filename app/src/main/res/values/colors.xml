@@ -18,5 +18,6 @@
     <color name="stolen_bike_area">#64fc0707</color>
     <color name="recovered_bike_area">#6415ed02</color>
     <color name="BackShadow">#64000000</color>
+    <color name="itemChecked">#78ffffff</color>
 
 </resources>

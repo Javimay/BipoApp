@@ -1,31 +1,26 @@
 package com.bipo.javier.bipo.data;
 
-import com.bipo.javier.bipo.home.data.BikeNameFile;
-import com.bipo.javier.bipo.home.models.BikesResponse;
+import com.bipo.javier.bipo.account.models.BikesResponse;
 import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.GetReportResponse;
-import com.bipo.javier.bipo.login.models.BikeBrandsResponse;
-import com.bipo.javier.bipo.login.models.BikeColorsResponse;
-import com.bipo.javier.bipo.login.models.BikeStatesResponse;
-import com.bipo.javier.bipo.login.models.BikeTypesResponse;
+import com.bipo.javier.bipo.report.models.BikeBrandsResponse;
+import com.bipo.javier.bipo.report.models.BikeColorsResponse;
+import com.bipo.javier.bipo.report.models.BikeStatesResponse;
+import com.bipo.javier.bipo.report.models.BikeTypesResponse;
 import com.bipo.javier.bipo.login.models.EmailResponse;
 import com.bipo.javier.bipo.login.models.LoginResponse;
 import com.bipo.javier.bipo.login.models.UserResponse;
-import com.squareup.okhttp.MultipartBuilder;
+//import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.RequestBody;
 
-import java.io.File;
-import java.util.Map;
-
+import okhttp3.MultipartBody;
 import retrofit.Call;
-import retrofit.http.Body;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
 import retrofit.http.Multipart;
 import retrofit.http.POST;
 import retrofit.http.Part;
-import retrofit.http.PartMap;
 import retrofit.http.Path;
 import retrofit.http.Query;
 
@@ -81,11 +76,13 @@ public interface IRestClient {
     //@FormUrlEncoded
     @Multipart
     @POST("bikePhoto")
+    Call<BikesResponse> registerBikePhoto(@Part("bikeName") String bikeName, @Part("token") String token,
+                                          @Part("file\"; fileName=\"image.png") RequestBody image);
+
+    /*@Multipart
+    @POST("bikePhoto")
     Call<BikesResponse> registerBikePhoto(@Query("bikeName") String bikeName, @Query("token") String token,
-                                          @Part("image\"; filename=\"bike1.jpg\"") RequestBody image);
-
-
-
+                                          @Part("image\"; fileName=\"bike.png\"") RequestBody bikeFile);*/
    /* @GET("/api/Profile/GetStatus")
     Call<GetStatusResponse> getStatus();
 

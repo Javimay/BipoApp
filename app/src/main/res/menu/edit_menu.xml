@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity" >
+
+    <item
+        android:id="@+id/edit_account"
+        android:icon="@mipmap/ic_edit"
+        android:title="@string/sr_menu_edit_account"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/save_account"
+        android:icon="@mipmap/ic_save"
+        android:title="@string/sr_menu_save_account"
+        android:orderInCategory="200"
+        app:showAsAction="ifRoom"/>
+</menu>

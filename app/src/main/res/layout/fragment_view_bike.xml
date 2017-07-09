@@ -57,13 +57,13 @@
                     android:inputType="textPostalAddress" />
 
                 <ImageButton
-                    android:id="@+id/imageButton"
+                    android:id="@+id/ImgBtnGetAdress"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:background="@android:color/transparent"
                     android:contentDescription="@string/sr_cd_icon_googlemaps"
-                    android:tint="@color/colorPrimary"
-                    app:srcCompat="@android:drawable/ic_menu_mylocation" />
+                    app:srcCompat="@mipmap/ic_bipo_maps" />
             </LinearLayout>
 
             <TextView

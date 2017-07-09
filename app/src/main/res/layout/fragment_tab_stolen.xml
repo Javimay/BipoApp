@@ -3,7 +3,7 @@
     android:id="@+id/RlyStolenBikes"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.bipo.javier.bipo.home.fragments.TabStolen">
+    tools:context="com.bipo.javier.bipo.report.utils.TabStolen$PlaceholderFragment">
 
     <!-- TODO: Update blank fragment layout -->
 

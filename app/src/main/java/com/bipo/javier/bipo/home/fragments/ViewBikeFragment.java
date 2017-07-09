@@ -1,55 +1,76 @@
 package com.bipo.javier.bipo.home.fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.health.PackageHealthStats;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContentResolverCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
+import android.test.mock.MockPackageManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.login.models.BikeColor;
-import com.bipo.javier.bipo.utils.BikeBrandSpinner;
-import com.bipo.javier.bipo.utils.BikeColorSpinner;
-import com.bipo.javier.bipo.utils.BikeTypeSpinner;
+import com.bipo.javier.bipo.account.fragments.BikeFragment;
+import com.google.android.gms.maps.LocationSource;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 
 
-public class ViewBikeFragment extends Fragment implements View.OnClickListener {
+public class ViewBikeFragment extends Fragment implements View.OnClickListener, LocationListener {
 
-    private ImageButton btnFoto, btnDelete, btnLeft, btnRight;
+    private static final int REQUEST_LOCATION = 2;
+    private ImageButton btnFoto, btnDelete, btnLeft, btnRight, btnGetAddress;
     private ImageView imgvDefault, imgvFoto1, imgvFoto2, imgvFoto3, imgvFoto4;
+    private EditText etAddress;
     private ViewFlipper viewFlipper;
     private static final int CAM_REQUEST = 1313;
     private static final int GALLERY_SELECT_IMAGE = 1020;
     private File directory;
     private int photo;
     private String file = "bikeView", format = ".jpg";
-    private Boolean activePhoto;
+    private Boolean activePhoto, isGpsEnabled;
+    private LocationManager locationManager;
+    private double latitude, longitude;
+    private Geocoder geocoder;
 
     public ViewBikeFragment() {
         // Required empty public constructor
@@ -63,7 +84,10 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_view_bike, container, false);
         photo = 0;
         activePhoto = true;
+        etAddress = (EditText) view.findViewById(R.id.EtViewAddress);
         ContextWrapper cw = new ContextWrapper(getContext());
+        btnGetAddress = (ImageButton) view.findViewById(R.id.ImgBtnGetAdress);
+        btnGetAddress.setOnClickListener(this);
         directory = cw.getDir("Images", Context.MODE_PRIVATE);
         viewFlipper = (ViewFlipper) view.findViewById(R.id.VfpFlipperView);
         Button BtRegister = (Button) view.findViewById(R.id.BtnViewBikeSend);
@@ -87,7 +111,10 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener {
         imgvFoto2 = new ImageView(getContext());
         imgvFoto3 = new ImageView(getContext());
         imgvFoto4 = new ImageView(getContext());
+        cleanStorage();
         validateButtons();
+        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+
         return view;
     }
 
@@ -95,31 +122,137 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
 
         switch (v.getId()) {
-            case R.id.BtnPrevious: {
+            case R.id.BtnPrevious:
                 this.getActivity().onBackPressed();
                 break;
-            }
-            case R.id.BtnViewBikeSend: {
+
+            case R.id.BtnViewBikeSend:
                 validateFields();
                 //Todo: Borrar las fotos despues de enviar el reporte.
                 //Toast.makeText(getContext(), "Registrando...", Toast.LENGTH_LONG).show();
                 break;
-            }
-            case R.id.ImgBtnFotoNueva: {
+
+            case R.id.ImgBtnGetAdress:
+                getAddress();
+                break;
+
+            case R.id.ImgBtnFotoNuevaView:
                 newPhoto(activePhoto);
                 break;
-            }
-            case R.id.ImgBtnPrev: {
+
+            case R.id.ImgBtnPrevView:
                 previousPhoto();
                 break;
-            }
-            case R.id.ImgBtnNext: {
+
+            case R.id.ImgBtnNextView:
                 nextPhoto();
                 break;
-            }
-            case R.id.ImgBtnDelete: {
+
+            case R.id.ImgBtnDeleteView:
                 deletePhoto();
+
+        }
+    }
+
+    private void getAddress() {
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        if (!checkLocationPermission()) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }else{
+            turnOnGps();
+        }
+    }
+
+    private void turnOnGps() {
+
+        int off = 0;
+        try {
+            off = Settings.Secure.getInt(getActivity().getContentResolver(), Settings.Secure.LOCATION_MODE);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("SettingNotFoundException: " + e.getMessage());
+        }
+        if(off == 0 || off == 2){
+            AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+            alert.setTitle("No hay acceso al  GPS.");
+            alert.setMessage("bipo no tiene acceso al GPS. " +
+                    "\nActiva el GPS para que bipo pueda acceder a tu ubicación o ingresa una direccion manualmente")
+                    .setPositiveButton("Activar el acceso a la ubicación", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            Intent onGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(onGPS);
+                        }
+                    })
+                    .setNegativeButton("Manualmente", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            etAddress.requestFocus();
+                        }
+                    });
+            alert.show();
+        }else{
+
+
+            System.out.println("Geolocalizacion: \tLatitud:" +latitude + "\tLongitud: " + longitude);
+            showMessage("Obteniendo coordenadas...");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PERMISSION_GRANTED) {
+
+                } else {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                    alert.setTitle("No hay acceso al  GPS.");
+                    alert.setMessage("bipo no tiene acceso al GPS. " +
+                            "\nDebes agregar la dirección manualmente para continuar.")
+                            .setPositiveButton("Agregar manualmente", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    etAddress.requestFocus();
+                                }
+                            })
+                            .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    //TODO: Volver al fragmento anterior.
+                                    //getActivity().onBackPressed();
+                                }
+                            });
+                    alert.show();
+                }
+
             }
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
+    public boolean checkLocationPermission()
+    {
+        String permission = "android.permission.ACCESS_FINE_LOCATION";
+        int res = getActivity().checkCallingOrSelfPermission(permission);
+        return (res == PERMISSION_GRANTED);
+    }
+
+    private void cleanStorage() {
+
+        for (int i = 1; i <= 4; i++) {
+            File fileBike = new File(directory.getAbsolutePath(), file + i + format);
+            if (fileBike.exists()) {
+                fileBike.delete();
+            }
+
         }
     }
 
@@ -368,5 +501,54 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener {
 
     private void showMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (isGpsEnabled) {
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+            System.out.println("Geolocalizacion: \tLatitud:" +latitude + "\tLongitud: " + longitude);
+            try {
+                getAdress(latitude, longitude);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.err.println("Error tomando las coordenadas: " + e.getMessage());
+            }
+        }
+
+        System.out.println("Geolocalizacion: \tLatitud:" +latitude + "\tLongitud: " + longitude);
+    }
+
+    private void getAdress(double latitude, double longitude) throws IOException {
+
+        List<Address> addresses;
+        geocoder = new Geocoder(getContext(), Locale.getDefault());
+
+        addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+        String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+        String city = addresses.get(0).getLocality();
+        String state = addresses.get(0).getAdminArea();
+        String country = addresses.get(0).getCountryName();
+        String postalCode = addresses.get(0).getPostalCode();
+        String knownName = addresses.get(0).getFeatureName();
+        System.out.println("Direccion: " + address + "," + city + "," + country);
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 }

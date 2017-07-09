@@ -14,15 +14,14 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.home.RVItemTouchListener;
-import com.bipo.javier.bipo.home.RvEventsAdapter;
+import com.bipo.javier.bipo.home.utils.RVItemTouchListener;
+import com.bipo.javier.bipo.home.utils.RvEventsAdapter;
 import com.bipo.javier.bipo.home.models.GetReportResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
-import com.bipo.javier.bipo.home.models.Report;
+import com.bipo.javier.bipo.report.models.Report;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -60,7 +59,7 @@ public class EventsFragment extends Fragment {
         FragmentTransaction ft = fm.beginTransaction();
         EventItemsFragment itemsFragment = new EventItemsFragment();
         itemsFragment.setArguments(arguments);
-        ft.replace(R.id.RlyEvents,itemsFragment).commit();
+        ft.replace(R.id.RlyEvents,itemsFragment).addToBackStack(null).commit();
     }
 
     private void reportList(int reportType) {

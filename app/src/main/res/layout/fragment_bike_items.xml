@@ -7,7 +7,7 @@
     android:background="@drawable/gradient_window"
     android:orientation="vertical"
     android:padding="5dp"
-    tools:context="com.bipo.javier.bipo.home.fragments.BikeItemsFragment">
+    tools:context="com.bipo.javier.bipo.account.fragments.BikeItemsFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <ImageButton

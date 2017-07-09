@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.login.models.BikeColor;
+import com.bipo.javier.bipo.report.models.BikeColor;
 
 import java.util.ArrayList;
 

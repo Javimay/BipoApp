@@ -4,6 +4,9 @@ import android.content.Context;
 
 import com.bipo.javier.bipo.data.IRestClient;
 import com.bipo.javier.bipo.data.RestClient;
+import com.bipo.javier.bipo.report.models.BikeBrandsResponse;
+import com.bipo.javier.bipo.report.models.BikeColorsResponse;
+import com.bipo.javier.bipo.report.models.BikeTypesResponse;
 
 import retrofit.Call;
 
@@ -25,36 +28,8 @@ public class AccountRepository {
         return apiService.emailVerify(email);
     }
 
-    public Call<BikeBrandsResponse> getBikeBrands() {
-        return apiService.getBikeBrands();
-    }
-
-    public Call<BikeColorsResponse> getBikeColors() {
-        return apiService.getBikeColors();
-    }
-
-    public Call<BikeTypesResponse> getBikeTypes() {
-        return apiService.getBikeTypes();
-    }
-
     public Call<UserResponse> userRegister(String name, String lastName, String email, String birthDate,
                                            String cellphone, String document, String password){
         return apiService.registerUser(name, lastName, email, birthDate, cellphone, document, password);
     }
-
-   /* public Call<RegisterResponse> RegisterUser(String email, String name, String lastName, String password,
-                                               String confirmPass, String provider, String identifier,String docType,String Document) {
-        return apiService.registerUser(email,name,lastName,password,
-                confirmPass,provider,identifier,docType,Document);
-    }
-    public Call<DefaultResponse> ChangePassword(String email) {
-        return apiService.ChangePassword(email);
-    }
-    public Call<DocumentResponse> PostDocumentVerification(String Document, String ExpDate, Integer DocType) {
-        return apiService.PostDocumentVerification(Document, ExpDate, DocType);
-    }
-    public Call<DocumentResponse> GetByDocument(String Document, String ExpDate, Integer DocType) {
-        return apiService.GetByDocument(Document, ExpDate, DocType);
-    }*/
-
 }

@@ -1,90 +1,88 @@
 package com.bipo.javier.bipo.home.activities;
 
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.SharedPreferencesCompat;
+import android.support.v4.content.IntentCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageButton;
 import android.widget.Toast;
 import android.content.Intent;
 import android.content.Context;
 
+import com.bipo.javier.bipo.InsecureArea.InsecureAreaFragment;
 import com.bipo.javier.bipo.R;
+import com.bipo.javier.bipo.account.fragments.AccountInfoFragment;
 import com.bipo.javier.bipo.home.fragments.EventsFragment;
+import com.bipo.javier.bipo.home.fragments.SettingsFragment;
+import com.bipo.javier.bipo.info.fragments.InfoBipoFragment;
 import com.bipo.javier.bipo.login.activities.LoginActivity;
+import com.bipo.javier.bipo.report.fragments.PanicButtonFragment;
+import com.bipo.javier.bipo.report.fragments.ReportBikesFragment;
 
 
+public class HomeActivity extends AppCompatActivity
+                                        implements NavigationView.OnNavigationItemSelectedListener{
 
-public class HomeActivity extends AppCompatActivity implements View.OnClickListener,
-                                                    PopupMenu.OnMenuItemClickListener {
-
-    private ImageButton ibtnLeftButton;
-    private ImageButton ibtnRigthButton;
+    private SharedPreferences preferences;
+    private FragmentManager fm;
+    private FragmentTransaction ft;
+    private DrawerLayout drawer;
+    private Toolbar bipoActionBar;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fm = getSupportFragmentManager();
+        ft = fm.beginTransaction();
         setContentView(R.layout.activity_home);
-        Toolbar bipoActionBar = (Toolbar)findViewById(R.id.bipoActionBar);
-        ibtnRigthButton = (ImageButton)findViewById(R.id.ImbRight);
-        ibtnRigthButton.setImageResource(R.mipmap.ic_settings);
-        ibtnLeftButton = (ImageButton)findViewById(R.id.ImbLeft);
+        preferences = this.getSharedPreferences("UserInfo",0);
+        bipoActionBar = (Toolbar)findViewById(R.id.bipoActionBar);
         setSupportActionBar(bipoActionBar);
-        ibtnLeftButton.setOnClickListener(this);
-        ibtnRigthButton.setOnClickListener(this);
-        getUserInformation();
-        wellcomeUser();
-        initRvEvents();
+
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, bipoActionBar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        checkHomeActivity();
 
     }
 
-    private void getUserInformation() {
+    public void checkHomeActivity() {
 
-        SharedPreferences preferences = getSharedPreferences("UserInfo", 0);
-        SharedPreferences.Editor editor = preferences.edit();
-        Intent intent = getIntent();
+        SharedPreferences settingsPreferences = getSharedPreferences(SettingsFragment.USER_APP_SETTINGS,
+                Context.MODE_PRIVATE);
+        if(settingsPreferences.getBoolean("Home Panic",false)){
 
-        String name = intent.getStringExtra("name");
-        String lastName = intent.getStringExtra("lastName");
-        String email = intent.getStringExtra("email");
-        String birthdate = intent.getStringExtra("birthdate");
-        String phone = intent.getStringExtra("phone");
-        String documentId = intent.getStringExtra("documentId");
-        String userName= intent.getStringExtra("userName");
-        String token = intent.getStringExtra("token");
-        editor.putString("name", name);
-        editor.putString("lastName", lastName);
-        editor.putString("email", email);
-        editor.putString("birthdate", birthdate);
-        editor.putString("phone", phone);
-        editor.putString("documentId", documentId);
-        editor.putString("userName", userName);
-        editor.putString("token", token);
-        editor.apply();
-    }
-
-    private void wellcomeUser() {
-        String name = getIntent().getExtras().getString("name");
-        String lastName = getIntent().getExtras().getString("lastName");
-        showMessage("Bienvenido " + name + " " + lastName);
+            PanicButtonFragment panicFragment = new PanicButtonFragment();
+            ft.replace(R.id.RlyEvents, panicFragment).commit();
+        }else{
+            initRvEvents();
+        }
     }
 
     /**Inicia el fragmento con el RecyclerView de los eventos del home*/
     private void initRvEvents() {
         //Bundle bundle = new Bundle();
 
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(android.R.anim.fade_in,
+                android.R.anim.fade_out);
         EventsFragment eventsFragment = new EventsFragment();
-        //eventsFragment.setArguments(bundle);
-        ft.add(R.id.RlyEvents, eventsFragment).commit();
+        ft.replace(R.id.RlyEvents, eventsFragment).addToBackStack(null).commitAllowingStateLoss();
     }
 
     public void showMessage(String message) {
@@ -92,90 +90,138 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.ImbLeft){
-            openMenu();
-        }
-        if (v.getId() == R.id.ImbRight){
-            openSettings();
-        }
-    }
-
     private void openSettings() {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
-    }
-
-    private void openMenu() {
-
-        PopupMenu popupMenu = new PopupMenu(this, ibtnLeftButton);
-        popupMenu.setOnMenuItemClickListener(this);
-        popupMenu.getMenuInflater().inflate(R.menu.menu_items,popupMenu.getMenu());
-        popupMenu.show();
+        SettingsFragment settingsFragment = new SettingsFragment();
+        ft = fm.beginTransaction();
+        ft.replace(R.id.RlyEvents, settingsFragment).addToBackStack(null).commit();
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        //int id = item.getItemId();
 
         switch (item.getItemId()){
 
+            case R.id.homeItem:
+                goToHomeActivity();
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+
             case R.id.panicButtonItem:
-                goToButtonPanicActivity();
+                goToButtonPanicFragment();
+                drawer.closeDrawer(GravityCompat.START);
                 return true;
 
             case R.id.reportBikesItem:
-                goToReportBikesActivity();
+                goToReportBikesFragment();
+                drawer.closeDrawer(GravityCompat.START);
                 return true;
 
             case R.id.insecureAreasItem:
-                goToInsecureAreasActivity();
+                goToInsecureAreasFragment();
+                drawer.closeDrawer(GravityCompat.START);
                 return true;
 
             case R.id.accountItem:
-                goToAccountActivity();
+                goToAccountFragment();
+                drawer.closeDrawer(GravityCompat.START);
                 return true;
 
             case R.id.infoBipoItem:
-                goToInfoBipoActivity();
+                goToInfoBipoFragment();
+                drawer.closeDrawer(GravityCompat.START);
                 return true;
 
             case R.id.logoutItem:
                 logoutAccount();
+                drawer.closeDrawer(GravityCompat.START);
                 return true;
 
             default:
-                return super.onOptionsItemSelected(item);
+                //drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+                //return super.onOptionsItemSelected(item);
         }
     }
 
-    private void goToButtonPanicActivity() {
-        Intent intent = new Intent(this, PanicButtonActivity.class);
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
+        this.menu = menu;
+        menu.getItem(0).setIcon(R.mipmap.ic_settings);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            openSettings();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void goToHomeActivity() {
+
+        Intent intent = new Intent(getBaseContext(), HomeActivity.class);
+        intent.addFlags(IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 
-    private void goToReportBikesActivity() {
-        Intent intent = new Intent(this, ReportBikesActivity.class);
-        startActivity(intent);
+    private void goToButtonPanicFragment() {
+        PanicButtonFragment panicFragment = new PanicButtonFragment();
+        ft = fm.beginTransaction();
+        ft.replace(R.id.RlyEvents, panicFragment).addToBackStack(null).commit();
     }
 
-    private void goToInsecureAreasActivity() {
-        Intent intent = new Intent(this, InsecureAreaActivity.class);
-        startActivity(intent);
+    private void goToReportBikesFragment() {
+        ReportBikesFragment reportFragment = new ReportBikesFragment();
+        ft = fm.beginTransaction();
+        ft.replace(R.id.RlyEvents, reportFragment).addToBackStack(null).commit();
     }
 
-    private void goToAccountActivity() {
-        Intent intent = new Intent(this, AccountActivity.class);
-        startActivity(intent);
+    private void goToInsecureAreasFragment() {
+        InsecureAreaFragment insecureFragment = new InsecureAreaFragment();
+        ft = fm.beginTransaction();
+        ft.replace(R.id.RlyEvents, insecureFragment).addToBackStack(null).commit();
     }
 
-    private void goToInfoBipoActivity() {
-        Intent intent = new Intent(this, InfoBipoActivity.class);
-        startActivity(intent);
+    private void goToAccountFragment() {
+
+        AccountInfoFragment accountFragment = new AccountInfoFragment();
+        ft = fm.beginTransaction();
+        ft.replace(R.id.RlyEvents, accountFragment).addToBackStack(null).commit();
+    }
+
+    private void goToInfoBipoFragment() {
+        InfoBipoFragment infoFragment = new InfoBipoFragment();
+        ft = fm.beginTransaction();
+        ft.replace(R.id.RlyEvents,infoFragment).addToBackStack(null).commit();
     }
 
     private void logoutAccount() {
         Intent intent = new Intent(this, LoginActivity.class);
+        //TODO: Limpar el BackList y las preferencias
         startActivity(intent);
+        finish();
     }
 }

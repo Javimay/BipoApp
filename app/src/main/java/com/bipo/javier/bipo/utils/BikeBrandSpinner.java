@@ -5,16 +5,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
-import com.bipo.javier.bipo.login.models.AccountRepository;
-import com.bipo.javier.bipo.login.models.BikeBrand;
-import com.bipo.javier.bipo.login.models.BikeBrandsResponse;
-
-import java.util.ArrayList;
 import java.util.List;
-
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Retrofit;
 
 /**
  * Created by Javier on 12/05/2017.

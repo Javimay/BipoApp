@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/homeItem"
+        android:title="@string/sr_menu_home"/>
+    <item
+        android:id="@+id/panicButtonItem"
+        android:title="@string/sr_menu_boton_panico"/>
+    <item
+        android:id="@+id/reportBikesItem"
+        android:title="@string/sr_menu_bicicletas_reportadas"
+       />
+    <item
+        android:id="@+id/insecureAreasItem"
+        android:title="@string/sr_menu_zonas_inseguras"
+        />
+    <item
+        android:id="@+id/accountItem"
+        android:title="@string/sr_menu_perfil"
+        />
+    <item
+        android:id="@+id/infoBipoItem"
+        android:title="@string/sr_menu_sobre_bipo"
+        />
+    <item
+        android:id="@+id/logoutItem"
+        android:title="@string/sr_menu_cerrar_sesion"
+        />
+</menu>
