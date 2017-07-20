@@ -2,6 +2,7 @@ package com.bipo.javier.bipo.report.utils;
 
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -11,14 +12,20 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
+import com.bipo.javier.bipo.home.fragments.EventsFragment;
 import com.bipo.javier.bipo.home.utils.RVItemTouchListener;
 import com.bipo.javier.bipo.home.utils.RvEventsAdapter;
 import com.bipo.javier.bipo.home.fragments.EventItemsFragment;
 import com.bipo.javier.bipo.home.models.GetReportResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
+import com.bipo.javier.bipo.report.fragments.ReportBikesFragment;
 import com.bipo.javier.bipo.report.models.Report;
 
 import java.util.ArrayList;
@@ -34,8 +41,13 @@ import retrofit.Retrofit;
 public class TabStolen extends Fragment {
 
     private RecyclerView rvStolenBikes;
+    private TextView tvNoItem;
     private String fhInicio = "";
     private String fhFin = "";
+    private final int STOLEN_BIKES_TYPE = 1;
+    private ImageView imgCharge, imgReload;
+    private Animation anim;
+    private TextView tvRedError;
 
     public TabStolen() {
         // Required empty public constructor
@@ -49,22 +61,23 @@ public class TabStolen extends Fragment {
         View view = inflater.inflate(R.layout.fragment_tab_stolen, container, false);
 
         rvStolenBikes = (RecyclerView)view.findViewById(R.id.RvStolenBikes);
-
-        //TODO:obtener la lista de bicicletas
-        stolenList(1);
+        tvNoItem = (TextView)view.findViewById(R.id.TvNoStolen);
+        tvRedError = (TextView)view.findViewById(R.id.TvRedError);
+        imgReload = (ImageView)view.findViewById(R.id.ImgVReload);
+        imgCharge = (ImageView)view.findViewById(R.id.ImgVCharge);
+        imgCharge.setImageResource(R.mipmap.ic_charge);
+        anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
+        anim.setDuration(2000);
+        imgCharge.startAnimation(anim);
+        stolenList();
         return view;
     }
 
-    private void stolenList(int reportType) {
-       /* List<String> stolenList = new ArrayList<>();
-        stolenList.add("Robada");
-        stolenList.add("Marca: GW");
-        stolenList.add("Tipo: MONTAÑA");
-        stolenList.add("Color: AZUL");*/
+    private void stolenList() {
+
         initDates();
         HomeRepository repo = new HomeRepository(getContext());
-        //Call<GetReportResponse> call = repo.getReports(reportType, fhInicio, fhFin);
-        Call<GetReportResponse> call = repo.getReports(3, "20170401", "20170503");
+        Call<GetReportResponse> call = repo.getReports(STOLEN_BIKES_TYPE, fhInicio, fhFin);
         final GetReportResponse reportResponse = new GetReportResponse();
         call.enqueue(new Callback<GetReportResponse>() {
             @Override
@@ -88,9 +101,13 @@ public class TabStolen extends Fragment {
                     if (response.body().getReports() != null) {
                         ArrayList<Report> reportList = response.body().getReports();
                         initEvents(reportList);
+                        imgCharge.getAnimation().cancel();
+                        imgCharge.setImageResource(0);
                     }else{
                         reportResponse.setMessage(response.body().getMessage());
-                        showMessage("No hay bicicletas reportadas.");
+                        rvStolenBikes.setVisibility(View.INVISIBLE);
+                        tvNoItem.setVisibility(View.VISIBLE);
+                        tvNoItem.setText("No hay bicicletas robadas.");
                     }
                 }
             }
@@ -100,8 +117,28 @@ public class TabStolen extends Fragment {
 
                 System.out.println("onFailure!: " + t);
                 reportResponse.setMessage(t.getMessage());
-                showMessage("No se pudo establecer la conexión de la red. " +
-                        "Verifica que tengas conexión a internet.");
+                showRedError();
+            }
+        });
+    }
+    private void showRedError() {
+
+        imgCharge.getAnimation().cancel();
+        imgCharge.setImageResource(R.mipmap.ic_red_error);
+        tvRedError.setVisibility(View.VISIBLE);
+        tvRedError.setText("No se pudo establecer la conexión de la red. " +
+                "Verifica que tengas conexión a internet.");
+        imgReload.setVisibility(View.VISIBLE);
+        imgReload.setImageResource(R.mipmap.ic_reload);
+        imgReload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onDestroy();
+                FragmentManager fm = getFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ReportBikesFragment reportBikesFragment = new ReportBikesFragment();
+                ft.replace(R.id.RlyEvents, reportBikesFragment).addToBackStack(null)
+                        .commitAllowingStateLoss();
             }
         });
     }
@@ -113,17 +150,17 @@ public class TabStolen extends Fragment {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        fhFin = dateFormat(year, month, day);
-        System.out.println(fhFin);
+        fhFin = dateFormat(year, month, day + 1);
+        System.out.println("Fecha final: " + fhFin);
 
         calendar.set(year, month, day);
-        calendar.add(Calendar.DAY_OF_MONTH, -3); //Resta 3 dias calendario atras de la fecha actual.
+        calendar.add(Calendar.MONTH, -3); //Resta 3 meses de la fecha actual.
         calendar.getTime();
         int inYear = calendar.get(Calendar.YEAR);
         int inMonth = calendar.get(Calendar.MONTH);
         int inDay = calendar.get(Calendar.DAY_OF_MONTH);
-        fhInicio = fhFin = dateFormat(inYear, inMonth, inDay);
-        System.out.println(fhInicio);
+        fhInicio = dateFormat(inYear, inMonth, inDay);
+        System.out.println("Fecha Inicio: " + fhInicio);
     }
 
     public String dateFormat(int year, int month, int day) {
@@ -159,8 +196,10 @@ public class TabStolen extends Fragment {
                         int idReport = reportList.get(position).getIdreportType();
                         String status = reportList.get(position).getReportType();
                         String brand = reportList.get(position).getBrand();
+                        int idBike = reportList.get(position).getIdBike();
                         String type = reportList.get(position).getType();
                         String color = reportList.get(position).getColor();
+                        String coordinates = reportList.get(position).getGooglemapscoordinate();
                         int image = R.drawable.wheel;
                         if (idReport == 1){
 
@@ -179,7 +218,7 @@ public class TabStolen extends Fragment {
 
                         //Argumentos del Bundle
                         Bundle arguments = new Bundle();
-                        arguments.putString("activity", "reportBikes");
+                        //arguments.putString("activity", "reportBikes");
                         arguments.putInt("image", image);
                         arguments.putString("status", status);
                         arguments.putString("brand", brand);
@@ -187,6 +226,8 @@ public class TabStolen extends Fragment {
                         arguments.putString("color", color);
                         arguments.putInt("textColor", textColor);
                         arguments.putInt("colorArea", colorArea);
+                        arguments.putString("coordinates",coordinates);
+                        arguments.putInt("idBike",idBike);
                         goToItemEventFragment(arguments);
                     }
                 })
@@ -198,7 +239,7 @@ public class TabStolen extends Fragment {
         FragmentTransaction ft = fm.beginTransaction();
         EventItemsFragment itemsFragment = new EventItemsFragment();
         itemsFragment.setArguments(arguments);
-        ft.replace(R.id.pager,itemsFragment).commit();
+        ft.replace(R.id.RlyEvents,itemsFragment).addToBackStack(null).commit();
     }
 
     private void showMessage(String message) {

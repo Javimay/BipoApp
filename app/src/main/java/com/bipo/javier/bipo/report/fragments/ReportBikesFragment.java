@@ -33,6 +33,8 @@ public class ReportBikesFragment extends Fragment {
     private ReportBikesFragment.SectionsPagerAdapter adapter;
     private static final String TAG = "ReportsBikesActivity";
     private ViewPager mViewPager;
+    private boolean refresh = false;
+    private TabLayout tabLayout;
 
     public ReportBikesFragment() {
         // Required empty public constructor
@@ -49,7 +51,7 @@ public class ReportBikesFragment extends Fragment {
         adapter = new SectionsPagerAdapter(getFragmentManager());
         setupViewPager(mViewPager, adapter);
 
-        TabLayout tabLayout = (TabLayout)view.findViewById(R.id.tabs);
+        tabLayout = (TabLayout)view.findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
         setHasOptionsMenu(true);
         return view;
@@ -70,6 +72,7 @@ public class ReportBikesFragment extends Fragment {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
+
         }
 
         public void addFragment(Fragment fragment, String title){
@@ -125,5 +128,12 @@ public class ReportBikesFragment extends Fragment {
     public void showMessage(String message) {
 
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        System.out.println(">>>>on Resume<<<");
+        mViewPager.setOffscreenPageLimit(1);
     }
 }

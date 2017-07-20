@@ -11,6 +11,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
@@ -19,6 +23,7 @@ import com.bipo.javier.bipo.home.utils.RvEventsAdapter;
 import com.bipo.javier.bipo.home.fragments.EventItemsFragment;
 import com.bipo.javier.bipo.home.models.GetReportResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
+import com.bipo.javier.bipo.report.fragments.ReportBikesFragment;
 import com.bipo.javier.bipo.report.models.Report;
 
 import java.util.ArrayList;
@@ -34,8 +39,13 @@ import retrofit.Retrofit;
 public class TabRecovered extends Fragment {
 
     private RecyclerView rvRecoveredBikes;
+    private TextView tvNoItem;
     private String fhInicio = "";
     private String fhFin = "";
+    private final int RECOVERED_BIKES_TYPE = 2;
+    private ImageView imgCharge, imgReload;
+    private Animation anim;
+    private TextView tvRedError;
 
     public TabRecovered() {
         // Required empty public constructor
@@ -48,22 +58,24 @@ public class TabRecovered extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_tab_recovered, container, false);
         rvRecoveredBikes = (RecyclerView)view.findViewById(R.id.RvRecoveredBikes);
-
-        //TODO:obtener la lista de bicicletas
-        stolenList(1);
+        tvNoItem = (TextView)view.findViewById(R.id.TvNoRecovered);
+        tvNoItem.setVisibility(View.VISIBLE);
+        tvRedError = (TextView)view.findViewById(R.id.TvRedError);
+        imgReload = (ImageView)view.findViewById(R.id.ImgVReload);
+        imgCharge = (ImageView)view.findViewById(R.id.ImgVCharge);
+        imgCharge.setImageResource(R.mipmap.ic_charge);
+        anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
+        anim.setDuration(2000);
+        imgCharge.startAnimation(anim);
+        stolenList();
         return view;
     }
 
-    private void stolenList(int reportType) {
-       /* List<String> stolenList = new ArrayList<>();
-        stolenList.add("Robada");
-        stolenList.add("Marca: GW");
-        stolenList.add("Tipo: MONTAÑA");
-        stolenList.add("Color: AZUL");*/
+    private void stolenList() {
+
         initDates();
         HomeRepository repo = new HomeRepository(getContext());
-        //Call<GetReportResponse> call = repo.getReports(reportType, fhInicio, fhFin);
-        Call<GetReportResponse> call = repo.getReports(3, "20170401", "20170503");
+        Call<GetReportResponse> call = repo.getReports(RECOVERED_BIKES_TYPE, fhInicio, fhFin);
         final GetReportResponse reportResponse = new GetReportResponse();
         call.enqueue(new Callback<GetReportResponse>() {
             @Override
@@ -86,10 +98,17 @@ public class TabRecovered extends Fragment {
 
                     if (response.body().getReports() != null) {
                         ArrayList<Report> reportList = response.body().getReports();
+                        tvNoItem.setVisibility(View.INVISIBLE);
                         initEvents(reportList);
+                        imgCharge.getAnimation().cancel();
+                        imgCharge.setImageResource(0);
                     }else{
                         reportResponse.setMessage(response.body().getMessage());
-                        showMessage("No hay bicicletas reportadas.");
+                        rvRecoveredBikes.setVisibility(View.INVISIBLE);
+                        //tvNoItem.setVisibility(View.VISIBLE);
+                        tvNoItem.setText("No hay bicicletas recuperadas.");
+                        imgCharge.getAnimation().cancel();
+                        imgCharge.setImageResource(0);
                     }
                 }
             }
@@ -99,8 +118,29 @@ public class TabRecovered extends Fragment {
 
                 System.out.println("onFailure!: " + t);
                 reportResponse.setMessage(t.getMessage());
-                showMessage("No se pudo establecer la conexión de la red. " +
-                        "Verifica que tengas conexión a internet.");
+                showRedError();
+            }
+        });
+    }
+
+    private void showRedError() {
+
+        imgCharge.getAnimation().cancel();
+        imgCharge.setImageResource(R.mipmap.ic_red_error);
+        tvRedError.setVisibility(View.VISIBLE);
+        tvRedError.setText("No se pudo establecer la conexión de la red. " +
+                "Verifica que tengas conexión a internet.");
+        imgReload.setVisibility(View.VISIBLE);
+        imgReload.setImageResource(R.mipmap.ic_reload);
+        imgReload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onDestroy();
+                FragmentManager fm = getFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ReportBikesFragment reportBikesFragment = new ReportBikesFragment();
+                ft.replace(R.id.RlyEvents, reportBikesFragment).addToBackStack(null)
+                        .commitAllowingStateLoss();
             }
         });
     }
@@ -112,16 +152,16 @@ public class TabRecovered extends Fragment {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        fhFin = dateFormat(year, month, day);
+        fhFin = dateFormat(year, month, day + 1);
         System.out.println(fhFin);
 
         calendar.set(year, month, day);
-        calendar.add(Calendar.DAY_OF_MONTH, -3); //Resta 3 dias calendario atras de la fecha actual.
+        calendar.add(Calendar.MONTH, -3); //Resta 3 Meses de la fecha actual.
         calendar.getTime();
         int inYear = calendar.get(Calendar.YEAR);
         int inMonth = calendar.get(Calendar.MONTH);
         int inDay = calendar.get(Calendar.DAY_OF_MONTH);
-        fhInicio = fhFin = dateFormat(inYear, inMonth, inDay);
+        fhInicio = dateFormat(inYear, inMonth, inDay);
         System.out.println(fhInicio);
     }
 
@@ -149,7 +189,7 @@ public class TabRecovered extends Fragment {
         RvEventsAdapter rvAdapter = new RvEventsAdapter(getActivity(), reportList);
         rvRecoveredBikes.setAdapter(rvAdapter);
         rvRecoveredBikes.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvRecoveredBikes.addOnItemTouchListener(
+        /*rvRecoveredBikes.addOnItemTouchListener(
                 new RVItemTouchListener(getContext(), new RVItemTouchListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
@@ -189,7 +229,7 @@ public class TabRecovered extends Fragment {
                         goToItemEventFragment(arguments);
                     }
                 })
-        );
+        );*/
     }
 
     private void goToItemEventFragment(Bundle arguments) {

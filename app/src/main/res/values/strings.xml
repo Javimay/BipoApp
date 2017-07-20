@@ -57,6 +57,7 @@
     <string name="sr_itmtxt_bike_brand">Marca: %s</string>
     <string name="sr_itmtxt_bike_type">Tipo: %s</string>
     <string name="sr_itmtxt_bike_color">Color: %s</string>
+    <string name="sr_itmtxt_bike_idframe">IdMarco: %s</string>
     <string name="sr_itmtxt_bike_id">Id: %s</string>
     <string name="sr_account_info_name">Nombres: %s</string>
     <string name="sr_account_info_last_name">Apellidos: %s</string>
@@ -122,4 +123,8 @@
     <string name="sr_menu_edit_account">Edit account</string>
     <string name="sr_menu_save_account">Save account</string>
     <string name="sr_menu_search_bikes">Search Bikes</string>
+    <string name="sr_cd_reload_icon">Reload page</string>
+    <string name="sr_txt_opcional">(Opcional)</string>
+    <string name="sr_txt_antigua_contrasena">Antigüa contraseña</string>
+    <string name="sr_txt_nueva_contrasena">Nueva contraseña</string>
 </resources>

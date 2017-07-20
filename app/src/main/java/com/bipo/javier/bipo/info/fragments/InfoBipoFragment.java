@@ -44,12 +44,12 @@ public class InfoBipoFragment extends Fragment implements View.OnClickListener{
         if(v.getId() == R.id.TvBipoInfo){
 
             BipoInfoFragment infoFragment = new BipoInfoFragment();
-            ft.replace(R.id.RlyEvents,infoFragment).commit();
+            ft.replace(R.id.RlyEvents,infoFragment).addToBackStack(null).commit();
         }
         if(v.getId() == R.id.TvTutorial){
 
             BipoTutorialFragment tutorialFragment = new BipoTutorialFragment();
-            ft.replace(R.id.RlyEvents,tutorialFragment).commit();
+            ft.replace(R.id.RlyEvents,tutorialFragment).addToBackStack(null).commit();
         }
     }
 

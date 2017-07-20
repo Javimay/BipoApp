@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
@@ -14,20 +14,15 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.health.PackageHealthStats;
 import android.provider.MediaStore;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContentResolverCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.test.mock.MockPackageManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,26 +36,36 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.account.fragments.BikeFragment;
-import com.google.android.gms.maps.LocationSource;
+import com.bipo.javier.bipo.account.models.BikesResponse;
+import com.bipo.javier.bipo.home.models.GetReportResponse;
+import com.bipo.javier.bipo.home.models.HomeRepository;
+import com.bipo.javier.bipo.report.models.Report;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Retrofit;
 
+import com.mapbox.geocoder.android.AndroidGeocoder;
+
+import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 
 public class ViewBikeFragment extends Fragment implements View.OnClickListener, LocationListener {
 
-    private static final int REQUEST_LOCATION = 2;
     private ImageButton btnFoto, btnDelete, btnLeft, btnRight, btnGetAddress;
     private ImageView imgvDefault, imgvFoto1, imgvFoto2, imgvFoto3, imgvFoto4;
-    private EditText etAddress;
+    private EditText etAddress, etViewDetails;
     private ViewFlipper viewFlipper;
     private static final int CAM_REQUEST = 1313;
     private static final int GALLERY_SELECT_IMAGE = 1020;
@@ -69,8 +74,13 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener, 
     private String file = "bikeView", format = ".jpg";
     private Boolean activePhoto, isGpsEnabled;
     private LocationManager locationManager;
-    private double latitude, longitude;
+    private double latitude = 0, longitude = 0;
     private Geocoder geocoder;
+    private String addresLocation;
+    private SharedPreferences preferences;
+    private boolean isUsserActive = false;
+    private static final int VIEW_REPORT_TYPE = 4;
+    private Animation anim;
 
     public ViewBikeFragment() {
         // Required empty public constructor
@@ -82,9 +92,11 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener, 
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_view_bike, container, false);
+
         photo = 0;
         activePhoto = true;
         etAddress = (EditText) view.findViewById(R.id.EtViewAddress);
+        etViewDetails = (EditText) view.findViewById(R.id.EtViewDetails);
         ContextWrapper cw = new ContextWrapper(getContext());
         btnGetAddress = (ImageButton) view.findViewById(R.id.ImgBtnGetAdress);
         btnGetAddress.setOnClickListener(this);
@@ -111,9 +123,44 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener, 
         imgvFoto2 = new ImageView(getContext());
         imgvFoto3 = new ImageView(getContext());
         imgvFoto4 = new ImageView(getContext());
+        preferences = getActivity().getSharedPreferences("UserInfo", 0);
+        anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
+        anim.setDuration(2000);
         cleanStorage();
         validateButtons();
         locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        /*locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1,0, new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+                btnGetAddress.getAnimation().cancel();
+                btnGetAddress.setImageResource(R.mipmap.ic_bipo_maps);
+                getUserPosition(latitude, longitude);
+                System.out.println("Geolocalización: \tLatitud: " + latitude + "\tLongitud: " + longitude);
+            }
+
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+
+                turnOnGps();
+                //Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                //startActivity(i);
+            }
+        };*/
+        getGPSPermission();
+        geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
 
         return view;
     }
@@ -133,7 +180,7 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener, 
                 break;
 
             case R.id.ImgBtnGetAdress:
-                getAddress();
+                getUserPosition(latitude, longitude);
                 break;
 
             case R.id.ImgBtnFotoNuevaView:
@@ -154,12 +201,12 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener, 
         }
     }
 
-    private void getAddress() {
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+    private void getGPSPermission() {
+
         if (!checkLocationPermission()) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        }else{
-            turnOnGps();
+        } else {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 0, this);
         }
     }
 
@@ -167,12 +214,14 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener, 
 
         int off = 0;
         try {
-            off = Settings.Secure.getInt(getActivity().getContentResolver(), Settings.Secure.LOCATION_MODE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                off = Settings.Secure.getInt(getActivity().getContentResolver(), Settings.Secure.LOCATION_MODE);
+            }
         } catch (Settings.SettingNotFoundException e) {
             e.printStackTrace();
             System.out.println("SettingNotFoundException: " + e.getMessage());
         }
-        if(off == 0 || off == 2){
+        if (off == 0 || off == 2) {
             AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
             alert.setTitle("No hay acceso al  GPS.");
             alert.setMessage("bipo no tiene acceso al GPS. " +
@@ -193,53 +242,56 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener, 
                         }
                     });
             alert.show();
-        }else{
-
-
-            System.out.println("Geolocalizacion: \tLatitud:" +latitude + "\tLongitud: " + longitude);
-            showMessage("Obteniendo coordenadas...");
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PERMISSION_GRANTED) {
+    public void getUserPosition(double latitude, double longitude) {
 
-                } else {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-                    alert.setTitle("No hay acceso al  GPS.");
-                    alert.setMessage("bipo no tiene acceso al GPS. " +
-                            "\nDebes agregar la dirección manualmente para continuar.")
-                            .setPositiveButton("Agregar manualmente", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+        isUsserActive = true;
 
-                                    etAddress.requestFocus();
-                                }
-                            })
-                            .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+        isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (isGpsEnabled) {
+            if (latitude != 0 && longitude != 0) {
 
-                                    //TODO: Volver al fragmento anterior.
-                                    //getActivity().onBackPressed();
-                                }
-                            });
-                    alert.show();
+                System.out.println("Geolocalización: \tLatitud: " + latitude + "\tLongitud: " + longitude);
+                try {
+                    List<Address> listAddresses = geocoder.getFromLocation(latitude, longitude, 1);
+                    if (null != listAddresses && listAddresses.size() > 0) {
+                        showMessage("Ubicación encontrada!");
+                        addresLocation = listAddresses.get(0).getAddressLine(0);
+                        etAddress.setText(addresLocation);
+                        isUsserActive = false;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.out.println("Geocoder Error: " + e.getMessage());
+                    showMessage("Se han obtenido las coordenadas exitosamente!");
+                    isUsserActive = false;
+                }
+            } else {
+                if (btnGetAddress.getAnimation() == null) {
+
+                    //btnGetAddress.setImageResource(R.mipmap.ic_charge);
+                    btnGetAddress.setAnimation(anim);
+                    //showMessage("Obteniendo coordenadas...");
+                }
+                if(btnGetAddress.getAnimation().hasStarted()) {
+                    btnGetAddress.setImageResource(R.mipmap.ic_bipo_maps);
+                    btnGetAddress.getAnimation().cancel();
+                }else{
+                    btnGetAddress.setImageResource(R.mipmap.ic_charge);
+                    btnGetAddress.getAnimation().start();
+                    showMessage("Obteniendo coordenadas...");
                 }
 
             }
-            // other 'case' lines to check for other
-            // permissions this app might request
+        } else {
+            turnOnGps();
         }
     }
 
-    public boolean checkLocationPermission()
-    {
+
+    public boolean checkLocationPermission() {
         String permission = "android.permission.ACCESS_FINE_LOCATION";
         int res = getActivity().checkCallingOrSelfPermission(permission);
         return (res == PERMISSION_GRANTED);
@@ -252,14 +304,96 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener, 
             if (fileBike.exists()) {
                 fileBike.delete();
             }
-
         }
     }
 
     private void validateFields() {
 
+        String token = preferences.getString("token", "");
+        String date = getDate();
+        int idBike = getArguments().getInt("idBike");
+        String userName = preferences.getString("userName", "");
+        String reportName = date + "_" + userName + "_" + idBike;
+
+        String reportDetails = etViewDetails.getText().toString();
+        if (TextUtils.isEmpty(etAddress.getText())) {
+            etAddress.setError("Ingresa la dirección donde viste la bicicleta.");
+            return;
+        }
+        if (addresLocation == null || (!addresLocation.equals(etAddress.getText().toString()))) {
+            getCoordinatesFromAddress(etAddress.getText().toString());
+        }
+        String coordinates = latitude + "," + longitude;
+        showMessage("Ubicación final: \tLatitud:" + latitude + "\tLongitud: " + longitude);
+        makeReportView(token, reportName, VIEW_REPORT_TYPE, coordinates, idBike, reportDetails);
+
     }
 
+    private void getCoordinatesFromAddress(String address) {
+
+        List<Address> addresses = null;
+        try {
+            addresses = geocoder.getFromLocationName(address, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses.size() > 0) {
+            latitude = addresses.get(0).getLatitude();
+            longitude = addresses.get(0).getLongitude();
+            System.out.println("Geolocalización: \tLatitud:" + latitude + "\tLongitud: " + longitude);
+        }
+    }
+
+    private void makeReportView(String token, String reportName, int reportType,
+                                String coordinates, int idBike, String reportDetails) {
+
+        HomeRepository repo = new HomeRepository(getContext());
+        Call<BikesResponse> call = repo.registerReport(token, reportName, reportType, coordinates,
+                idBike, reportDetails);
+        final BikesResponse reportResponse = new BikesResponse();
+        call.enqueue(new Callback<BikesResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
+
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    if (response.code() == 400) {
+                        showMessage("No hay datos.");
+                        System.out.println(response.isSuccess());
+                        System.out.println(response.message());
+                        System.out.println(response.code());
+                        reportResponse.setMessage(response.message());
+                    } else {
+                        showMessage("Ocurrió un error en la red.");
+                        System.out.println(reportResponse.getMessage());
+                    }
+                }
+                if (response != null && response.isSuccess() && response.message() != null) {
+
+                    if (response.body().getError().equals("false")) {
+                        showMessage("Reporte enviado exitosamente! \nGracias por tu cooperación!");
+                        onDestroy();
+                    } else {
+                        reportResponse.setMessage(response.body().getMessage());
+                        System.out.println("Error: " + reportResponse.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                reportResponse.setMessage(t.getMessage());
+                showMessage("No se pudo establecer la conexión de la red. " +
+                        "Verifica que tengas conexión a internet.");
+
+                //showMessage("No se pudo establecer la conexión de la red. " +
+                //      "Verifica que tengas conexión a internet.");
+            }
+        });
+    }
+
+    //<editor-fold desc="Camera methods">
     private void photoGallery() {
         Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");
@@ -498,43 +632,26 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener, 
             System.out.println("\n" + item.getName());
         }
     }
+    //</editor-fold>
 
     private void showMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
     }
 
+    //<editor-fold desc="Location methods">
     @Override
     public void onLocationChanged(Location location) {
-        isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if (isGpsEnabled) {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
-            System.out.println("Geolocalizacion: \tLatitud:" +latitude + "\tLongitud: " + longitude);
-            try {
-                getAdress(latitude, longitude);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.err.println("Error tomando las coordenadas: " + e.getMessage());
-            }
+
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        if (isUsserActive) {
+            //if (btnGetAddress.getAnimation().isInitialized()) {
+                btnGetAddress.getAnimation().cancel();
+                btnGetAddress.setImageResource(R.mipmap.ic_bipo_maps);
+            //}
+            getUserPosition(latitude, longitude);
+            System.out.println("Geolocalización: \tLatitud: " + latitude + "\tLongitud: " + longitude);
         }
-
-        System.out.println("Geolocalizacion: \tLatitud:" +latitude + "\tLongitud: " + longitude);
-    }
-
-    private void getAdress(double latitude, double longitude) throws IOException {
-
-        List<Address> addresses;
-        geocoder = new Geocoder(getContext(), Locale.getDefault());
-
-        addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-
-        String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-        String city = addresses.get(0).getLocality();
-        String state = addresses.get(0).getAdminArea();
-        String country = addresses.get(0).getCountryName();
-        String postalCode = addresses.get(0).getPostalCode();
-        String knownName = addresses.get(0).getFeatureName();
-        System.out.println("Direccion: " + address + "," + city + "," + country);
     }
 
     @Override
@@ -550,5 +667,44 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener, 
     @Override
     public void onProviderDisabled(String provider) {
 
+        turnOnGps();
     }
+    //</editor-fold>
+
+    private String getDate() {
+        String currentDate = "";
+        Calendar calendar = Calendar.getInstance();
+
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        return currentDate = dateFormat(year, month, day);
+    }
+
+    public String dateFormat(int year, int month, int day) {
+
+        month += 1;
+        String monthFormat = String.valueOf(month);
+        //String monthFormat = "";
+        String dayFormat = String.valueOf(day);
+        //String dayFormat = "";
+        String date = "";
+        if (month < 10) {
+            monthFormat = "0" + month;
+        }
+        if (day < 10) {
+            dayFormat = "0" + day;
+        }
+        date = "" + year + monthFormat + dayFormat;
+        return date;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        locationManager.removeUpdates(this);
+        getActivity().getSupportFragmentManager().popBackStack();
+    }
+
+
 }

@@ -11,6 +11,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
@@ -35,6 +39,9 @@ public class EventsFragment extends Fragment {
     private RecyclerView rvEvents;
     private String fhInicio = "";
     private String fhFin = "";
+    private ImageView imgCharge, imgReload;
+    private Animation anim;
+    private TextView tvRedError;
 
     public EventsFragment() {
         // Required empty public constructor
@@ -47,9 +54,14 @@ public class EventsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_events, container, false);
         rvEvents = (RecyclerView)view.findViewById(R.id.RvEvents);
-
-        //TODO:obtener la lista de bicicletas
-        reportList(1);
+        tvRedError = (TextView)view.findViewById(R.id.TvRedError);
+        imgReload = (ImageView)view.findViewById(R.id.ImgVReload);
+        imgCharge = (ImageView)view.findViewById(R.id.ImgVCharge);
+        imgCharge.setImageResource(R.mipmap.ic_charge);
+        anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
+        anim.setDuration(2000);
+        imgCharge.startAnimation(anim);
+        reportList();
 
         return view;
     }
@@ -62,16 +74,10 @@ public class EventsFragment extends Fragment {
         ft.replace(R.id.RlyEvents,itemsFragment).addToBackStack(null).commit();
     }
 
-    private void reportList(int reportType) {
-       /* List<String> reportList = new ArrayList<>();
-        reportList.add("Robada");
-        reportList.add("Marca: GW");
-        reportList.add("Tipo: MONTAÑA");
-        reportList.add("Color: AZUL");*/
-        initDates();
+    private void reportList() {
+
         HomeRepository repo = new HomeRepository(getContext());
-        //Call<GetReportResponse> call = repo.getReports(reportType, fhInicio, fhFin);
-        Call<GetReportResponse> call = repo.getReports(3, "20170401", "20170503");
+        Call<GetReportResponse> call = repo.getLastReports();
         final GetReportResponse reportResponse = new GetReportResponse();
         call.enqueue(new Callback<GetReportResponse>() {
             @Override
@@ -95,9 +101,12 @@ public class EventsFragment extends Fragment {
                     if (response.body().getReports() != null) {
                         ArrayList<Report> reportList = response.body().getReports();
                         initEvents(reportList);
+                        imgCharge.getAnimation().cancel();
+                        imgCharge.setImageResource(0);
                     }else{
                         reportResponse.setMessage(response.body().getMessage());
-                        showMessage("No hay bicicletas reportadas.");
+                        tvRedError.setVisibility(View.VISIBLE);
+                        tvRedError.setText("No hay bicicletas reportadas.");
                     }
                 }
             }
@@ -107,8 +116,33 @@ public class EventsFragment extends Fragment {
 
                 System.out.println("onFailure!: " + t);
                 reportResponse.setMessage(t.getMessage());
-                showMessage("No se pudo establecer la conexión de la red. " +
-                        "Verifica que tengas conexión a internet.");
+                showRedError();
+
+                //showMessage("No se pudo establecer la conexión de la red. " +
+                  //      "Verifica que tengas conexión a internet.");
+            }
+        });
+        //imgCharge.getAnimation().cancel();
+        //imgCharge.setVisibility(View.INVISIBLE);
+    }
+
+    private void showRedError() {
+
+        imgCharge.getAnimation().cancel();
+        imgCharge.setImageResource(R.mipmap.ic_red_error);
+        tvRedError.setVisibility(View.VISIBLE);
+        tvRedError.setText("No se pudo establecer la conexión de la red. " +
+                "Verifica que tengas conexión a internet.");
+        imgReload.setVisibility(View.VISIBLE);
+        imgReload.setImageResource(R.mipmap.ic_reload);
+        imgReload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onDestroy();
+                FragmentManager fm = getFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                EventsFragment eventsFragment = new EventsFragment();
+                ft.replace(R.id.RlyEvents, eventsFragment).commitAllowingStateLoss();
             }
         });
     }
@@ -117,29 +151,8 @@ public class EventsFragment extends Fragment {
 
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
-    private void initDates() {
-
-        Calendar calendar = Calendar.getInstance();
-
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        fhFin = dateFormat(year, month, day);
-        System.out.println(fhFin);
-
-        calendar.set(year, month, day);
-        calendar.add(Calendar.DAY_OF_MONTH, -3); //Resta 3 dias calendario atras de la fecha actual.
-        calendar.getTime();
-        int inYear = calendar.get(Calendar.YEAR);
-        int inMonth = calendar.get(Calendar.MONTH);
-        int inDay = calendar.get(Calendar.DAY_OF_MONTH);
-        fhInicio = fhFin = dateFormat(inYear, inMonth, inDay);
-        System.out.println(fhInicio);
-    }
-
 
     public void initEvents(final ArrayList<Report> reportList) {
-
 
         RvEventsAdapter rvAdapter = new RvEventsAdapter(getActivity(), reportList);
         rvEvents.setAdapter(rvAdapter);
@@ -153,8 +166,10 @@ public class EventsFragment extends Fragment {
                         int idReport = reportList.get(position).getIdreportType();
                         String status = reportList.get(position).getReportType();
                         String brand = reportList.get(position).getBrand();
+                        int idBike = reportList.get(position).getIdBike();
                         String type = reportList.get(position).getType();
                         String color = reportList.get(position).getColor();
+                        String coordinates = reportList.get(position).getGooglemapscoordinate();
                         int image = R.drawable.wheel;
                         if (idReport == 1){
 
@@ -171,38 +186,23 @@ public class EventsFragment extends Fragment {
                         }
                         //String image = reportList.get(position).getReportPhotos().get(0);
 
-                        //Argumentos del Bundle
-                        Bundle arguments = new Bundle();
-                        arguments.putString("activity", "home");
-                        arguments.putInt("image", image);
-                        arguments.putString("status", status);
-                        arguments.putString("brand", brand);
-                        arguments.putString("type", type);
-                        arguments.putString("color", color);
-                        arguments.putInt("textColor", textColor);
-                        arguments.putInt("colorArea", colorArea);
-                        goToItemEventFragment(arguments);
+                        if(idReport == 1) {
+                            //Argumentos del Bundle
+                            Bundle arguments = new Bundle();
+                            //arguments.putString("activity", "home");
+                            arguments.putInt("image", image);
+                            arguments.putString("status", status);
+                            arguments.putString("brand", brand);
+                            arguments.putString("type", type);
+                            arguments.putString("color", color);
+                            arguments.putInt("textColor", textColor);
+                            arguments.putInt("colorArea", colorArea);
+                            arguments.putInt("idBike",idBike);
+                            arguments.putString("coordinates",coordinates);
+                            goToItemEventFragment(arguments);
+                        }
                     }
                 })
         );
     }
-
-    public String dateFormat(int year, int month, int day) {
-
-        month += 1;
-        String monthFormat = String.valueOf(month);
-        //String monthFormat = "";
-        String dayFormat = String.valueOf(day);
-        //String dayFormat = "";
-        String date = "";
-        if (month < 10) {
-           monthFormat = "0" + month;
-        }
-        if (day < 10) {
-           dayFormat = "0" + day;
-        }
-        date = "" + year + monthFormat + dayFormat;
-        return date;
-    }
-
 }

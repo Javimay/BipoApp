@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,7 +24,9 @@ public class SettingsFragment extends Fragment {
 
     private Switch swHomePanic, swPhotos, swEmailNotif;
     private final static String TAG = SettingsFragment.class.getName();
-    public final static String USER_APP_SETTINGS = TAG + ".USER_APP_SETTINGS";
+    private SharedPreferences preferences;
+    private String userName;
+    public final static String USER_APP_SETTINGS = TAG + ".USER_APP_SETTINGS_";
     private Menu menu;
 
 
@@ -38,15 +41,18 @@ public class SettingsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        swHomePanic = (Switch)view.findViewById(R.id.SwHomePanic);
-        swPhotos = (Switch)view.findViewById(R.id.SwPhotos);
-        swEmailNotif = (Switch)view.findViewById(R.id.SwEmailNotif);
-        SharedPreferences settingsPreferences = getActivity().getSharedPreferences(USER_APP_SETTINGS, 0);
-        if(!settingsPreferences.getAll().isEmpty()) {
+        preferences = getActivity().getSharedPreferences("UserInfo", 0);
+        userName = preferences.getString("userName", "");
+        swHomePanic = (Switch) view.findViewById(R.id.SwHomePanic);
+        swPhotos = (Switch) view.findViewById(R.id.SwPhotos);
+        swEmailNotif = (Switch) view.findViewById(R.id.SwEmailNotif);
+        SharedPreferences settingsPreferences = getActivity().getSharedPreferences(USER_APP_SETTINGS +
+                userName, 0);
+        if (!settingsPreferences.getAll().isEmpty()) {
 
-            swHomePanic.setChecked(settingsPreferences.getBoolean("Home Panic",false));
-            swPhotos.setChecked(settingsPreferences.getBoolean("Photos",false));
-            swEmailNotif.setChecked(settingsPreferences.getBoolean("Email Notif",false));
+            swHomePanic.setChecked(settingsPreferences.getBoolean("Home Panic", false));
+            swPhotos.setChecked(settingsPreferences.getBoolean("Photos", false));
+            swEmailNotif.setChecked(settingsPreferences.getBoolean("Email Notif", false));
         }
         setHasOptionsMenu(true);
 
@@ -55,7 +61,8 @@ public class SettingsFragment extends Fragment {
 
     private void saveAccountSettings() {
 
-        SharedPreferences settingsPreferences = getActivity().getSharedPreferences(USER_APP_SETTINGS, 0);
+        SharedPreferences settingsPreferences = getActivity().getSharedPreferences(USER_APP_SETTINGS +
+                userName, 0);
         SharedPreferences.Editor editorSettings = settingsPreferences.edit();
         editorSettings.putBoolean("Home Panic", swHomePanic.isChecked());
         editorSettings.putBoolean("Photos", swPhotos.isChecked());

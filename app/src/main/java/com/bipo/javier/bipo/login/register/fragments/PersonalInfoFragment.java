@@ -80,6 +80,7 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
         etCedula = (EditText) v.findViewById(R.id.EtCedula);
         etCorreo = (EditText) v.findViewById(R.id.EtCorreo);
         etContraseña = (EditText) v.findViewById(R.id.EtContraseña);
+        etContraseña.setOnFocusChangeListener(this);
         etConfirmación = (EditText) v.findViewById(R.id.EtConfContraseña);
         etConfirmación.setOnFocusChangeListener(this);
         etCorreo.setOnFocusChangeListener(this);

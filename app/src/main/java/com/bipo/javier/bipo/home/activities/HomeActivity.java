@@ -5,7 +5,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.IntentCompat;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,6 +16,10 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.content.Intent;
 import android.content.Context;
@@ -33,11 +39,12 @@ public class HomeActivity extends AppCompatActivity
                                         implements NavigationView.OnNavigationItemSelectedListener{
 
     private SharedPreferences preferences;
+    private SharedPreferences settingsPreferences;
     private FragmentManager fm;
     private FragmentTransaction ft;
     private DrawerLayout drawer;
     private Toolbar bipoActionBar;
-    private Menu menu;
+    //private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,17 +61,16 @@ public class HomeActivity extends AppCompatActivity
                 this, drawer, bipoActionBar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         checkHomeActivity();
 
     }
 
     public void checkHomeActivity() {
 
-        SharedPreferences settingsPreferences = getSharedPreferences(SettingsFragment.USER_APP_SETTINGS,
+        String userName = preferences.getString("userName", "");
+        settingsPreferences = getSharedPreferences(SettingsFragment.USER_APP_SETTINGS + userName,
                 Context.MODE_PRIVATE);
         if(settingsPreferences.getBoolean("Home Panic",false)){
 
@@ -77,12 +83,11 @@ public class HomeActivity extends AppCompatActivity
 
     /**Inicia el fragmento con el RecyclerView de los eventos del home*/
     private void initRvEvents() {
-        //Bundle bundle = new Bundle();
 
         ft.setCustomAnimations(android.R.anim.fade_in,
                 android.R.anim.fade_out);
         EventsFragment eventsFragment = new EventsFragment();
-        ft.replace(R.id.RlyEvents, eventsFragment).addToBackStack(null).commitAllowingStateLoss();
+        ft.replace(R.id.RlyEvents, eventsFragment).commitAllowingStateLoss();
     }
 
     public void showMessage(String message) {
@@ -98,7 +103,6 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        //int id = item.getItemId();
 
         switch (item.getItemId()){
 
@@ -159,7 +163,7 @@ public class HomeActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.settings_menu, menu);
-        this.menu = menu;
+        //this.menu = menu;
         menu.getItem(0).setIcon(R.mipmap.ic_settings);
         return true;
     }
@@ -221,6 +225,10 @@ public class HomeActivity extends AppCompatActivity
     private void logoutAccount() {
         Intent intent = new Intent(this, LoginActivity.class);
         //TODO: Limpar el BackList y las preferencias
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear().apply();
+        intent.addFlags(IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
     }

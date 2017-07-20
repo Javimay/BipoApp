@@ -56,6 +56,9 @@ public interface IRestClient {
                                        @Query("fhInicio") String fcInicio,
                                        @Query("fhFin") String fhFin);
 
+    @GET("lastReports")
+    Call<GetReportResponse> getLastReports();
+
     @FormUrlEncoded
     @POST("register")
     Call<UserResponse> registerUser(@Field("name") String name, @Field("lastName") String lastName,
@@ -77,7 +80,18 @@ public interface IRestClient {
     @Multipart
     @POST("bikePhoto")
     Call<BikesResponse> registerBikePhoto(@Part("bikeName") String bikeName, @Part("token") String token,
-                                          @Part("file\"; fileName=\"image.png") RequestBody image);
+                                          @Part("file\"; filename=\"image.png") RequestBody image);
+
+    @FormUrlEncoded
+    @POST("report")
+    Call<BikesResponse> registerReport(@Field("token") String token, @Field("reportName") String reportName,
+                                     @Field("reportType") int reportType, @Field("coordinates") String coordinates,
+                                     @Field("idBike") int idBike, @Field("reportDetails") String reportDetails);
+
+    @FormUrlEncoded
+    @POST("updatePassword")
+    Call<BikesResponse> changePass(@Field("email") String email, @Field("password") String password,
+                                    @Field("newPassword") String newPassword);
 
     /*@Multipart
     @POST("bikePhoto")

@@ -88,7 +88,6 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
     private BikeBrandSpinner bikeBrandSpinner;
     private BikeColorSpinner bikeColorSpinner;
     private SharedPreferences preferences;
-    private Intent data;
 
     public BikeFragment() {
         // Required empty public constructor
@@ -328,7 +327,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                 break;
             }
             case R.id.BtnUserRegister: {
-                //validateFields();
+                //validateFields(); //TODO: Habilitar
                 try {
                     final File fileBike = new File(directory.getAbsolutePath(), file + 1 + format);
                     if (fileBike.exists()) {
@@ -502,6 +501,16 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                         }
                     } else {
                         showMessage("Ocurrió un error en la red.");
+                        Converter<ResponseBody, BikesResponse> errorConverter =
+                                retrofit.responseConverter(BikesResponse.class, new Annotation[0]);
+                        try {
+                            BikesResponse responseError = errorConverter.convert(response.errorBody());
+                            System.out.println(responseError.getMessage());
+                            bikesResponse.setMessage(responseError.getMessage());
+                            bikesResponse.setError(responseError.getError());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         System.out.println(bikesResponse.getMessage());
                     }
                 }
@@ -546,7 +555,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        this.data = data;
+        //this.data = data;
         Bitmap bMap;
         if (requestCode == CAM_REQUEST && resultCode == Activity.RESULT_OK) {
             Bundle extras = data.getExtras();

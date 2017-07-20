@@ -98,15 +98,11 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
 
     private void goToSawBikeFragment() {
         int idContainerFragment = 0;
-        if (getArguments().getString("activity") == "home"){
-            idContainerFragment = R.id.RlyEvents;
-        }else  if (getArguments().getString("activity") == "reportBikes"){
-            idContainerFragment = R.id.pager;
-        }
         FragmentManager fr = getFragmentManager();
         FragmentTransaction ft = fr.beginTransaction();
         ViewBikeFragment viewBikeFragment = new ViewBikeFragment();
-        ft.replace(idContainerFragment, viewBikeFragment).addToBackStack(null).commit();
+        viewBikeFragment.setArguments(getArguments());
+        ft.replace(R.id.RlyEvents, viewBikeFragment).addToBackStack(null).commit();
     }
 
     @Override
@@ -118,9 +114,12 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(4.682344, -74.108904),17);
+        String coordinates = getArguments().get("coordinates").toString();
+        double latitude = Double.parseDouble(coordinates.substring(0,coordinates.indexOf(",")));
+        double longittud = Double.parseDouble(coordinates.substring(coordinates.indexOf(",")+1,coordinates.length()));
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longittud),17);
         googleMap.addCircle(new CircleOptions()
-                .center(new LatLng(4.682344, -74.108904))
+                .center(new LatLng(latitude, longittud))
                 .radius(50)
                 .fillColor(getArguments().getInt("colorArea")));
         googleMap.getUiSettings().setAllGesturesEnabled(true);

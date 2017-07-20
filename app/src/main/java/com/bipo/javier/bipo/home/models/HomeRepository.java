@@ -5,6 +5,7 @@ import android.content.Context;
 import com.bipo.javier.bipo.data.IRestClient;
 import com.bipo.javier.bipo.data.RestClient;
 import com.bipo.javier.bipo.account.models.BikesResponse;
+import com.bipo.javier.bipo.report.models.Report;
 import com.squareup.okhttp.RequestBody;
 
 import okhttp3.MultipartBody;
@@ -27,6 +28,10 @@ public class HomeRepository {
         return apiService.getReports(reportType, fhInicio, fhFin);
     }
 
+    public Call<GetReportResponse> getLastReports() {
+        return apiService.getLastReports();
+    }
+
     public Call<GetBikesResponse> getAccountBikes(String token) {
         return apiService.getAccountBikes(token);
     }
@@ -40,5 +45,14 @@ public class HomeRepository {
     public Call<BikesResponse> registerBikePhoto(String bikeName, String token,
                                                  RequestBody bikePhoto){
         return apiService.registerBikePhoto(bikeName, token, bikePhoto);
+    }
+
+    public Call<BikesResponse> registerReport(String token, String reportName, int reporType, String coordinates,
+                                          int idBike, String reportDetails){
+        return apiService.registerReport(token, reportName, reporType, coordinates, idBike, reportDetails);
+    }
+
+    public Call<BikesResponse> changePass(String email, String password, String newPassword){
+        return apiService.changePass(email, password, newPassword);
     }
 }

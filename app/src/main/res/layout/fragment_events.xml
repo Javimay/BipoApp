@@ -1,4 +1,5 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,9 +11,37 @@
         layout="@layout/bipo_actionbar">
     </include>-->
 
+    <ImageView
+        android:id="@+id/ImgVCharge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/RvEvents"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
+        android:contentDescription="@string/sr_cd_wheel" />
+
+    <TextView
+        android:id="@+id/TvRedError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ImgVCharge"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/ImgVReload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/TvRedError"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@string/sr_cd_reload_icon"
+        android:visibility="invisible" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/RvEvents"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
-</FrameLayout>
+        android:layout_height="match_parent" />
+</RelativeLayout>
