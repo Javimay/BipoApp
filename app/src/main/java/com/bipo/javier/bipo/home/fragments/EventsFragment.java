@@ -42,6 +42,7 @@ public class EventsFragment extends Fragment {
     private ImageView imgCharge, imgReload;
     private Animation anim;
     private TextView tvRedError;
+    private static final String BASE_URL = "http://www.bipoapp.com/";
 
     public EventsFragment() {
         // Required empty public constructor
@@ -163,6 +164,7 @@ public class EventsFragment extends Fragment {
                     public void onItemClick(View view, int position) {
                         int textColor;
                         int colorArea;
+                        String imageUrl = "";
                         int idReport = reportList.get(position).getIdreportType();
                         String status = reportList.get(position).getReportType();
                         String brand = reportList.get(position).getBrand();
@@ -170,7 +172,7 @@ public class EventsFragment extends Fragment {
                         String type = reportList.get(position).getType();
                         String color = reportList.get(position).getColor();
                         String coordinates = reportList.get(position).getGooglemapscoordinate();
-                        int image = R.drawable.wheel;
+
                         if (idReport == 1){
 
                             textColor = ContextCompat.getColor(getContext(),R.color.stolenBikeColor);
@@ -184,13 +186,21 @@ public class EventsFragment extends Fragment {
                             textColor = ContextCompat.getColor(getContext(),R.color.darkBlue);
                             colorArea = ContextCompat.getColor(getContext(),R.color.darkBlue);
                         }
-                        //String image = reportList.get(position).getReportPhotos().get(0);
+
+                        if (reportList.get(position).getReportPhotos() != null){
+                            if (reportList.get(position).getReportPhotos().size() !=0) {
+                                imageUrl = BASE_URL + reportList.get(position).getReportPhotos()
+                                        .get(0).getUrl();
+                            }
+                        }
+
+
 
                         if(idReport == 1) {
                             //Argumentos del Bundle
                             Bundle arguments = new Bundle();
                             //arguments.putString("activity", "home");
-                            arguments.putInt("image", image);
+                            arguments.putString("imageUrl", imageUrl);
                             arguments.putString("status", status);
                             arguments.putString("brand", brand);
                             arguments.putString("type", type);

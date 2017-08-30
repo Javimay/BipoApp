@@ -20,8 +20,8 @@ public class Bike {
     private String bikestate;
     private boolean defaultbike = false;
     private boolean checked = false;
-    //TODO:Poner tipo de foto de la bicicleta
-    // private List<File> bikePhotos;
+
+     private List<BikePhotos> bikePhotos;
 
 
     public boolean isChecked() {
@@ -110,5 +110,13 @@ public class Bike {
 
     public void setDefaultbike(boolean defaultbike) {
         this.defaultbike = defaultbike;
+    }
+
+    public List<BikePhotos> getBikePhotos() {
+        return bikePhotos;
+    }
+
+    public void setBikePhotos(List<BikePhotos> bikePhotos) {
+        this.bikePhotos = bikePhotos;
     }
 }

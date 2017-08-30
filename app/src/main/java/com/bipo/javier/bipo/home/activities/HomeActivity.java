@@ -5,9 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.IntentCompat;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,10 +14,6 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.Toast;
 import android.content.Intent;
 import android.content.Context;
@@ -29,7 +23,7 @@ import com.bipo.javier.bipo.R;
 import com.bipo.javier.bipo.account.fragments.AccountInfoFragment;
 import com.bipo.javier.bipo.home.fragments.EventsFragment;
 import com.bipo.javier.bipo.home.fragments.SettingsFragment;
-import com.bipo.javier.bipo.info.fragments.InfoBipoFragment;
+import com.bipo.javier.bipo.info.fragments.InfoMenuFragment;
 import com.bipo.javier.bipo.login.activities.LoginActivity;
 import com.bipo.javier.bipo.report.fragments.PanicButtonFragment;
 import com.bipo.javier.bipo.report.fragments.ReportBikesFragment;
@@ -217,7 +211,7 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void goToInfoBipoFragment() {
-        InfoBipoFragment infoFragment = new InfoBipoFragment();
+        InfoMenuFragment infoFragment = new InfoMenuFragment();
         ft = fm.beginTransaction();
         ft.replace(R.id.RlyEvents,infoFragment).addToBackStack(null).commit();
     }

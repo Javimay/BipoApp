@@ -4,13 +4,18 @@ package com.bipo.javier.bipo.account.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +27,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -30,6 +36,7 @@ import com.bipo.javier.bipo.R;
 import com.bipo.javier.bipo.account.models.BikesResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
 import com.bipo.javier.bipo.login.models.AccountRepository;
+import com.bipo.javier.bipo.login.utilities.Teclado;
 import com.bipo.javier.bipo.report.models.BikeBrand;
 import com.bipo.javier.bipo.report.models.BikeBrandsResponse;
 import com.bipo.javier.bipo.report.models.BikeColor;
@@ -79,7 +86,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
     private static final int GALLERY_SELECT_IMAGE = 1020;
     private File directory;
     private int photo;
-    private String file = "bike", format = ".png";
+    private String file = "userBike", format = ".jpg";
     private Boolean activePhoto;
     private List<String> listBrands, listTypes;
     private ArrayList<BikeColor> listColors;
@@ -88,6 +95,8 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
     private BikeBrandSpinner bikeBrandSpinner;
     private BikeColorSpinner bikeColorSpinner;
     private SharedPreferences preferences;
+    private int uploadPhotos;
+    private AlertDialog.Builder alert;
 
     public BikeFragment() {
         // Required empty public constructor
@@ -108,7 +117,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
         bikeTypesList();
         preferences = getActivity().getSharedPreferences("UserInfo", 0);
         ContextWrapper cw = new ContextWrapper(getContext());
-        directory = cw.getDir("Images", Context.MODE_PRIVATE);
+        directory = cw.getDir("Images", Context.MODE_APPEND);
         spBrand = (Spinner) view.findViewById(R.id.SpBrand);
         spColor = (Spinner) view.findViewById(R.id.SpColor);
         spType = (Spinner) view.findViewById(R.id.SpType);
@@ -142,6 +151,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
         imgvFoto2 = new ImageView(getContext());
         imgvFoto3 = new ImageView(getContext());
         imgvFoto4 = new ImageView(getContext());
+        alert = new AlertDialog.Builder(getContext());
         cleanStorage();
         validateButtons();
         return view;
@@ -154,8 +164,8 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
             if (fileBike.exists()) {
                 fileBike.delete();
             }
-
         }
+        listFields();
     }
 
     private void brandSpinner() {
@@ -327,17 +337,18 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                 break;
             }
             case R.id.BtnUserRegister: {
-                //validateFields(); //TODO: Habilitar
-                try {
-                    final File fileBike = new File(directory.getAbsolutePath(), file + 1 + format);
-                    if (fileBike.exists()) {
-                        registerPhotoBike("LA DOBLE HPTA", fileBike);
+
+                validateFields(); //TODO: Habilitar
+               /* String token = preferences.getString("token", "");
+                File[] files = directory.listFiles();
+                if (files.length != 0){
+                    for (File item : files) {
+                        uploadBikePhotos(item, "La panadera", token, files.length);
+
                     }
-                    break;
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    //break;
-                }
+                }else{
+                    showMessage("Reporte enviado exitosamente! \nGracias por tu cooperación!");
+                }*/
                 break;
             }
             case R.id.ImgBtnFotoNueva: {
@@ -379,6 +390,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void validateFields() {
+        Teclado.ocultarTeclado(getActivity());
         String bikeName = etBikeName.getText().toString();
         String id = idMarco.getText().toString();
         String confId = confirmacionId.getText().toString();
@@ -394,6 +406,14 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
             etBikeName.setError("Escribe un nombre para esta bicicleta.");
             return;
         }
+        if (idBrand ==0){
+            showMessage("Escoge una marca por favor.");
+            return;
+        }
+        if (idColor ==0){
+            showMessage("Escoge un color por favor.");
+            return;
+        }
         if (TextUtils.isEmpty(id)) {
             idMarco.setError("Escribe el id del marco de tu bicicleta.");
             return;
@@ -407,16 +427,22 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
             confirmacionId.setError("La confirmación no corresponde con el id.");
             return;
         }
+        if (idType ==0){
+            showMessage("Escoge un tipo de bicicleta por favor.");
+            return;
+        }
         if (!chbxTerminos.isChecked()) {
             showMessage("Debes aceptar los terminos y condiciones");
             return;
         }
-
+        //rLytCharge.setVisibility(View.VISIBLE);
+        //imgvCharge.startAnimation(anim);
+        //imgvCharge.getAnimation().setDuration(2000);
         registerBike(bikeName, idBrand, idColor, id, idType, bikeFeatures, idBikeState, token);
     }
 
     private void registerBike(final String bikeName, long idBrand, long idColor, String idFrame,
-                              long idType, String bikeFeatures, int idBikeState, String token) {
+                              long idType, String bikeFeatures, int idBikeState, final String token) {
 
 
         HomeRepository repo = new HomeRepository(getContext());
@@ -443,16 +469,14 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                 if (response != null && response.isSuccess() && response.message() != null) {
 
                     System.out.println("Mensaje: " + response.message());
-                    for (int i = 1; i <= 4; i++) {
-                        try {
-                            final File fileBike = new File(directory.getAbsolutePath(), file + i + format);
-                            if (fileBike.exists()) {
-                                registerPhotoBike(bikeName, fileBike);
-                            }
-                        } catch (Exception e) {
-                            System.out.println("No existe el archivo: " + file + photo + format + "\n" + e);
-
+                    File[] files = directory.listFiles();
+                    if (files.length != 0){
+                        for (int i = 0; i < files.length; i++) {
+                            File item = files[i];
+                            uploadBikePhotos(item, bikeName, token, files.length);
                         }
+                    }else{
+                        successFull(bikeName);
                     }
                 }
             }
@@ -468,72 +492,72 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-    private void registerPhotoBike(final String bikeName, final File fileBike) {
+    private void uploadBikePhotos(final File photo, final String bikeName, String token, final int totalPhotos) {
 
-        //Map<String, RequestBody> map = new HashMap<>();
-        String token = preferences.getString("token", "");
-        HomeRepository repo = new HomeRepository(getContext());
-        //MediaType media = MediaType.parse("multipart/form-data");
-        //com.squareup.okhttp.RequestBody rb = com.squareup.okhttp.RequestBody.create(media,fileBike);
-        RequestBody rb = RequestBody.create(
-                MediaType.parse("multipart/form-data"), fileBike);
-        //map.put("image\"; filename=\"" + fileBike.getName() + "\"",rb);
-        //MultipartBody.Part fileUp = MultipartBody.Part.createFormData("image",fileBike.getName(),rb);
-        Call<BikesResponse> call = repo.registerBikePhoto(bikeName, token, rb);
+        final okhttp3.MediaType MEDIA_TYPE = okhttp3.MediaType.parse("image/jpg");
+        okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
 
-        final BikesResponse bikesResponse = new BikesResponse();
-        call.enqueue(new Callback<BikesResponse>() {
+        MultipartBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("bikeName",bikeName)
+                .addFormDataPart("file",photo.getName(), okhttp3.RequestBody.create(MEDIA_TYPE,
+                        new File(photo.getAbsolutePath())))
+                .addFormDataPart("token", token)
+                .build();
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url("http://bipoapp.com/services/v1/bikePhoto")
+                .post(body)
+                .addHeader("authorization", "650E01A1B8F9A4DA4A2040FF86E699B7")
+                .build();
+
+        System.out.println("Response!!!");
+        client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
-            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
-
-                if (response != null && !response.isSuccess() && response.errorBody() != null) {
-                    if (response.code() == 400) {
-                        showMessage("No hay datos.");
-                        Converter<ResponseBody, BikesResponse> errorConverter =
-                                retrofit.responseConverter(BikesResponse.class, new Annotation[0]);
-                        try {
-                            BikesResponse responseError = errorConverter.convert(response.errorBody());
-                            System.out.println(responseError.getMessage());
-                            bikesResponse.setMessage(responseError.getMessage());
-                            bikesResponse.setError(responseError.getError());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        showMessage("Ocurrió un error en la red.");
-                        Converter<ResponseBody, BikesResponse> errorConverter =
-                                retrofit.responseConverter(BikesResponse.class, new Annotation[0]);
-                        try {
-                            BikesResponse responseError = errorConverter.convert(response.errorBody());
-                            System.out.println(responseError.getMessage());
-                            bikesResponse.setMessage(responseError.getMessage());
-                            bikesResponse.setError(responseError.getError());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        System.out.println(bikesResponse.getMessage());
-                    }
-                }
-
-                if (response != null && response.isSuccess() && response.message() != null) {
-
-                    System.out.println("Mensaje: " + response.message());
-                    System.out.println(fileBike.getName() + " se ha subido exitosamente.");
-                    showMessage(bikeName + " se ha registrado exitosamente");
-                    cleanStorage();
-                    getActivity().finish();
-                }
+            public void onFailure(okhttp3.Call call, IOException e) {
+                System.out.println(call.request().body());
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
 
-                System.out.println("onFailure!: " + t);
-                bikesResponse.setMessage(t.getMessage());
-                showMessage("No se pudo establecer la conexión de la red. " +
-                        "Verifica que tengas conexión a internet.");
+                System.out.println("Successfull?: " + response.isSuccessful());
+                if (response.code() == 400) {
+                    showMessage("No hay datos.");
+
+
+                } else if (response.code() == 500) {
+                    showMessage("Ocurrió un error en la red.");
+                    System.out.println(response.message());
+                } else if (response.code() == 200) {
+                    uploadPhotos ++;
+                    System.out.println("Se subio la foto: " + photo.getName());
+                    if (uploadPhotos == totalPhotos){
+                        Teclado.ocultarTeclado(getActivity());
+                        successFull(bikeName);
+
+
+                    }
+                }else{
+                    System.out.println("Error: " + response.message());
+                    System.out.println("codigo: " + response.code());
+                }
+
             }
         });
+    }
+
+    private void successFull(String bikeName) {
+
+        Teclado.ocultarTeclado(getActivity());
+        alert.setTitle(bikeName + " se ha registrado exitosamente");
+        alert.setMessage("Gracias por registrar a " + bikeName + ".")
+                .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        cleanStorage();
+                        getActivity().getSupportFragmentManager().popBackStack();
+                    }
+                });
+        alert.show();
 
     }
 
@@ -746,7 +770,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
 
         if ((activate) && viewFlipper.indexOfChild(imgvDefault) == -1) {
 
-            imgvDefault.setImageResource(R.drawable.galery);
+            imgvDefault.setImageResource(R.mipmap.ic_gallery);
             viewFlipper.addView(imgvDefault);
         } else if (!activate) {
             viewFlipper.removeView(imgvDefault);
@@ -755,8 +779,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
 
     private void listFields() {
         File[] files = directory.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File item = files[i];
+        for (File item : files) {
             System.out.println("\n" + item.getName());
         }
     }

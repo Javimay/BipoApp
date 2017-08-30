@@ -64,7 +64,6 @@ public class LoginActivity extends AppCompatActivity {
 
         email = etEmail.getText().toString();
         password = etPassword.getText().toString();
-        showMessage("Verificando...");
         getInHome(email, password);
     }
 

@@ -19,5 +19,6 @@
     <color name="recovered_bike_area">#6415ed02</color>
     <color name="BackShadow">#64000000</color>
     <color name="itemChecked">#78ffffff</color>
+    <color name="LighShadow">#aaffffff</color>
 
 </resources>

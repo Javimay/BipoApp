@@ -370,7 +370,7 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
         intent.putExtra("phone", phone);
         intent.putExtra("documentId", documentId);
         intent.putExtra("token", token);
-
+        showMessage("Bienvenido " + name + " " + lastName);
         startActivity(intent);
     }
 

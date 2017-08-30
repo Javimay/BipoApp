@@ -24,23 +24,52 @@
             android:layout_marginBottom="10dp"
             android:text="@string/sr_subtitle_acerca_de_bipo" />
 
-        <ImageView
-            android:id="@+id/imageView9"
+        <TextView
+            android:id="@+id/TvBipoVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:contentDescription="@string/sr_cd_bipo_logo"
-            app:srcCompat="@mipmap/ic_bipo" />
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:id="@+id/ImgVJarcidco"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_alignBaseline="@+id/ImgVBipoLogo"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:contentDescription="@string/sr_cd_bipo_logo"
+                android:visibility="invisible"
+                app:srcCompat="@drawable/jarcidco_ico" />
+
+            <ImageView
+                android:id="@+id/ImgVBipoLogo"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:contentDescription="@string/sr_cd_bipo_logo"
+                app:srcCompat="@drawable/ic_bipo" />
+        </RelativeLayout>
 
         <TextView
-            android:id="@+id/textView12"
+            android:id="@+id/TvInfoBipo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            android:overScrollMode="ifContentScrolls"
+            android:scrollbars="vertical"
             android:text="@string/sr_txt_bipo_information_app"
             android:textColor="@android:color/black"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
     </LinearLayout>
 

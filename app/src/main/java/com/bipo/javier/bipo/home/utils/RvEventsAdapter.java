@@ -1,16 +1,22 @@
 package com.bipo.javier.bipo.home.utils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bipo.javier.bipo.R;
 import com.bipo.javier.bipo.report.models.Report;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 
@@ -24,6 +30,8 @@ public class RvEventsAdapter extends RecyclerView.Adapter<RvEventsAdapter.ViewHo
     private ArrayList<Report> reportList;
     private android.content.res.Resources resources;
     private Context context;
+    private Animation anim;
+    private static final String BASE_URL = "http://www.bipoapp.com/";
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -62,8 +70,19 @@ public class RvEventsAdapter extends RecyclerView.Adapter<RvEventsAdapter.ViewHo
     public void onBindViewHolder(RvEventsAdapter.ViewHolder holder, int position) {
 
         Report report = reportList.get(position);
-        ImageView bike = holder.ivBike;
-        bike.setImageResource(R.drawable.wheel);
+        if (report.getReportPhotos() != null){
+            if (report.getReportPhotos().size() != 0){
+                getReportPhotos(holder, position);
+            }else{
+                ImageView bike = holder.ivBike;
+                bike.setImageResource(R.mipmap.ic_no_image);
+
+            }
+        }else{
+            ImageView bike = holder.ivBike;
+            bike.setImageResource(R.mipmap.ic_no_image);
+        }
+
         TextView status = holder.tvBikeStatus;
         status.setText(report.getReportType());
         if (report.getIdreportType() == 1){
@@ -89,6 +108,13 @@ public class RvEventsAdapter extends RecyclerView.Adapter<RvEventsAdapter.ViewHo
         String bikeColor = String.format(resources.getString(R.string.sr_itmtxt_bike_color),
                 report.getColor());
         color.setText(bikeColor);
+    }
+
+    private void getReportPhotos(RvEventsAdapter.ViewHolder holder, int position){
+
+        final ImageView bike = holder.ivBike;
+        String imageUrl = BASE_URL + reportList.get(position).getReportPhotos().get(0).getUrl();
+        Picasso.with(context).load(imageUrl).into(bike);
     }
 
     @Override

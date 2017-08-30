@@ -150,8 +150,14 @@ public class TabViews extends Fragment {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        fhFin = dateFormat(year, month, day + 1);
-        System.out.println(fhFin);
+        calendar.set(year,month,day);
+        calendar.add(Calendar.DAY_OF_MONTH,1);
+        calendar.getTime();
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH);
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+        fhFin = dateFormat(year, month, day);
+        System.out.println("Fecha final: " + fhFin);
 
         calendar.set(year, month, day);
         calendar.add(Calendar.MONTH, -3); //Resta 3 Meses de la fecha actual.

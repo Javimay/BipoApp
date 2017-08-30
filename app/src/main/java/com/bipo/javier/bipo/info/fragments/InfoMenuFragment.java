@@ -15,12 +15,12 @@ import com.bipo.javier.bipo.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class InfoBipoFragment extends Fragment implements View.OnClickListener{
+public class InfoMenuFragment extends Fragment implements View.OnClickListener{
 
     FragmentManager fm ;
     FragmentTransaction ft;
 
-    public InfoBipoFragment() {
+    public InfoMenuFragment() {
         // Required empty public constructor
     }
 

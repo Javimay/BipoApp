@@ -1,12 +1,16 @@
 package com.bipo.javier.bipo.home.utils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -15,6 +19,8 @@ import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
 import com.bipo.javier.bipo.account.models.Bike;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 
@@ -29,6 +35,8 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
     private android.content.res.Resources resources;
     private Context context;
     private int itemLayout;
+    private Animation anim;
+    private static final String BIPO_URL = "http://www.bipoapp.com/";
 
     public RvBikesAdapter(Context context, ArrayList<Bike> list, int itemLayout) {
 
@@ -40,7 +48,7 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvBikeBrand, tvBikeType, tvBikeColor, tvBikeName;
-        ImageView ivBike, ibtnDefBike, ibtnDelBike;
+        ImageView ivBike;
         ImageButton imgBtnCheckBike;
         RelativeLayout rlytCheckBike;
 
@@ -49,9 +57,6 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
             if(layout == R.layout.item_bikes_report){
                 rlytCheckBike = (RelativeLayout)bikeView.findViewById(R.id.RlytCheckBike);
                 imgBtnCheckBike = (ImageButton)bikeView.findViewById(R.id.ImgBtnCheckBike);
-            }else{
-                ibtnDefBike = (ImageButton)bikeView.findViewById(R.id.ImgBtnDefBike);
-                ibtnDelBike = (ImageButton)bikeView.findViewById(R.id.ImgBtnDelBike);
             }
 
             ivBike = (ImageView)bikeView.findViewById(R.id.ImgVAccountBike);
@@ -59,6 +64,8 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
             tvBikeType = (TextView)bikeView.findViewById(R.id.TvBikeType);
             tvBikeColor = (TextView)bikeView.findViewById(R.id.TvBikeColor);
             tvBikeName = (TextView)bikeView.findViewById(R.id.TvBikeName);
+
+
         }
     }
 
@@ -74,50 +81,18 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
 
     public void accountItems(final RvBikesAdapter.ViewHolder holder, final int position){
 
-        if(bikeList.get(position).isDefaultbike()){
-
-            holder.ibtnDefBike.setImageResource(R.mipmap.ic_default_bike);
-        }
-        //OnClickListener para el botón de borrar bicicleta.
-        holder.ibtnDelBike.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-                showMessage("Borrar: "+ bikeList.get(position).getBikename());
-            }
-        });
-
-        //OnClicListener para el botón default de la bicicleta.
-        holder.ibtnDefBike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(!bikeList.get(position).isDefaultbike()){
-
-                    showMessage(bikeList.get(position).getBikename() + " Es tu bicicleta principal.");
-                    for( Bike bike:bikeList){
-                        bike.setDefaultbike(false);
-                        holder.ibtnDefBike.setImageResource(R.mipmap.ic_default_bike_des);
-                    }
-                    bikeList.get(position).setDefaultbike(true);
-                    // holder.ibtnDefBike.setImageResource(R.mipmap.ic_default_bike);
-                    notifyDataSetChanged(); //Refresca la lista y la actualiza.
-                    //TODO: Guardar default en la base de datos
-                }else{
-
-                    showMessage(bikeList.get(position).getBikename() + " ya es tu bicicleta principal.");
-                }
-            }
-        });
-
         Bike bikes = bikeList.get(position);
-        ImageView bike = holder.ivBike;
-        //Todo:Poner imagen de la bicicleta.
-        bike.setImageResource(R.drawable.wheel);
 
-        if (!bikes.isDefaultbike()){
-            holder.ibtnDefBike.setImageResource(R.mipmap.ic_default_bike_des);
+        if (bikes.getBikePhotos() != null){
+            if (bikes.getBikePhotos().size() != 0){
+                getBikePhotos(holder,position);
+            }else{
+                holder.ivBike.setImageResource(R.mipmap.ic_no_image);
+            }
+        }else{
+            holder.ivBike.setImageResource(R.mipmap.ic_no_image);
         }
+
         TextView brand = holder.tvBikeBrand;
         String bikeBrand = String.format(resources.getString(R.string.sr_itmtxt_bike_brand),
                 bikes.getBrand());
@@ -147,6 +122,16 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
     public void reportItems(final RvBikesAdapter.ViewHolder holder, final int position){
 
         final Bike bikes = bikeList.get(position);
+        if (bikes.getBikePhotos() != null){
+            if (bikes.getBikePhotos().size() > 0){
+                getBikePhotos(holder,position);
+            }else{
+                holder.ivBike.setImageResource(R.mipmap.ic_no_image);
+            }
+        }else{
+            holder.ivBike.setImageResource(R.mipmap.ic_no_image);
+        }
+
         if(!bikeList.get(position).isChecked()){
             holder.imgBtnCheckBike.setVisibility(View.INVISIBLE);
             holder.rlytCheckBike.setBackgroundColor(Color.TRANSPARENT);
@@ -158,7 +143,7 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
             public void onClick(View v) {
 
                 if(!bikeList.get(position).isChecked()){
-                    showMessage("Check: "+ bikeList.get(position).getBikename());
+                    showMessage("Has elegido: "+ bikeList.get(position).getBikename());
                     for( Bike bike:bikeList){
                         bike.setChecked(false);
                         holder.imgBtnCheckBike.setVisibility(View.INVISIBLE);
@@ -179,9 +164,6 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
             }
         });
 
-        ImageView bike = holder.ivBike;
-        bike.setImageResource(R.drawable.wheel); //Todo:Poner imagen de la bicicleta.
-
         TextView brand = holder.tvBikeBrand;
         String bikeBrand = String.format(resources.getString(R.string.sr_itmtxt_bike_brand),
                 bikes.getBrand());
@@ -196,6 +178,13 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
         color.setText(bikeColor);
         TextView bikeName = holder.tvBikeName;
         bikeName.setText(bikes.getBikename());
+    }
+
+    private void getBikePhotos(RvBikesAdapter.ViewHolder holder, int position){
+
+        final ImageView bike = holder.ivBike;
+        String imageUrl = BIPO_URL + bikeList.get(position).getBikePhotos().get(0).getUrl();
+        Picasso.with(context).load(imageUrl).into(bike);
     }
 
     @Override

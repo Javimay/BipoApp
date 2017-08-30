@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity" >
+
+    <item
+        android:id="@+id/default_bike"
+        android:icon="@mipmap/ic_default_bike"
+        android:orderInCategory="2"
+        android:title="Bicicleta principal" />
+    <item
+        android:icon="@mipmap/ic_edit"
+        android:id="@+id/edit_bike"
+        android:orderInCategory="1"
+        android:title="Editar bicicleta"
+        />
+    <item
+        android:icon="@mipmap/ic_delete_bike"
+        android:id="@+id/delete_bike"
+        android:orderInCategory="3"
+        android:title="Eliminar bicicleta"
+        />
+    <item
+        android:icon="@mipmap/ic_save"
+        android:id="@+id/save_bike"
+        android:orderInCategory="4"
+        android:title="Guardar bicicleta"
+        app:showAsAction="always"
+        />
+</menu>

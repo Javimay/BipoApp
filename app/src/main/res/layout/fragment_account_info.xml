@@ -142,10 +142,11 @@
                     android:layout_marginTop="15dp"
                     android:contentDescription="@string/sr_cd_reload_icon"
                     android:visibility="invisible" />
+
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/RcvAccountBikes"
                     android:layout_width="match_parent"
-                    android:layout_height="170dp"
+                    android:layout_height="140dp"
                     android:orientation="vertical">
 
                 </android.support.v7.widget.RecyclerView>

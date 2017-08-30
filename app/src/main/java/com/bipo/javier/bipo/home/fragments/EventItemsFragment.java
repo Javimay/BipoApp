@@ -3,7 +3,9 @@ package com.bipo.javier.bipo.home.fragments;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -13,11 +15,14 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bipo.javier.bipo.R;
+import com.bipo.javier.bipo.home.utils.RvEventsAdapter;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,6 +36,8 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import javax.annotation.Resources;
 
@@ -43,8 +50,8 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
     private ImageView ivBike;
     private MapView mvPlace;
     private Button btnSawBike;
-    private GoogleMap googleMap;
     private android.content.res.Resources resources;
+    private Animation anim;
 
     public EventItemsFragment() {
         // Required empty public constructor
@@ -75,7 +82,12 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
         resources = getResources();
         tvStatus.setText(getArguments().getString("status"));
         tvStatus.setTextColor(getArguments().getInt("textColor"));
-        ivBike.setImageResource(getArguments().getInt("image"));
+        if (getArguments().getString("imageUrl").equals("")){
+            ivBike.setImageResource(R.mipmap.ic_no_image);
+        }else {
+            getBikePhotos();
+        }
+
         String bikeBrand = String.format(resources.getString(R.string.sr_itmtxt_bike_brand),
                 getArguments().getString("brand"));
         tvBrand.setText(bikeBrand);
@@ -87,17 +99,44 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
         tvColor.setText(bikeColor);
     }
 
+    private void getBikePhotos(){
+
+        anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
+        anim.setDuration(2000);
+        ivBike.setAnimation(anim);
+        String imageUrl = getArguments().getString("imageUrl");
+        Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                ivBike.setImageBitmap(bitmap);
+                ivBike.getAnimation().cancel();
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                ivBike.setImageResource(R.mipmap.ic_no_image);
+                ivBike.getAnimation().cancel();
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                ivBike.setImageResource(R.mipmap.ic_charge);
+                ivBike.getAnimation().start();
+            }
+        };
+        Picasso.with(getContext()).load(imageUrl).into(target);
+    }
+
     @Override
     public void onClick(View v) {
 
         if(v.getId() == R.id.BtnSawBike){
-            //TODO:Recolectar datos y enviarlos al fragmento de Bicicleta vista
             goToSawBikeFragment();
         }
     }
 
     private void goToSawBikeFragment() {
-        int idContainerFragment = 0;
+
         FragmentManager fr = getFragmentManager();
         FragmentTransaction ft = fr.beginTransaction();
         ViewBikeFragment viewBikeFragment = new ViewBikeFragment();
@@ -124,8 +163,6 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
                 .fillColor(getArguments().getInt("colorArea")));
         googleMap.getUiSettings().setAllGesturesEnabled(true);
         googleMap.animateCamera(cameraUpdate);
-
-        this.googleMap = googleMap;
     }
 
 

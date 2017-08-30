@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
     <uses-permission-sdk-23
         android:name="android.permission.INTERNET"
         android:required="true" />
@@ -34,9 +35,6 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA7-yBJAiBSJCJDBlFEvBBDaSj2zlSBTCw" />
-        <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/sr_facebook_app_id" />
 
         <activity android:name=".splashScreen.SplashScreenActivity">
             <intent-filter>
@@ -50,9 +48,6 @@
         <activity android:name=".login.activities.PassRestaurationActivity" />
         <activity android:name=".login.register.ItemColorActivity" />
         <activity android:name=".home.activities.HomeActivity" />
-        <activity android:name=".info.activities.InfoBipoActivity" />
-        <activity android:name=".account.activities.AccountActivity" />
-        <activity android:name=".InsecureArea.InsecureAreaActivity" />
     </application>
 
 </manifest>

@@ -4,14 +4,17 @@ package com.bipo.javier.bipo.account.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,12 +34,19 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bipo.javier.bipo.R;
+import com.bipo.javier.bipo.account.models.Bike;
+import com.bipo.javier.bipo.account.models.BikesResponse;
+import com.bipo.javier.bipo.home.models.GetBikesResponse;
+import com.bipo.javier.bipo.home.models.HomeRepository;
+import com.bipo.javier.bipo.home.utils.RvBikesAdapter;
 import com.bipo.javier.bipo.report.models.BikeColor;
 import com.bipo.javier.bipo.report.models.BikeColorsResponse;
 import com.bipo.javier.bipo.report.models.ReportRepository;
 import com.bipo.javier.bipo.utils.BikeBrandSpinner;
 import com.bipo.javier.bipo.utils.BikeColorSpinner;
 import com.bipo.javier.bipo.utils.BikeTypeSpinner;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,7 +66,7 @@ import retrofit.Retrofit;
 public class EditBikeFragment extends Fragment implements View.OnClickListener {
 
     private ImageButton btnFoto, btnDelete, btnLeft, btnRight;
-    private ImageView imgvDefault, imgvFoto1, imgvFoto2, imgvFoto3, imgvFoto4;
+    private ImageView imgvDefault, imgvFoto1, imgvFoto2, imgvFoto3, imgvFoto4, imgvDefBike;
     private ViewFlipper viewFlipper;
     private static final int CAM_REQUEST = 1313;
     private static final int GALLERY_SELECT_IMAGE = 1020;
@@ -73,6 +83,9 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
     private TextView tvBikeName, tvBikeBrand, tvBikeType, tvBikeColor, tvBikeIdFrame;
     private EditText etBikeFeatures;
     private android.content.res.Resources resources;
+    private Animation anim;
+    AlertDialog.Builder alert;
+    private static final String BIPO_URL = "http://www.bipoapp.com/";
 
     public EditBikeFragment() {
         // Required empty public constructor
@@ -113,6 +126,7 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         imgvFoto3 = new ImageView(getContext());
         imgvFoto4 = new ImageView(getContext());
         resources = getContext().getResources();
+        imgvDefBike = (ImageView)view.findViewById(R.id.ImgVwDefBike);
         tvBikeName = (TextView) view.findViewById(R.id.TvBikeName);
         tvBikeBrand = (TextView) view.findViewById(R.id.TvBikeBrand);
         tvBikeType = (TextView) view.findViewById(R.id.TvBikeType);
@@ -120,8 +134,10 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         tvBikeIdFrame = (TextView) view.findViewById(R.id.TvBikeIdFrame);
         etBikeFeatures = (EditText) view.findViewById(R.id.EtBikeFeatures);
         etBikeFeatures.setEnabled(false);
+        alert = new AlertDialog.Builder(getContext());
         cleanStorage();
         validateButtons();
+        galeryActive(false);
         setHasOptionsMenu(true);
         bikeInfo();
         return view;
@@ -129,6 +145,16 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
 
     private void bikeInfo() {
 
+        if (getArguments().getString("imageUrl").equals("")){
+            imgvFoto1.setImageResource(R.mipmap.ic_no_image);
+            viewFlipper.addView(imgvFoto1);
+        }else{
+            getBikePhotos();
+        }
+
+        if (getArguments().getBoolean("default")){
+            imgvDefBike.setVisibility(View.VISIBLE);
+        }
         tvBikeName.setText(getArguments().getString("bikeName"));
         String bikeBrand = String.format(resources.getString(R.string.sr_itmtxt_bike_brand),
                 getArguments().getString("brand"));
@@ -143,6 +169,40 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
                 getArguments().getString("idFrame"));
         tvBikeIdFrame.setText(idFrame);
         etBikeFeatures.setText(getArguments().getString("features"));
+    }
+
+    private void getBikePhotos(){
+
+        anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
+        anim.setDuration(2000);
+        imgvFoto1.setAnimation(anim);
+
+        String imageUrl = getArguments().getString("imageUrl");
+        Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                imgvFoto1.setImageBitmap(bitmap);
+                imgvFoto1.getAnimation().cancel();
+                //viewFlipper.addView(imgvFoto1);
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                imgvFoto1.setImageResource(R.mipmap.ic_no_image);
+                imgvFoto1.getAnimation().cancel();
+                //viewFlipper.addView(imgvFoto1);
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                imgvFoto1.setImageResource(R.mipmap.ic_charge);
+                imgvFoto1.getAnimation().start();
+                //viewFlipper.addView(imgvFoto1);
+            }
+        };
+        viewFlipper.addView(imgvFoto1);
+        viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(imgvFoto1));
+        Picasso.with(getContext()).load(imageUrl).into(target);
     }
 
     private void bikeColorsList() {
@@ -212,26 +272,62 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
         this.menu = menu;
-        inflater.inflate(R.menu.edit_menu, menu);
-        menu.getItem(1).setVisible(false);
+        inflater.inflate(R.menu.settings_bike_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.getItem(3).setVisible(false);
+        super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (item.getTitle().equals("Edit account")) {
+        if (item.getItemId() == R.id.edit_bike) {
             editBike();
+
             showMessage("editar!");
-        } else {
+        } else if (item.getItemId() == R.id.default_bike){
+            if (!getArguments().getBoolean("default")){
+                imgvDefBike.setVisibility(View.VISIBLE);
+            }else{
+                showMessage("Ya es la bicicleta por default");
+            }
+            showMessage("Default!");
+        }else if (item.getItemId() == R.id.delete_bike){
+
+            alert.setTitle("Eliminar bicicleta.");
+            alert.setMessage("¿Seguro que quieres eliminar a " + tvBikeName.getText() + "?" )
+                    .setPositiveButton("Eliminar bicicleta", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            deleteBike();
+                        }
+                    })
+            .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+            alert.show();
+
+
+        }else if (item.getItemId() == R.id.save_bike){
             saveBike();
-            showMessage("Guardar!");
+            showMessage("Guardar!!");
         }
         return super.onOptionsItemSelected(item);
     }
 
+
     private void editBike() {
 
+        viewFlipper.removeView(imgvFoto1);
+        galeryActive(true);
         tvBikeBrand.setTextColor(Color.GRAY);
         tvBikeType.setTextColor(Color.GRAY);
         tvBikeIdFrame.setTextColor(Color.GRAY);
@@ -241,23 +337,87 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         btnFoto.setVisibility(View.VISIBLE);
         btnDelete.setVisibility(View.VISIBLE);
         etBikeFeatures.setEnabled(true);
+        menu.getItem(3).setVisible(true);
+        menu.close();
         menu.getItem(0).setVisible(false);
-        menu.getItem(1).setVisible(true);
+        menu.getItem(1).setVisible(false);
+        menu.getItem(2).setVisible(false);
+    }
+
+    private void deleteBike() {
+
+        String token = preferences.getString("token", "");
+        final int bikeId = getArguments().getInt("id");
+        HomeRepository repo = new HomeRepository(getContext());
+        Call<BikesResponse> call = repo.deleteBike(bikeId, token);
+        final BikesResponse bikesResponse = new BikesResponse();
+        call.enqueue(new Callback<BikesResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
+
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    if (response.code() == 400) {
+                        showMessage("No hay datos.");
+                        System.out.println(response.isSuccess());
+                        System.out.println(response.message());
+                        System.out.println(response.code());
+                        bikesResponse.setMessage(response.message());
+                    } else {
+                        showMessage("Ocurrió un error en la red.");
+                        System.out.println(bikesResponse.getMessage());
+                    }
+                }
+                if (response != null && response.isSuccess() && response.message() != null) {
+
+
+                    if (response.body().getError().equals("false")) {
+                        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                        alert.setTitle("Has borrado una bicicleta.");
+                        alert.setMessage(tvBikeName.getText()+ " se ha borrado exitosamente. ")
+                                .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        getActivity().onBackPressed();
+                                    }
+                                });
+                        alert.show();
+                    } else {
+                        bikesResponse.setMessage(response.body().getMessage());
+                        System.out.println(bikesResponse.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                bikesResponse.setMessage(t.getMessage());
+            }
+        });
     }
 
     private void saveBike() {
 
+        galeryActive(false);
         tvBikeBrand.setTextColor(Color.BLACK);
         tvBikeType.setTextColor(Color.BLACK);
         tvBikeIdFrame.setTextColor(Color.BLACK);
         tvBikeColor.setVisibility(View.VISIBLE);
+        idColor = bikeColorSpinner.getIdColor();
+        String bikeColor = String.format(resources.getString(R.string.sr_itmtxt_bike_color),
+                listColors.get((int)idColor).getColor());
+        tvBikeColor.setText(bikeColor);
         //viewFlipper.removeView(imgvDefault);
         spColor.setVisibility(View.INVISIBLE);
         btnFoto.setVisibility(View.INVISIBLE);
         btnDelete.setVisibility(View.INVISIBLE);
         etBikeFeatures.setEnabled(false);
-        menu.getItem(1).setVisible(false);
+        menu.getItem(3).setVisible(false);
         menu.getItem(0).setVisible(true);
+        menu.getItem(1).setVisible(true);
+        menu.getItem(2).setVisible(true);
     }
 
     private void showMessage(String message) {
@@ -538,8 +698,7 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
 
     private void listFields() {
         File[] files = directory.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File item = files[i];
+        for (File item : files) {
             System.out.println("\n" + item.getName());
         }
     }

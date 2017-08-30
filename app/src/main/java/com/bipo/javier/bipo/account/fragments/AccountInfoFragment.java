@@ -3,13 +3,16 @@ package com.bipo.javier.bipo.account.fragments;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,14 +28,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
+import com.bipo.javier.bipo.account.models.BikePhotos;
 import com.bipo.javier.bipo.home.utils.RVItemTouchListener;
 import com.bipo.javier.bipo.home.utils.RvBikesAdapter;
 import com.bipo.javier.bipo.account.models.Bike;
 import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
 import com.bipo.javier.bipo.login.activities.PassRestaurationActivity;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -41,7 +48,7 @@ import retrofit.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AccountInfoFragment extends Fragment implements View.OnClickListener{
+public class AccountInfoFragment extends Fragment implements View.OnClickListener {
 
 
     private Button btnNewBike;
@@ -56,6 +63,8 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
     private Animation anim;
     private TextView tvRedError;
     private boolean bikesLimit;
+    public Bitmap photo;
+    private static final String BASE_URL = "http://www.bipoapp.com/";
 
     public AccountInfoFragment() {
         // Required empty public constructor
@@ -75,38 +84,38 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
 
     private void initComponets(View view) {
 
-        rvBikes = (RecyclerView)view.findViewById(R.id.RcvAccountBikes);
-        btnNewBike = (Button)view.findViewById(R.id.BtnAccountNewBike);
+        rvBikes = (RecyclerView) view.findViewById(R.id.RcvAccountBikes);
+        btnNewBike = (Button) view.findViewById(R.id.BtnAccountNewBike);
         btnNewBike.setVisibility(View.INVISIBLE);
         bikesLimit = false;
         btnNewBike.setOnClickListener(this);
-        tvAccountName = (TextView)view.findViewById(R.id.TvAccountName);
-        tvAccountLastName = (TextView)view.findViewById(R.id.TvAccountLastName);
-        tvAccountDocument = (TextView)view.findViewById(R.id.TvAccountId);
-        tvAccountEmail = (TextView)view.findViewById(R.id.TvAccountEmail);
-        tvAccountPhone = (TextView)view.findViewById(R.id.TvAccountPhone);
-        etAccountPhone = (EditText)view.findViewById(R.id.EtAccountPhone);
-        tvAccountPass = (TextView)view.findViewById(R.id.TvAccountPassword);
+        tvAccountName = (TextView) view.findViewById(R.id.TvAccountName);
+        tvAccountLastName = (TextView) view.findViewById(R.id.TvAccountLastName);
+        tvAccountDocument = (TextView) view.findViewById(R.id.TvAccountId);
+        tvAccountEmail = (TextView) view.findViewById(R.id.TvAccountEmail);
+        tvAccountPhone = (TextView) view.findViewById(R.id.TvAccountPhone);
+        etAccountPhone = (EditText) view.findViewById(R.id.EtAccountPhone);
+        tvAccountPass = (TextView) view.findViewById(R.id.TvAccountPassword);
         tvAccountPass.setOnClickListener(this);
-        preferences = getActivity().getSharedPreferences("UserInfo",0);
+        preferences = getActivity().getSharedPreferences("UserInfo", 0);
         String name = String.format(resources.getString(R.string.sr_account_info_name),
-                preferences.getString("name",""));
+                preferences.getString("name", ""));
         tvAccountName.setText(name);
         String lastName = String.format(resources.getString(R.string.sr_account_info_last_name),
-                preferences.getString("lastName",""));
+                preferences.getString("lastName", ""));
         tvAccountLastName.setText(lastName);
         String document = String.format(resources.getString(R.string.sr_account_info_document_id),
-                preferences.getString("documentId",""));
+                preferences.getString("documentId", ""));
         tvAccountDocument.setText(document);
         String email = String.format(resources.getString(R.string.sr_account_info_email),
-                preferences.getString("email",""));
+                preferences.getString("email", ""));
         tvAccountEmail.setText(email);
         String phone = String.format(resources.getString(R.string.sr_account_info_phone),
-                preferences.getString("phone",""));
+                preferences.getString("phone", ""));
         tvAccountPhone.setText(phone);
-        tvRedError = (TextView)view.findViewById(R.id.TvRedError);
-        imgReload = (ImageView)view.findViewById(R.id.ImgVReload);
-        imgCharge = (ImageView)view.findViewById(R.id.ImgVCharge);
+        tvRedError = (TextView) view.findViewById(R.id.TvRedError);
+        imgReload = (ImageView) view.findViewById(R.id.ImgVReload);
+        imgCharge = (ImageView) view.findViewById(R.id.ImgVCharge);
         imgCharge.setImageResource(R.mipmap.ic_charge);
         anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
         anim.setDuration(2000);
@@ -116,7 +125,7 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
 
     private void getAccountBikes() {
 
-        String token = preferences.getString("token","");
+        String token = preferences.getString("token", "");
         HomeRepository repo = new HomeRepository(getContext());
         Call<GetBikesResponse> call = repo.getAccountBikes(token);
         final GetBikesResponse bikesResponse = new GetBikesResponse();
@@ -131,9 +140,13 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
                         System.out.println(response.message());
                         System.out.println(response.code());
                         bikesResponse.setMessage(response.message());
+                        imgCharge.getAnimation().cancel();
+                        imgCharge.setImageResource(0);
                     } else {
                         showMessage("Ocurrió un error en la red.");
                         System.out.println(bikesResponse.getMessage());
+                        imgCharge.getAnimation().cancel();
+                        imgCharge.setImageResource(0);
                     }
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
@@ -145,8 +158,10 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
                         btnNewBike.setVisibility(View.VISIBLE);
                         imgCharge.getAnimation().cancel();
                         imgCharge.setImageResource(0);
-                    }else{
+                    } else {
                         bikesResponse.setMessage(response.body().getMessage());
+                        imgCharge.getAnimation().cancel();
+                        imgCharge.setImageResource(0);
                         rvBikes.setVisibility(View.INVISIBLE);
                         btnNewBike.setVisibility(View.VISIBLE);
                         tvRedError.setVisibility(View.VISIBLE);
@@ -186,24 +201,24 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
             }
         });
     }
+
     public void initBikes(final ArrayList<Bike> bikesList) {
 
-        if (bikesList.size() >= 3){
+        if (bikesList.size() >= 3) {
             //btnNewBike.setEnabled(false);
             bikesLimit = true;
             btnNewBike.setBackgroundColor(Color.GRAY);
         }
-        RvBikesAdapter rvBikesAdapter = new RvBikesAdapter(getContext(), bikesList,R.layout.item_bikes);
+        final RvBikesAdapter rvBikesAdapter = new RvBikesAdapter(getContext(), bikesList, R.layout.item_bikes);
         rvBikes.setAdapter(rvBikesAdapter);
-        rvBikes.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,
-                                                                                            false));
+        rvBikes.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL,
+                false));
         rvBikes.addOnItemTouchListener(
                 new RVItemTouchListener(getContext(), new RVItemTouchListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
 
-                        //if ()
-                        //showMessage("Tocando: " + view.getId());
+                        String imageUrl = "";
 
                         String status = bikesList.get(position).getBikestate();
                         String brand = bikesList.get(position).getBrand();
@@ -214,13 +229,18 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
                         String features = bikesList.get(position).getBikefeatures();
                         int idBike = bikesList.get(position).getId();
                         boolean defaultBike = bikesList.get(position).isDefaultbike();
-                        int image = R.drawable.wheel;
-                        //String image = reportList.get(position).getReportPhotos().get(0);
+
+                        if (bikesList.get(position).getBikePhotos() != null) {
+                            if (bikesList.get(position).getBikePhotos().size() != 0) {
+                                imageUrl = BASE_URL + bikesList.get(position).getBikePhotos()
+                                        .get(0).getUrl();
+                            }
+                        }
+                        //boolean defaultBike = true;
 
                         //Argumentos del Bundle
                         Bundle arguments = new Bundle();
-                        //arguments.putString("activity", "home");
-                        arguments.putInt("image", image);
+                        arguments.putString("imageUrl", imageUrl);
                         arguments.putString("status", status);
                         arguments.putString("brand", brand);
                         arguments.putString("type", type);
@@ -239,15 +259,14 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
 
     }
 
-   
-    
+
     private void goToItemBikeFragment(Bundle arguments) {
 
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         EditBikeFragment editBikeFragment = new EditBikeFragment();
         editBikeFragment.setArguments(arguments);
-        ft.replace(R.id.RlyEvents,editBikeFragment).addToBackStack(null).commit();
+        ft.replace(R.id.RlyEvents, editBikeFragment).addToBackStack(null).commit();
     }
 
     @Override
@@ -262,9 +281,9 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (item.getTitle().equals("Edit account")){
+        if (item.getTitle().equals("Edit account")) {
             editAccount();
-        }else{
+        } else {
             saveAccount();
         }
         return super.onOptionsItemSelected(item);
@@ -276,11 +295,11 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
         switch (v.getId()) {
             case R.id.TvAccountPassword:
                 goToChangePass();
-                    break;
+                break;
             case R.id.BtnAccountNewBike:
-                if (!bikesLimit){
-                newBike();
-                }else{
+                if (!bikesLimit) {
+                    newBike();
+                } else {
                     showMessage("Has alcanzado el limite de bicicletas. " +
                             "\nBorra una para registrar una nueva");
                 }
@@ -293,7 +312,7 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         BikeFragment bikeFragment = new BikeFragment();
-        ft.replace(R.id.RlyEvents,bikeFragment).addToBackStack(null).commit();
+        ft.replace(R.id.RlyEvents, bikeFragment).addToBackStack(null).commit();
     }
 
     private void goToChangePass() {
@@ -301,7 +320,7 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ChangePasswordFragment changePasswordFragment = new ChangePasswordFragment();
-        ft.replace(R.id.RlyEvents,changePasswordFragment).addToBackStack(null).commit();
+        ft.replace(R.id.RlyEvents, changePasswordFragment).addToBackStack(null).commit();
     }
 
     private void editAccount() {
@@ -322,16 +341,24 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
 
     private void saveAccount() {
 
-        if (!validateCel()) {
-            etAccountPhone.setError("Tu número de celular debe contener minimo 10 digitos.");
-            return;
+        if (!TextUtils.isEmpty(etAccountPhone.getText())) {
+            if (!validateCel()) {
+                etAccountPhone.setError("Tu número de celular debe contener minimo 10 digitos.");
+                return;
+            } else {
+                String phone = String.format(resources.getString(R.string.sr_account_info_phone),
+                        etAccountPhone.getText());
+                tvAccountPhone.setText(phone);
+            }
+
+        } else {
+            tvAccountPhone.setText(etAccountPhone.getHint());
         }
         showMessage("Guardando...");
         //TODO: Consumir servicio de actualizacion de datos del usuario.
         tvAccountPhone.setVisibility(View.VISIBLE);
-        String phone = String.format(resources.getString(R.string.sr_account_info_phone),
-                etAccountPhone.getText());
-        tvAccountPhone.setText(phone);
+        /*phone = String.format(resources.getString(R.string.sr_account_info_phone),
+                etAccountPhone.getText());*/
         etAccountPhone.setVisibility(View.INVISIBLE);
         etAccountPhone.getText().clear();
         tvAccountName.setTextColor(Color.BLACK);

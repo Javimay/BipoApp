@@ -66,12 +66,12 @@
     <string name="sr_account_info_phone">Celular: %s</string>
     <string name="sr_facebook_app_id">374501632951706</string>
     <string name="sr_menu_home">Home</string>
-    <string name="sr_menu_boton_panico">Boton de pánico</string>
+    <string name="sr_menu_boton_panico">Botón de pánico</string>
     <string name="sr_menu_bicicletas_reportadas">Bicicletas reportadas</string>
     <string name="sr_menu_zonas_inseguras">Zonas inseguras</string>
     <string name="sr_menu_perfil">Perfil</string>
     <string name="sr_menu_sobre_bipo">Sobre bipo</string>
-    <string name="sr_menu_cerrar_sesion">Cerrar Sesión</string>
+    <string name="sr_menu_cerrar_sesion">Cerrar sesión</string>
     <string name="sr_title_configuracion">Configuración</string>
     <string name="sr_sttgtitle_home_de_panico">Home de pánico</string>
     <string name="sr_sttg_description_homepanic">El botón de pánico estará en la ventana para un acceso más rápido.</string>
@@ -92,7 +92,11 @@
     <string name="sr_title_informacion">Información</string>
     <string name="sr_subtitle_acerca_de_bipo">Acerca de bipo</string>
     <string name="sr_subtitle_tutorial">Tutorial</string>
-    <string name="sr_txt_bipo_information_app">bipo es creado por ingenieros de la unicersidad los Libertadores.</string>
+    <string name="sr_txt_bipo_version">Versión: %s</string>
+    <string name="sr_txt_bipo_information_app">"La información, imágenes, datos, logotipos, código fuente y demás contenido alojado en la página web www.bipoapp.com como en la aplicación móvil Bipo, pertenece a la Fundación Universitaria Los Libertadores y a sus desarrolladores.
+        \nBipo se establece entre los lineamientos y normativas de las leyes colombianas para la protección de datos y las normativas para las redes sociales Facebook®  y Twitter®.
+        \nVisita nuestra página para más información sobre los <a href="http://bipoapp.com/">Términos y Condiciones.</a>
+        \nPara contactarnos lo puedes hacer mediante el correo electrónico: contacto@bipoapp.com "</string>
     <string name="sr_cd_bipo_logo">logo bipo</string>
     <string name="sr_cd_boton_panico">Botón de pánico</string>
     <string name="sr_txt_panic_button">Mantén oprimido el botón de pánico para reportar una bicicleta robada.</string>
@@ -127,4 +131,10 @@
     <string name="sr_txt_opcional">(Opcional)</string>
     <string name="sr_txt_antigua_contrasena">Antigüa contraseña</string>
     <string name="sr_txt_nueva_contrasena">Nueva contraseña</string>
+    <string name="sr_menu_create_report">Crear reporte</string>
+    <string name="sr_txt_selecciona_bicicleta">Selecciona una bicicleta.</string>
+    <string name="sr_cd_charge">Cargando...</string>
+    <string name="sr_cd_previous">Anterior</string>
+    <string name="Next">sr_cd_next</string>
+    <string name="sr_cd_tuto_bienvenido">Bienvenido</string>
 </resources>

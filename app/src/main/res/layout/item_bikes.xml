@@ -3,39 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="170dp"
+    android:layout_height="130dp"
     android:layout_margin="10dp"
     android:background="@drawable/gradient_window"
     android:orientation="horizontal"
     android:padding="5dp">
 
-    <ImageButton
-        android:id="@+id/ImgBtnDefBike"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="5dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/sr_cd_bicicleta_default"
-        app:srcCompat="@mipmap/ic_default_bike" />
-
-    <ImageButton
-        android:id="@+id/ImgBtnDelBike"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="5dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/sr_cd_borrar_bicicleta"
-        app:srcCompat="@mipmap/ic_delete_bike" />
-
     <ImageView
         android:id="@+id/ImgVAccountBike"
         android:layout_width="150dp"
         android:layout_height="100dp"
-        android:layout_below="@+id/ImgBtnDefBike"
         android:layout_gravity="center"
+        android:layout_marginEnd="5dp"
         android:layout_marginStart="5dp"
         android:layout_marginTop="10dp"
         android:contentDescription="@string/sr_cd_bicicleta" />
@@ -44,7 +23,7 @@
         android:id="@+id/LlyBikeFeatures"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ImgBtnDelBike"
+        android:layout_marginStart="5dp"
         android:layout_toEndOf="@+id/ImgVAccountBike"
         android:orientation="vertical">
 
@@ -54,6 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
+            android:gravity="center"
             android:textColor="@color/colorPrimaryDark" />
 
         <TextView

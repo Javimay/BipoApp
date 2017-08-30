@@ -48,6 +48,7 @@ public class TabStolen extends Fragment {
     private ImageView imgCharge, imgReload;
     private Animation anim;
     private TextView tvRedError;
+    private static final String BASE_URL = "http://www.bipoapp.com/";
 
     public TabStolen() {
         // Required empty public constructor
@@ -108,6 +109,8 @@ public class TabStolen extends Fragment {
                         rvStolenBikes.setVisibility(View.INVISIBLE);
                         tvNoItem.setVisibility(View.VISIBLE);
                         tvNoItem.setText("No hay bicicletas robadas.");
+                        imgCharge.getAnimation().cancel();
+                        imgCharge.setImageResource(0);
                     }
                 }
             }
@@ -150,7 +153,13 @@ public class TabStolen extends Fragment {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        fhFin = dateFormat(year, month, day + 1);
+        calendar.set(year,month,day);
+        calendar.add(Calendar.DAY_OF_MONTH,1);
+        calendar.getTime();
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH);
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+        fhFin = dateFormat(year, month, day);
         System.out.println("Fecha final: " + fhFin);
 
         calendar.set(year, month, day);
@@ -191,6 +200,7 @@ public class TabStolen extends Fragment {
                 new RVItemTouchListener(getContext(), new RVItemTouchListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
+                        String imageUrl = "";
                         int textColor;
                         int colorArea;
                         int idReport = reportList.get(position).getIdreportType();
@@ -200,7 +210,14 @@ public class TabStolen extends Fragment {
                         String type = reportList.get(position).getType();
                         String color = reportList.get(position).getColor();
                         String coordinates = reportList.get(position).getGooglemapscoordinate();
-                        int image = R.drawable.wheel;
+
+                        if (reportList.get(position).getReportPhotos() != null){
+                            if (reportList.get(position).getReportPhotos().size() !=0){
+                                imageUrl = BASE_URL + reportList.get(position).getReportPhotos()
+                                        .get(0).getUrl();
+                            }
+                        }
+
                         if (idReport == 1){
 
                             textColor = ContextCompat.getColor(getContext(),R.color.stolenBikeColor);
@@ -214,12 +231,11 @@ public class TabStolen extends Fragment {
                             textColor = ContextCompat.getColor(getContext(),R.color.darkBlue);
                             colorArea = ContextCompat.getColor(getContext(),R.color.darkBlue);
                         }
-                        //String image = reportList.get(position).getReportPhotos().get(0);
 
                         //Argumentos del Bundle
                         Bundle arguments = new Bundle();
                         //arguments.putString("activity", "reportBikes");
-                        arguments.putInt("image", image);
+                        arguments.putString("imageUrl", imageUrl);
                         arguments.putString("status", status);
                         arguments.putString("brand", brand);
                         arguments.putString("type", type);

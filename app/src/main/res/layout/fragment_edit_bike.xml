@@ -39,6 +39,15 @@
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
+                <ImageView
+                    android:id="@+id/ImgVwDefBike"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:contentDescription="@string/sr_cd_bicicleta_default"
+                    android:visibility="invisible"
+                    app:srcCompat="@mipmap/ic_default_bike" />
+
                 <LinearLayout
                     android:id="@+id/LlytFlipperBtns"
                     android:layout_width="match_parent"
@@ -149,7 +158,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/TvBikeIdFrame"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginTop="10dp"
                     android:text="@string/sr_txt_caracteristicas"
                     android:textColor="@android:color/black"
@@ -160,7 +168,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/TvBikeDetails"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
                     android:ems="10"
                     android:hint="@string/sr_txt_agrega_una_descripci_n"
                     android:inputType="textMultiLine" />

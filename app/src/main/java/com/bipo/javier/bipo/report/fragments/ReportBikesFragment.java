@@ -103,27 +103,16 @@ public class ReportBikesFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        inflater.inflate(R.menu.search_menu, menu);
+        inflater.inflate(R.menu.settings_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
 
-        if (id == R.id.search_bikes) {
-            openSearch();
-        }
         return super.onOptionsItemSelected(item);
     }
 
-    private void openSearch() {
-
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        SearchBikesReportFragment searchFragment = new SearchBikesReportFragment();
-        ft.replace(R.id.RlyEvents,searchFragment).addToBackStack(null).commit();
-    }
 
     public void showMessage(String message) {
 

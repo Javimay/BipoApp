@@ -42,9 +42,8 @@ public class HomeRepository {
                 idBikeState, token);
     }
 
-    public Call<BikesResponse> registerBikePhoto(String bikeName, String token,
-                                                 RequestBody bikePhoto){
-        return apiService.registerBikePhoto(bikeName, token, bikePhoto);
+    public Call<BikesResponse> registerBikePhoto(String bikeName,RequestBody bikePhoto, String token){
+        return apiService.registerBikePhoto(bikeName, bikePhoto, token);
     }
 
     public Call<BikesResponse> registerReport(String token, String reportName, int reporType, String coordinates,
@@ -54,5 +53,13 @@ public class HomeRepository {
 
     public Call<BikesResponse> changePass(String email, String password, String newPassword){
         return apiService.changePass(email, password, newPassword);
+    }
+
+    public Call<BikesResponse> registerReportPhoto(String reportName,String token, RequestBody bikePhoto){
+        return apiService.registerReportPhoto(reportName, token, bikePhoto);
+    }
+
+    public Call<BikesResponse> deleteBike(int bikeId,String token){
+        return apiService.deleteBike(bikeId, token);
     }
 }

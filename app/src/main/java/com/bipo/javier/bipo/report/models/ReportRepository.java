@@ -32,8 +32,8 @@ public class ReportRepository {
         return apiService.getBikeTypes();
     }
 
-    public Call<BikeStatesResponse> getBikeStates() {
-        return apiService.getBikeStates();
+    public Call<ReportTypesResponse> getReportTypes() {
+        return apiService.getReportTypes();
     }
 
 }

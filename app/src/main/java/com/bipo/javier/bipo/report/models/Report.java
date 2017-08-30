@@ -1,5 +1,7 @@
 package com.bipo.javier.bipo.report.models;
 
+import com.bipo.javier.bipo.account.models.BikePhotos;
+
 import java.util.List;
 
 /**
@@ -23,7 +25,7 @@ public class Report {
     private String bike_owner;
     private String reportDetails;
     private String fhUpdated;
-    //private List<String> reportPhotos;
+    private List<BikePhotos> reportPhotos;
 
     public String getColor() {
         return color;
@@ -145,11 +147,7 @@ public class Report {
         this.fhUpdated = fhUpdated;
     }
 
-    /*public List<String> getReportPhotos() {
+    public List<BikePhotos> getReportPhotos() {
         return reportPhotos;
     }
-
-    public void setReportPhotos(List<String> reportPhotos) {
-        this.reportPhotos = reportPhotos;
-    }*/
 }

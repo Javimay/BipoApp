@@ -105,7 +105,7 @@ public class TabRecovered extends Fragment {
                     }else{
                         reportResponse.setMessage(response.body().getMessage());
                         rvRecoveredBikes.setVisibility(View.INVISIBLE);
-                        //tvNoItem.setVisibility(View.VISIBLE);
+                        tvNoItem.setVisibility(View.VISIBLE);
                         tvNoItem.setText("No hay bicicletas recuperadas.");
                         imgCharge.getAnimation().cancel();
                         imgCharge.setImageResource(0);
@@ -152,8 +152,14 @@ public class TabRecovered extends Fragment {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        fhFin = dateFormat(year, month, day + 1);
-        System.out.println(fhFin);
+        calendar.set(year,month,day);
+        calendar.add(Calendar.DAY_OF_MONTH,1);
+        calendar.getTime();
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH);
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+        fhFin = dateFormat(year, month, day);
+        System.out.println("Fecha final: " + fhFin);
 
         calendar.set(year, month, day);
         calendar.add(Calendar.MONTH, -3); //Resta 3 Meses de la fecha actual.
@@ -189,47 +195,7 @@ public class TabRecovered extends Fragment {
         RvEventsAdapter rvAdapter = new RvEventsAdapter(getActivity(), reportList);
         rvRecoveredBikes.setAdapter(rvAdapter);
         rvRecoveredBikes.setLayoutManager(new LinearLayoutManager(getContext()));
-        /*rvRecoveredBikes.addOnItemTouchListener(
-                new RVItemTouchListener(getContext(), new RVItemTouchListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        int textColor;
-                        int colorArea;
-                        int idReport = reportList.get(position).getIdreportType();
-                        String status = reportList.get(position).getReportType();
-                        String brand = reportList.get(position).getBrand();
-                        String type = reportList.get(position).getType();
-                        String color = reportList.get(position).getColor();
-                        int image = R.drawable.wheel;
-                        if (idReport == 1){
 
-                            textColor = ContextCompat.getColor(getContext(),R.color.stolenBikeColor);
-                            colorArea = ContextCompat.getColor(getContext(),R.color.stolen_bike_area);
-                        }else if (idReport == 2){
-
-                            textColor = ContextCompat.getColor(getContext(),R.color.recoveredBikeColor);
-                            colorArea = ContextCompat.getColor(getContext(),R.color.recovered_bike_area);
-                        }else{
-
-                            textColor = ContextCompat.getColor(getContext(),R.color.darkBlue);
-                            colorArea = ContextCompat.getColor(getContext(),R.color.darkBlue);
-                        }
-                        //String image = reportList.get(position).getReportPhotos().get(0);
-
-                        //Argumentos del Bundle
-                        Bundle arguments = new Bundle();
-                        arguments.putString("activity", "reportBikes");
-                        arguments.putInt("image", image);
-                        arguments.putString("status", status);
-                        arguments.putString("brand", brand);
-                        arguments.putString("type", type);
-                        arguments.putString("color", color);
-                        arguments.putInt("textColor", textColor);
-                        arguments.putInt("colorArea", colorArea);
-                        goToItemEventFragment(arguments);
-                    }
-                })
-        );*/
     }
 
     private void goToItemEventFragment(Bundle arguments) {

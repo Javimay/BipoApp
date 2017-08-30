@@ -9,13 +9,13 @@
         android:id="@+id/edit_account"
         android:icon="@mipmap/ic_edit"
         android:title="@string/sr_menu_edit_account"
-        android:orderInCategory="100"
+        android:orderInCategory="1"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/save_account"
         android:icon="@mipmap/ic_save"
         android:title="@string/sr_menu_save_account"
-        android:orderInCategory="200"
+        android:orderInCategory="2"
         app:showAsAction="ifRoom"/>
 </menu>

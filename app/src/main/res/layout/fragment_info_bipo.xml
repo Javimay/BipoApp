@@ -6,7 +6,7 @@
     android:background="@drawable/gradient_window"
     android:orientation="vertical"
     android:padding="5dp"
-    tools:context="com.bipo.javier.bipo.info.fragments.InfoBipoFragment">
+    tools:context="com.bipo.javier.bipo.info.fragments.InfoMenuFragment">
 
     <TextView
         android:id="@+id/textView10"
@@ -30,7 +30,7 @@
         android:layout_marginStart="10dp"
         android:text="@string/sr_subtitle_acerca_de_bipo"
         android:textColor="@android:color/black"
-        android:textSize="24sp" />
+        android:textSize="18sp" />
 
     <ImageView
         android:id="@+id/imageView7"
@@ -48,7 +48,7 @@
         android:layout_marginStart="10dp"
         android:text="@string/sr_subtitle_tutorial"
         android:textColor="@android:color/black"
-        android:textSize="24sp" />
+        android:textSize="18sp" />
 
     <ImageView
         android:id="@+id/imageView8"

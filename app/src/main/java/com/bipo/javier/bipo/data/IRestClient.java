@@ -5,7 +5,7 @@ import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.GetReportResponse;
 import com.bipo.javier.bipo.report.models.BikeBrandsResponse;
 import com.bipo.javier.bipo.report.models.BikeColorsResponse;
-import com.bipo.javier.bipo.report.models.BikeStatesResponse;
+import com.bipo.javier.bipo.report.models.ReportTypesResponse;
 import com.bipo.javier.bipo.report.models.BikeTypesResponse;
 import com.bipo.javier.bipo.login.models.EmailResponse;
 import com.bipo.javier.bipo.login.models.LoginResponse;
@@ -13,7 +13,6 @@ import com.bipo.javier.bipo.login.models.UserResponse;
 //import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.RequestBody;
 
-import okhttp3.MultipartBody;
 import retrofit.Call;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
@@ -48,8 +47,8 @@ public interface IRestClient {
     @GET("bikeTypes")
     Call<BikeTypesResponse> getBikeTypes();
 
-    @GET("bikeStates")
-    Call<BikeStatesResponse> getBikeStates();
+    @GET("reportType")
+    Call<ReportTypesResponse> getReportTypes();
 
     @GET("reports/{reportType}")
     Call<GetReportResponse> getReports(@Path("reportType") int reportType,
@@ -76,11 +75,12 @@ public interface IRestClient {
                                      @Field("idType") int idType, @Field("bikeFeatures") String bikeFeatures,
                                      @Field("idBikeState") int idBikeState, @Field("token") String token);
 
-    //@FormUrlEncoded
     @Multipart
     @POST("bikePhoto")
-    Call<BikesResponse> registerBikePhoto(@Part("bikeName") String bikeName, @Part("token") String token,
-                                          @Part("file\"; filename=\"image.png") RequestBody image);
+    Call<BikesResponse> registerBikePhoto(@Part("bikeName") String bikeName,
+                                          @Part("file; filename=image.png") RequestBody image,
+                                          //@Part("file\"; filename=\"image.png") RequestBody image,
+                                          @Part("token") String token);
 
     @FormUrlEncoded
     @POST("report")
@@ -92,6 +92,16 @@ public interface IRestClient {
     @POST("updatePassword")
     Call<BikesResponse> changePass(@Field("email") String email, @Field("password") String password,
                                     @Field("newPassword") String newPassword);
+
+    @Multipart
+    @POST("reportPhoto")
+    Call<BikesResponse> registerReportPhoto(@Part("reportName") String reportName,
+                                            @Part("token") String token,
+                                          @Part("image\"; fileName=\"view.jpg\"") RequestBody image);
+
+    @FormUrlEncoded
+    @POST("deleteBike")
+    Call<BikesResponse> deleteBike(@Field("bikeId") int bikeId, @Field("token") String token);
 
     /*@Multipart
     @POST("bikePhoto")

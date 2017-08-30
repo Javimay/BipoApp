@@ -10,6 +10,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true"
         tools:ignore="UselessParent">
 
         <LinearLayout
@@ -28,6 +29,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/sr_title_nuevo_reporte" />
+
+            <TextView
+                android:id="@+id/textView29"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/sr_txt_selecciona_bicicleta"
+                android:textColor="@android:color/black"
+                android:textSize="18sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -113,6 +124,7 @@
                     android:background="@android:color/transparent"
                     android:contentDescription="@string/sr_cd_icon_googlemaps"
                     app:srcCompat="@mipmap/ic_bipo_maps" />
+
             </LinearLayout>
 
             <EditText
@@ -125,11 +137,11 @@
                 android:inputType="textMultiLine" />
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/BtnCreateReport"
                 style="@style/defaultButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="25dp"
                 android:layout_marginTop="10dp"
                 android:text="@string/sr_txt_crear_reporte" />
 
