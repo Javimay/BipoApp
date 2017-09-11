@@ -1,26 +1,22 @@
 package com.bipo.javier.bipo.login.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
 import com.bipo.javier.bipo.home.activities.HomeActivity;
+import com.bipo.javier.bipo.home.fragments.SettingsFragment;
 import com.bipo.javier.bipo.login.models.AccountRepository;
 import com.bipo.javier.bipo.login.models.User;
 import com.bipo.javier.bipo.login.models.LoginResponse;
-import com.bipo.javier.bipo.login.register.RegisterActivity;
+import com.bipo.javier.bipo.login.register.activities.RegisterActivity;
 import com.bipo.javier.bipo.login.utilities.Teclado;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -32,6 +28,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
     private String email, password;
+    private final static String TAG = SettingsFragment.class.getName();
+    public final static String USER_APP_SETTINGS = TAG + ".USER_APP_SETTINGS_";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +90,7 @@ public class LoginActivity extends AppCompatActivity {
                     String name = "", lastName = "", email = "", birthday = "", phone = "",
                             documentid = "", userName = "", token = "";
                     ArrayList<User> userList = response.body().getUser();
+                    int emailReceiver = 0, photoPublication, enableReportUbication, enableLocationUbication;
                     if (!response.body().getUser().isEmpty()) {
 
                         for (User user : userList) {
@@ -103,6 +102,10 @@ public class LoginActivity extends AppCompatActivity {
                             documentid = user.getDocumentid();
                             userName = user.getNickname();
                             token = user.getToken();
+                            emailReceiver = user.getEmailReceiver();
+                            photoPublication = user.getPhotoPublication();
+                            enableReportUbication = user.getEnableReportUbication();
+                            enableLocationUbication = user.getEnableLocationUbication();
 
                             System.out.println("\nNombre: " + user.getName() +
                                     "\nApellido: " + user.getLastname() +
@@ -114,6 +117,8 @@ public class LoginActivity extends AppCompatActivity {
                                     "\nToken: " + user.getToken());
                         }
                         SharedPreferences preferences = getSharedPreferences("UserInfo", 0);
+                        SharedPreferences settingsPreferences = getSharedPreferences(USER_APP_SETTINGS +
+                                userName, 0);
                         SharedPreferences.Editor editor = preferences.edit();
                         editor.putString("name", name);
                         editor.putString("lastName", lastName);
@@ -124,6 +129,9 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString("userName", userName);
                         editor.putString("token", token);
                         editor.apply();
+                        SharedPreferences.Editor editorSettings = settingsPreferences.edit();
+                        editorSettings.putInt("Email Notif", emailReceiver);
+                        editorSettings.apply();
                         goToHomeActivity();
                         wellcomeUser(name, lastName);
                     }

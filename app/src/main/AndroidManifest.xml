@@ -44,9 +44,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".login.activities.LoginActivity" />
-        <activity android:name=".login.register.RegisterActivity" />
+        <activity android:name=".login.register.activities.RegisterActivity" />
         <activity android:name=".login.activities.PassRestaurationActivity" />
-        <activity android:name=".login.register.ItemColorActivity" />
+        <activity android:name=".login.register.activities.ItemColorActivity" />
         <activity android:name=".home.activities.HomeActivity" />
     </application>
 

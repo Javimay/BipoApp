@@ -33,7 +33,9 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bipo.javier.bipo.R;
+import com.bipo.javier.bipo.account.models.Bike;
 import com.bipo.javier.bipo.account.models.BikesResponse;
+import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
 import com.bipo.javier.bipo.login.models.AccountRepository;
 import com.bipo.javier.bipo.login.utilities.Teclado;
@@ -77,7 +79,6 @@ import retrofit.Retrofit;
 public class BikeFragment extends Fragment implements View.OnClickListener {
 
     private EditText idMarco, confirmacionId, etBikeFeatures, etBikeName;
-    private CheckBox chbxFotos, chbxTerminos;
     private Spinner spBrand, spColor, spType;
     private ImageButton btnFoto, btnDelete, btnLeft, btnRight;
     private ImageView imgvDefault, imgvFoto1, imgvFoto2, imgvFoto3, imgvFoto4;
@@ -88,7 +89,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
     private int photo;
     private String file = "userBike", format = ".jpg";
     private Boolean activePhoto;
-    private List<String> listBrands, listTypes;
+    private List<String> listBrands, listTypes, listColor,listHex;
     private ArrayList<BikeColor> listColors;
     private long idBrand, idColor, idType;
     private BikeTypeSpinner bikeTypeSpinner;
@@ -138,8 +139,6 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
         idMarco = (EditText) view.findViewById(R.id.EtIdMarco);
         confirmacionId = (EditText) view.findViewById(R.id.EtConfirmacionId);
         etBikeFeatures = (EditText) view.findViewById(R.id.EtCaracteristicas);
-        chbxFotos = (CheckBox) view.findViewById(R.id.ChbxPoliticaFotos);
-        chbxTerminos = (CheckBox) view.findViewById(R.id.ChbxPoliticaTerminos);
         imgvDefault = new ImageView(getContext());
         imgvDefault.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,10 +176,11 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
         //idBrand = bikeBrandSpinner.getIdBrand();
     }
 
-    public void colorSpinner() {
+    public void colorSpinner(List<String> listColor) {
 
         //Spinner del color de la bicicleta
-        bikeColorSpinner = new BikeColorSpinner(getContext(), listColors);
+        //bikeColorSpinner = new BikeColorSpinner(getContext(), listColors);
+        bikeColorSpinner = new BikeColorSpinner(getContext(),listColor);
         spColor.setOnItemSelectedListener(bikeColorSpinner.getListener());
         spColor.setAdapter(bikeColorSpinner.getAdapter());
         spColor.setDropDownWidth(550);
@@ -195,8 +195,8 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
         spType.setAdapter(bikeTypeSpinner.getAdapter());
         //idType = bikeTypeSpinner.getIdType();
     }
-
     //<editor-fold desc="Spinner's services">
+
     private void bikeBrandsList() {
 
         ReportRepository repo = new ReportRepository(getContext());
@@ -303,15 +303,20 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                 if (response != null && response.isSuccess() && response.message() != null) {
 
                     List<BikeColor> bikes = response.body().bikeColor;
-                    BikeColor color = new BikeColor();
-                    color.setId(0);
-                    color.setColor("Escoge un color.");
-                    listColors.add(color);
+                    //BikeColor color = new BikeColor();
+                    listColor = new ArrayList<>();
+                    listHex = new ArrayList<>();
+                    listColor.add(0,"Escoge un color.");
+                    //color.setId(0);
+                    //color.setColor("Escoge un color.");
+                    //listColors.add(color);
                     for (BikeColor bike : bikes) {
 
-                        listColors.add(bike);
+                        //listColors.add(bike);
+                        listColor.add(bike.getColor());
+                        listHex.add(bike.getHexColor());
                     }
-                    colorSpinner();
+                    colorSpinner(listColor);
                 }
             }
 
@@ -338,17 +343,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
             }
             case R.id.BtnUserRegister: {
 
-                validateFields(); //TODO: Habilitar
-               /* String token = preferences.getString("token", "");
-                File[] files = directory.listFiles();
-                if (files.length != 0){
-                    for (File item : files) {
-                        uploadBikePhotos(item, "La panadera", token, files.length);
-
-                    }
-                }else{
-                    showMessage("Reporte enviado exitosamente! \nGracias por tu cooperación!");
-                }*/
+                validateFields();
                 break;
             }
             case R.id.ImgBtnFotoNueva: {
@@ -431,10 +426,6 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
             showMessage("Escoge un tipo de bicicleta por favor.");
             return;
         }
-        if (!chbxTerminos.isChecked()) {
-            showMessage("Debes aceptar los terminos y condiciones");
-            return;
-        }
         //rLytCharge.setVisibility(View.VISIBLE);
         //imgvCharge.startAnimation(anim);
         //imgvCharge.getAnimation().setDuration(2000);
@@ -443,7 +434,6 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
 
     private void registerBike(final String bikeName, long idBrand, long idColor, String idFrame,
                               long idType, String bikeFeatures, int idBikeState, final String token) {
-
 
         HomeRepository repo = new HomeRepository(getContext());
         Call<BikesResponse> call = repo.bikeRegister(bikeName, (int) idBrand, (int) idColor, idFrame,
@@ -471,12 +461,16 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                     System.out.println("Mensaje: " + response.message());
                     File[] files = directory.listFiles();
                     if (files.length != 0){
-                        for (int i = 0; i < files.length; i++) {
-                            File item = files[i];
+                        for (File item : files) {
                             uploadBikePhotos(item, bikeName, token, files.length);
                         }
                     }else{
-                        successFull(bikeName);
+                        if (getArguments().getBoolean("isFirstBike")){
+                            firstBike(token, bikeName);
+                        }else{
+                            successFull(bikeName);
+                        }
+
                     }
                 }
             }
@@ -492,7 +486,92 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-    private void uploadBikePhotos(final File photo, final String bikeName, String token, final int totalPhotos) {
+    private void firstBike(final String token, final String bikeName) {
+
+        HomeRepository repo = new HomeRepository(getContext());
+        Call<GetBikesResponse> call = repo.getBikeByName(token, bikeName);
+        final GetBikesResponse bikesResponse = new GetBikesResponse();
+        call.enqueue(new Callback<GetBikesResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<GetBikesResponse> response, Retrofit retrofit) {
+
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    if (response.code() == 400) {
+                        showMessage("No hay datos.");
+                        System.out.println(response.isSuccess());
+                        System.out.println(response.message());
+                        System.out.println(response.code());
+                        bikesResponse.setMessage(response.message());
+                    } else {
+                        showMessage("Ocurrió un error en la red.");
+                        System.out.println(bikesResponse.getMessage());
+                    }
+                }
+
+                if (response != null && response.isSuccess() && response.message() != null) {
+
+                    ArrayList<Bike> bike = response.body().getBikes();
+                    int bikeId = bike.get(0).getId();
+                    setDefault(token, bikeId, bikeName);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                bikesResponse.setMessage(t.getMessage());
+                showMessage("No se pudo establecer la conexión de la red. " +
+                        "Verifica que tengas conexión a internet.");
+            }
+        });
+    }
+
+    private void setDefault(String token, int bikeId, final String bikeName) {
+
+        HomeRepository repo = new HomeRepository(getContext());
+        Call<BikesResponse> call = repo.defaultBike(bikeId,token);
+        final BikesResponse reportResponse = new BikesResponse();
+        call.enqueue(new Callback<BikesResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
+
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    if (response.code() == 400) {
+                        showMessage("hubo un error al enviar los datos");
+                        System.out.println(response.isSuccess());
+                        System.out.println(response.message());
+                        System.out.println(response.code());
+                        reportResponse.setMessage(response.message());
+                    } else {
+                        showMessage("Ocurrió un error en la red.");
+                        System.out.println(reportResponse.getMessage());
+                    }
+                }
+                if (response != null && response.isSuccess() && response.message() != null) {
+
+                    if (response.body().getError().equals("false")) {
+                        successFull(bikeName);
+                        System.out.println("Esta es la bicicleta principal.");
+                    } else {
+                        reportResponse.setMessage(response.body().getMessage());
+                        System.out.println("Error: " + reportResponse.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                reportResponse.setMessage(t.getMessage());
+                showMessage("No se pudo establecer la conexión de la red. " +
+                        "Verifica que tengas conexión a internet.");
+            }
+        });
+    }
+
+    private void uploadBikePhotos(final File photo, final String bikeName, final String token, final int totalPhotos) {
 
         final okhttp3.MediaType MEDIA_TYPE = okhttp3.MediaType.parse("image/jpg");
         okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
@@ -531,10 +610,21 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                     uploadPhotos ++;
                     System.out.println("Se subio la foto: " + photo.getName());
                     if (uploadPhotos == totalPhotos){
-                        Teclado.ocultarTeclado(getActivity());
-                        successFull(bikeName);
-
-
+                        if (getArguments().getBoolean("isFirstBike")){
+                            firstBike(token, bikeName);
+                        }else{
+                            Teclado.ocultarTeclado(getActivity());
+                            alert.setTitle(bikeName + " se ha registrado exitosamente");
+                            alert.setMessage("Gracias por registrar a " + bikeName + ".")
+                                    .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            cleanStorage();
+                                            getActivity().getSupportFragmentManager().popBackStack();
+                                        }
+                                    });
+                            alert.show();
+                        }
                     }
                 }else{
                     System.out.println("Error: " + response.message());

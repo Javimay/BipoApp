@@ -1,4 +1,4 @@
-package com.bipo.javier.bipo.login.register;
+package com.bipo.javier.bipo.login.register.activities;
 
 import android.content.Intent;
 import android.support.v4.app.FragmentManager;

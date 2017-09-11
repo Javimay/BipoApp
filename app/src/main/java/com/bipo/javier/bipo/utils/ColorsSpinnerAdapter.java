@@ -15,6 +15,7 @@ import com.bipo.javier.bipo.R;
 import com.bipo.javier.bipo.report.models.BikeColor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Javier on 13/05/2017.
@@ -23,16 +24,23 @@ import java.util.ArrayList;
 public class ColorsSpinnerAdapter extends ArrayAdapter<String> {
 
     private Context context;
-   /* private String[] colorNames;
-    private String[] colorArray;*/
     private ArrayList colors;
     private LayoutInflater inflater;
     private BikeColor colorsModel;
+    private List<String> listColor, listHex;
 
     public ColorsSpinnerAdapter(Context context, ArrayList objects) {
         super(context, R.layout.activity_item_color,objects);
         this.context = context;
         this.colors = objects;
+        inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+    public ColorsSpinnerAdapter(Context context, List<String> listColor,List<String> listHex) {
+        super(context, R.layout.activity_item_color);
+        this.context = context;
+        this.listColor = listColor;
+        this.listHex = listHex;
         inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -52,17 +60,21 @@ public class ColorsSpinnerAdapter extends ArrayAdapter<String> {
         View row = inflater.inflate(R.layout.activity_item_color, parent, false);
         colorsModel = null;
         colorsModel = (BikeColor)colors.get(position);
+
         TextView tvColor = (TextView) row.findViewById(R.id.TvColorText);
         ImageView ivColor = (ImageView)row.findViewById(R.id.IvColorImage);
 
         if (position == 0){
             tvColor.setText(colorsModel.getColor());
+            //tvColor.setText(listColor.get(position));
             ivColor.setVisibility(View.INVISIBLE);
             ivColor.getLayoutParams().width = 1;
         }else{
             ivColor.setVisibility(View.VISIBLE);
             tvColor.setText(colorsModel.getColor());
             ivColor.setBackgroundColor(Color.parseColor("#" + colorsModel.getHexColor()));
+            //tvColor.setText(listColor.get(position));
+            //ivColor.setBackgroundColor(Color.parseColor("#" + listHex.get(position)));
         }
 
         return row;

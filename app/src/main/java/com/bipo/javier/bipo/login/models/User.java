@@ -6,6 +6,7 @@ package com.bipo.javier.bipo.login.models;
 
 public class User {
 
+    private int id;
     private String name;
     private String lastname;
     private String nickname;
@@ -14,6 +15,10 @@ public class User {
     private String cellphone;
     private String documentid;
     private String token;
+    private int emailReceiver;
+    private int photoPublication;
+    private int enableReportUbication;
+    private int enableLocationUbication;
 
     public String getName() {
         return name;
@@ -45,5 +50,25 @@ public class User {
 
     public String getToken() {
         return token;
+    }
+
+    public int getEmailReceiver() {
+        return emailReceiver;
+    }
+
+    public int getPhotoPublication() {
+        return photoPublication;
+    }
+
+    public int getEnableReportUbication() {
+        return enableReportUbication;
+    }
+
+    public int getEnableLocationUbication() {
+        return enableLocationUbication;
+    }
+
+    public int getId() {
+        return id;
     }
 }

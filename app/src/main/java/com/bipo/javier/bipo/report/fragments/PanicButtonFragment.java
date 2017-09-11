@@ -39,6 +39,7 @@ import android.location.LocationListener;
 import com.bipo.javier.bipo.R;
 import com.bipo.javier.bipo.account.fragments.BikeFragment;
 import com.bipo.javier.bipo.account.models.Bike;
+import com.bipo.javier.bipo.account.models.BikesResponse;
 import com.bipo.javier.bipo.home.fragments.SettingsFragment;
 import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
@@ -46,6 +47,7 @@ import com.bipo.javier.bipo.login.activities.LoginActivity;
 import com.bipo.javier.bipo.splashScreen.SplashScreenActivity;
 import com.bipo.javier.bipo.utils.GpsConnection;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
@@ -76,6 +78,7 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
     private int idBike;
     private String GPS = LocationManager.GPS_PROVIDER;
     private String NETWORK = LocationManager.NETWORK_PROVIDER;
+    private static final int STOLEN_REPORT = 1;
 
     public PanicButtonFragment() {
         // Required empty public constructor
@@ -196,7 +199,7 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
                             validateBikes();
                         }else {
                             for (Bike bike : bikesList) {
-                                if (bike.isDefaultbike()) {
+                                if (bike.getIsDefault() == 1) {
                                     idBike = bike.getId();
                                 }
                             }
@@ -272,34 +275,73 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
         String userName = preferences.getString("userName", "");
         String reportName = date + "_" + userName + "_" + idBike;
         String coordinates = latitude + "," + longitude;
-        //TODO: Crear reporte en el servidor.
-        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-        alert.setTitle("Se ha generado un reporte de robo.");
-        alert.setMessage("Estaremos pendientes de cualquier noticia sobre tu bicicleta robada. " +
-                "\nTe enviaremos un correo si sabemos algo de ella."+
-                "\nCoordenadas: " + coordinates + "\nReportName: " + reportName)
-                .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+        String reportDetails = "Reporte generado desde el botón de pánico.";
 
-                        progressBar.setProgress(0);
-                        progressBar.setProgressDrawable(ContextCompat.getDrawable(getContext(),
-                                R.drawable.circular_progress_bar));
-                        anim = ObjectAnimator.ofInt(progressBar, "progress", 0, 100);
-                        getActivity().onBackPressed();
+        HomeRepository repo = new HomeRepository(getContext());
+        Call<BikesResponse> call = repo.registerReport(token, reportName, STOLEN_REPORT, coordinates,
+                idBike, reportDetails);
+        final BikesResponse reportResponse = new BikesResponse();
+        call.enqueue(new Callback<BikesResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
+
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    if (response.code() == 400) {
+                        showMessage("hubo un error al enviar los datos");
+                        System.out.println(response.isSuccess());
+                        System.out.println(response.message());
+                        System.out.println(response.code());
+                        reportResponse.setMessage(response.message());
+                    } else {
+                        showMessage("Ocurrió un error en la red.");
+                        System.out.println(reportResponse.getMessage());
                     }
-                });
-        alert.show();
+                }
+                if (response != null && response.isSuccess() && response.message() != null) {
+
+                    if (response.body().getError().equals("false")) {
+
+                        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                        alert.setTitle("Se ha generado un reporte de robo.");
+                        alert.setMessage("Estaremos pendientes de cualquier noticia sobre tu bicicleta robada. " +
+                                "\nTe enviaremos un correo si sabemos algo de ella.")
+                                .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        progressBar.setProgress(0);
+                                        progressBar.setProgressDrawable(ContextCompat.getDrawable(getContext(),
+                                                R.drawable.circular_progress_bar));
+                                        anim = ObjectAnimator.ofInt(progressBar, "progress", 0, 100);
+                                        getActivity().onBackPressed();
+                                    }
+                                });
+                        alert.show();
+                    } else {
+                        reportResponse.setMessage(response.body().getMessage());
+                        System.out.println("Error: " + reportResponse.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                reportResponse.setMessage(t.getMessage());
+                showMessage("No se pudo establecer la conexión de la red. " +
+                        "Verifica que tengas conexión a internet.");
+            }
+        });
     }
 
     private String getDate() {
-        String currentDate = "";
         Calendar calendar = Calendar.getInstance();
 
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        return currentDate = dateFormat(year, month, day);
+        return dateFormat(year, month, day);
     }
 
     public String dateFormat(int year, int month, int day) {

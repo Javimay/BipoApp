@@ -5,8 +5,6 @@
     android:layout_height="match_parent"
     tools:context="com.bipo.javier.bipo.report.utils.TabStolen$PlaceholderFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <ImageView
         android:id="@+id/ImgVCharge"
         android:layout_width="wrap_content"

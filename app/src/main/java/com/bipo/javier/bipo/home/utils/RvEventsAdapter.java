@@ -71,7 +71,7 @@ public class RvEventsAdapter extends RecyclerView.Adapter<RvEventsAdapter.ViewHo
 
         Report report = reportList.get(position);
         if (report.getReportPhotos() != null){
-            if (report.getReportPhotos().size() != 0){
+            if ((report.getReportPhotos().size() != 0)||(report.getBikePhotos().size() != 0)){
                 getReportPhotos(holder, position);
             }else{
                 ImageView bike = holder.ivBike;
@@ -113,7 +113,12 @@ public class RvEventsAdapter extends RecyclerView.Adapter<RvEventsAdapter.ViewHo
     private void getReportPhotos(RvEventsAdapter.ViewHolder holder, int position){
 
         final ImageView bike = holder.ivBike;
-        String imageUrl = BASE_URL + reportList.get(position).getReportPhotos().get(0).getUrl();
+        String imageUrl = "";
+        if (reportList.get(position).getReportPhotos().size() != 0){
+            imageUrl = BASE_URL + reportList.get(position).getReportPhotos().get(0).getUrl();
+        }else{
+            imageUrl = BASE_URL + reportList.get(position).getBikePhotos().get(0).getUrl();
+        }
         Picasso.with(context).load(imageUrl).into(bike);
     }
 

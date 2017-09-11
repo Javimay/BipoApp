@@ -48,7 +48,7 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvBikeBrand, tvBikeType, tvBikeColor, tvBikeName;
-        ImageView ivBike;
+        ImageView ivBike, ivDefBike;
         ImageButton imgBtnCheckBike;
         RelativeLayout rlytCheckBike;
 
@@ -57,6 +57,8 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
             if(layout == R.layout.item_bikes_report){
                 rlytCheckBike = (RelativeLayout)bikeView.findViewById(R.id.RlytCheckBike);
                 imgBtnCheckBike = (ImageButton)bikeView.findViewById(R.id.ImgBtnCheckBike);
+            }else{
+                ivDefBike = (ImageView)bikeView.findViewById(R.id.ImgVDefBike);
             }
 
             ivBike = (ImageView)bikeView.findViewById(R.id.ImgVAccountBike);
@@ -92,7 +94,9 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
         }else{
             holder.ivBike.setImageResource(R.mipmap.ic_no_image);
         }
-
+        if (bikes.getIsDefault() == 1){
+            holder.ivDefBike.setImageResource(R.mipmap.ic_default_bike);
+        }
         TextView brand = holder.tvBikeBrand;
         String bikeBrand = String.format(resources.getString(R.string.sr_itmtxt_bike_brand),
                 bikes.getBrand());

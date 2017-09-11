@@ -26,6 +26,7 @@ public class Report {
     private String reportDetails;
     private String fhUpdated;
     private List<BikePhotos> reportPhotos;
+    private List<BikePhotos> bikePhotos;
 
     public String getColor() {
         return color;
@@ -149,5 +150,13 @@ public class Report {
 
     public List<BikePhotos> getReportPhotos() {
         return reportPhotos;
+    }
+
+    public List<BikePhotos> getBikePhotos() {
+        return bikePhotos;
+    }
+
+    public void setBikePhotos(List<BikePhotos> bikePhotos) {
+        this.bikePhotos = bikePhotos;
     }
 }

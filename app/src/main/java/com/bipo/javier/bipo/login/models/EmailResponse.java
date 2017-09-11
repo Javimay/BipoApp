@@ -1,6 +1,7 @@
 package com.bipo.javier.bipo.login.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by Javier on 06/05/2017.
@@ -10,7 +11,7 @@ public class EmailResponse implements Serializable {
 
     public String message;
     public String error;
-    public boolean userExist;
+    private ArrayList<User> userExist;
 
     public String getMessage() {
         return message;
@@ -28,11 +29,7 @@ public class EmailResponse implements Serializable {
         this.error = error;
     }
 
-    public boolean isUserExist() {
+    public ArrayList<User> getUserExist() {
         return userExist;
-    }
-
-    public void setUserExist(boolean userExist) {
-        this.userExist = userExist;
     }
 }

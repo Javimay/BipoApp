@@ -16,7 +16,6 @@
     <string name="openDrawer">open_drawer</string>
     <string name="closeDrawer">close_drawer</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="sr_txt_informacin_personal">Información personal</string>
     <string name="sr_btn_cancelar">Cancelar</string>
@@ -74,11 +73,11 @@
     <string name="sr_menu_cerrar_sesion">Cerrar sesión</string>
     <string name="sr_title_configuracion">Configuración</string>
     <string name="sr_sttgtitle_home_de_panico">Home de pánico</string>
-    <string name="sr_sttg_description_homepanic">El botón de pánico estará en la ventana para un acceso más rápido.</string>
+    <string name="sr_sttg_description_homepanic">El botón de pánico estará en la ventana principal para un acceso más rápido.</string>
     <string name="sr_sttg_title_publicacion_fotos">Publicación de fotos</string>
     <string name="sr_sttg_description_publicacion_fotos">Evitar la publicación de fotos de la bicicleta en un reporte de robo.</string>
     <string name="sr_sttg_tittle_notificacion_correo">Notificación por correo</string>
-    <string name="sr_sttg_description_notificacion_correo">Se enviarán notificaciones de bipo al correo electrónico.</string>
+    <string name="sr_sttg_description_notificacion_correo">Enviar notificaciones de bipo al correo electrónico.</string>
     <string name="sr_sttg_title_notificaciones">Notificaciones</string>
     <string name="sr_sttg_description_notificaciones">Recibir las notificaciones de bipo en el celular.</string>
     <string name="sr_title_bicicleta_vista">Bicicleta vista</string>
@@ -95,7 +94,7 @@
     <string name="sr_txt_bipo_version">Versión: %s</string>
     <string name="sr_txt_bipo_information_app">"La información, imágenes, datos, logotipos, código fuente y demás contenido alojado en la página web www.bipoapp.com como en la aplicación móvil Bipo, pertenece a la Fundación Universitaria Los Libertadores y a sus desarrolladores.
         \nBipo se establece entre los lineamientos y normativas de las leyes colombianas para la protección de datos y las normativas para las redes sociales Facebook®  y Twitter®.
-        \nVisita nuestra página para más información sobre los <a href="http://bipoapp.com/">Términos y Condiciones.</a>
+        \nVisita nuestra página para más información sobre los <a href="bipoapp.com/page/terminos">Términos y Condiciones.</a>
         \nPara contactarnos lo puedes hacer mediante el correo electrónico: contacto@bipoapp.com "</string>
     <string name="sr_cd_bipo_logo">logo bipo</string>
     <string name="sr_cd_boton_panico">Botón de pánico</string>

@@ -1,6 +1,7 @@
 package com.bipo.javier.bipo.account.fragments;
 
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -14,7 +15,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -86,6 +90,8 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
     private Animation anim;
     AlertDialog.Builder alert;
     private static final String BIPO_URL = "http://www.bipoapp.com/";
+    private String token;
+    private int bikeId;
 
     public EditBikeFragment() {
         // Required empty public constructor
@@ -134,7 +140,10 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         tvBikeIdFrame = (TextView) view.findViewById(R.id.TvBikeIdFrame);
         etBikeFeatures = (EditText) view.findViewById(R.id.EtBikeFeatures);
         etBikeFeatures.setEnabled(false);
+        etBikeFeatures.setMovementMethod(new ScrollingMovementMethod());
         alert = new AlertDialog.Builder(getContext());
+        token = preferences.getString("token", "");
+        bikeId = getArguments().getInt("id");
         cleanStorage();
         validateButtons();
         galeryActive(false);
@@ -152,7 +161,7 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
             getBikePhotos();
         }
 
-        if (getArguments().getBoolean("default")){
+        if (getArguments().getInt("default") == 1){
             imgvDefBike.setVisibility(View.VISIBLE);
         }
         tvBikeName.setText(getArguments().getString("bikeName"));
@@ -286,16 +295,15 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == R.id.edit_bike) {
-            editBike();
 
-            showMessage("editar!");
+            editBike();
         } else if (item.getItemId() == R.id.default_bike){
-            if (!getArguments().getBoolean("default")){
-                imgvDefBike.setVisibility(View.VISIBLE);
+
+            if (getArguments().getInt("default") != 1){
+                setBikeDefault();
             }else{
-                showMessage("Ya es la bicicleta por default");
+                showMessage("Ya es tu bicicleta principal.");
             }
-            showMessage("Default!");
         }else if (item.getItemId() == R.id.delete_bike){
 
             alert.setTitle("Eliminar bicicleta.");
@@ -317,10 +325,59 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
 
 
         }else if (item.getItemId() == R.id.save_bike){
+
             saveBike();
-            showMessage("Guardar!!");
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setBikeDefault() {
+
+        HomeRepository repo = new HomeRepository(getContext());
+        Call<BikesResponse> call = repo.defaultBike(bikeId,token);
+        final BikesResponse reportResponse = new BikesResponse();
+        call.enqueue(new Callback<BikesResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
+
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    if (response.code() == 400) {
+                        showMessage("hubo un error al enviar los datos");
+                        System.out.println(response.isSuccess());
+                        System.out.println(response.message());
+                        System.out.println(response.code());
+                        reportResponse.setMessage(response.message());
+                    } else {
+                        showMessage("Ocurrió un error en la red.");
+                        System.out.println(reportResponse.getMessage());
+                    }
+                }
+                if (response != null && response.isSuccess() && response.message() != null) {
+
+                    if (response.body().getError().equals("false")) {
+
+                        imgvDefBike.setVisibility(View.VISIBLE);
+                        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                        alert.setTitle("Cambiaste tu bicicleta principal.");
+                        alert.setMessage(getArguments().getString("bikeName")
+                                +" es ahora tu bicicleta principal.");
+                        alert.show();
+                    } else {
+                        reportResponse.setMessage(response.body().getMessage());
+                        System.out.println("Error: " + reportResponse.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                reportResponse.setMessage(t.getMessage());
+                showMessage("No se pudo establecer la conexión de la red. " +
+                        "Verifica que tengas conexión a internet.");
+            }
+        });
     }
 
 
@@ -346,8 +403,6 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
 
     private void deleteBike() {
 
-        String token = preferences.getString("token", "");
-        final int bikeId = getArguments().getInt("id");
         HomeRepository repo = new HomeRepository(getContext());
         Call<BikesResponse> call = repo.deleteBike(bikeId, token);
         final BikesResponse bikesResponse = new BikesResponse();
@@ -409,6 +464,7 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         String bikeColor = String.format(resources.getString(R.string.sr_itmtxt_bike_color),
                 listColors.get((int)idColor).getColor());
         tvBikeColor.setText(bikeColor);
+        updateBike(bikeId,token, (int)idColor,etBikeFeatures.getText().toString());
         //viewFlipper.removeView(imgvDefault);
         spColor.setVisibility(View.INVISIBLE);
         btnFoto.setVisibility(View.INVISIBLE);
@@ -418,6 +474,51 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         menu.getItem(0).setVisible(true);
         menu.getItem(1).setVisible(true);
         menu.getItem(2).setVisible(true);
+    }
+
+    private void updateBike(int bikeId, String token, int idColor, String bikeFeatures) {
+
+        HomeRepository repo = new HomeRepository(getContext());
+        Call<BikesResponse> call = repo.updateBike(bikeId, token, idColor, bikeFeatures);
+        final BikesResponse bikesResponse = new BikesResponse();
+        call.enqueue(new Callback<BikesResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
+
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    if (response.code() == 400) {
+                        showMessage("No hay datos.");
+                        System.out.println(response.isSuccess());
+                        System.out.println(response.message());
+                        System.out.println(response.code());
+                        bikesResponse.setMessage(response.message());
+                    } else {
+                        showMessage("Ocurrió un error en la red.");
+                        System.out.println(bikesResponse.getMessage());
+                    }
+                }
+                if (response != null && response.isSuccess() && response.message() != null) {
+
+
+                    if (response.body().getError().equals("false")) {
+                        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                        alert.setTitle("Se ha actualizado una bicicleta.");
+                        alert.setMessage(tvBikeName.getText()+ " se ha actualizado exitosamente. ");
+                        alert.show();
+                    } else {
+                        bikesResponse.setMessage(response.body().getMessage());
+                        System.out.println(bikesResponse.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                bikesResponse.setMessage(t.getMessage());
+            }
+        });
     }
 
     private void showMessage(String message) {
@@ -430,20 +531,6 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.BtnPrevious: {
                 this.getActivity().onBackPressed();
-                break;
-            }
-            case R.id.BtnUserRegister: {
-                //validateFields(); //TODO: Habilitar
-                try {
-                    final File fileBike = new File(directory.getAbsolutePath(), file + 1 + format);
-                    if (fileBike.exists()) {
-                        //registerPhotoBike("LA DOBLE HPTA", fileBike);
-                    }
-                    break;
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    //break;
-                }
                 break;
             }
             case R.id.ImgBtnFotoNueva: {

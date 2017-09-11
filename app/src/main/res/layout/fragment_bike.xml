@@ -6,8 +6,6 @@
     android:background="@color/BackShadow"
     tools:context=".account.fragments.BikeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <ScrollView
         android:id="@+id/ScrlVBikeInfo"
         android:layout_width="match_parent"
@@ -198,22 +196,6 @@
                     android:ems="10"
                     android:hint="@string/sr_txt_caracteristicas"
                     android:inputType="textMultiLine" />
-
-                <CheckBox
-                    android:id="@+id/ChbxPoliticaFotos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:text="@string/sr_txt_acepto_fotos" />
-
-                <CheckBox
-                    android:id="@+id/ChbxPoliticaTerminos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:text="@string/sr_txt_acepto_terminos" />
 
                 <LinearLayout
                     android:layout_width="match_parent"

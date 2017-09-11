@@ -18,11 +18,17 @@ public class Bike {
     private String type;
     private String bikefeatures;
     private String bikestate;
-    private boolean defaultbike = false;
+    private int isDefault;
     private boolean checked = false;
+    private List<BikePhotos> bikePhotos;
 
-     private List<BikePhotos> bikePhotos;
+    public int getIsDefault() {
+        return isDefault;
+    }
 
+    public void setIsDefault(int isDefault) {
+        this.isDefault = isDefault;
+    }
 
     public boolean isChecked() {
         return checked;
@@ -102,14 +108,6 @@ public class Bike {
 
     public void setBikestate(String bikestate) {
         this.bikestate = bikestate;
-    }
-
-    public boolean isDefaultbike() {
-        return defaultbike;
-    }
-
-    public void setDefaultbike(boolean defaultbike) {
-        this.defaultbike = defaultbike;
     }
 
     public List<BikePhotos> getBikePhotos() {

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:layout_marginEnd="20dp"
     android:layout_marginStart="5dp">
-    <!--tools:context="com.bipo.javier.bipo.login.register.ItemColorActivity">-->
+    <!--tools:context="com.bipo.javier.bipo.login.register.activities.ItemColorActivity">-->
 
     <LinearLayout
         android:layout_width="344dp"

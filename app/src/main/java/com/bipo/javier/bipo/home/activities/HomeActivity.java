@@ -218,7 +218,6 @@ public class HomeActivity extends AppCompatActivity
 
     private void logoutAccount() {
         Intent intent = new Intent(this, LoginActivity.class);
-        //TODO: Limpar el BackList y las preferencias
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear().apply();
         intent.addFlags(IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);

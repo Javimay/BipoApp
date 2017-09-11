@@ -62,8 +62,7 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
     private ImageView imgCharge, imgReload;
     private Animation anim;
     private TextView tvRedError;
-    private boolean bikesLimit;
-    public Bitmap photo;
+    private boolean bikesLimit, isFirstBike = false;
     private static final String BASE_URL = "http://www.bipoapp.com/";
 
     public AccountInfoFragment() {
@@ -158,6 +157,7 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
                         btnNewBike.setVisibility(View.VISIBLE);
                         imgCharge.getAnimation().cancel();
                         imgCharge.setImageResource(0);
+                        isFirstBike = false;
                     } else {
                         bikesResponse.setMessage(response.body().getMessage());
                         imgCharge.getAnimation().cancel();
@@ -166,6 +166,7 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
                         btnNewBike.setVisibility(View.VISIBLE);
                         tvRedError.setVisibility(View.VISIBLE);
                         tvRedError.setText("No tienes bicicletas registradas.");
+                        isFirstBike = true;
                     }
                 }
             }
@@ -228,7 +229,7 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
                         String idFrame = bikesList.get(position).getIdframe();
                         String features = bikesList.get(position).getBikefeatures();
                         int idBike = bikesList.get(position).getId();
-                        boolean defaultBike = bikesList.get(position).isDefaultbike();
+                        int defaultBike = bikesList.get(position).getIsDefault();
 
                         if (bikesList.get(position).getBikePhotos() != null) {
                             if (bikesList.get(position).getBikePhotos().size() != 0) {
@@ -248,7 +249,7 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
                         arguments.putString("bikeName", name);
                         arguments.putString("idFrame", idFrame);
                         arguments.putString("features", features);
-                        arguments.putBoolean("default", defaultBike);
+                        arguments.putInt("default", defaultBike);
                         arguments.putInt("id", idBike);
                         goToItemBikeFragment(arguments);
                     }
@@ -273,20 +274,9 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
         this.menu = menu;
-        inflater.inflate(R.menu.edit_menu, menu);
-        menu.getItem(1).setVisible(false);
+        inflater.inflate(R.menu.settings_menu, menu);
+        //menu.getItem(1).setVisible(false);
         super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        if (item.getTitle().equals("Edit account")) {
-            editAccount();
-        } else {
-            saveAccount();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -312,6 +302,9 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         BikeFragment bikeFragment = new BikeFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("isFirstBike", isFirstBike);
+        bikeFragment.setArguments(bundle);
         ft.replace(R.id.RlyEvents, bikeFragment).addToBackStack(null).commit();
     }
 
@@ -321,64 +314,6 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
         FragmentTransaction ft = fm.beginTransaction();
         ChangePasswordFragment changePasswordFragment = new ChangePasswordFragment();
         ft.replace(R.id.RlyEvents, changePasswordFragment).addToBackStack(null).commit();
-    }
-
-    private void editAccount() {
-
-        tvAccountPhone.setVisibility(View.INVISIBLE);
-        etAccountPhone.setVisibility(View.VISIBLE);
-        etAccountPhone.setHint(tvAccountPhone.getText());
-        tvAccountName.setTextColor(Color.GRAY);
-        tvAccountLastName.setTextColor(Color.GRAY);
-        tvAccountEmail.setTextColor(Color.GRAY);
-        tvAccountDocument.setTextColor(Color.GRAY);
-        btnNewBike.setVisibility(View.INVISIBLE);
-        menu.getItem(0).setVisible(false);
-        menu.getItem(1).setVisible(true);
-        //ibtnRigthButton.setImageResource(R.mipmap.ic_save);
-        //ibtnRigthButton.setTag(R.mipmap.ic_save);
-    }
-
-    private void saveAccount() {
-
-        if (!TextUtils.isEmpty(etAccountPhone.getText())) {
-            if (!validateCel()) {
-                etAccountPhone.setError("Tu número de celular debe contener minimo 10 digitos.");
-                return;
-            } else {
-                String phone = String.format(resources.getString(R.string.sr_account_info_phone),
-                        etAccountPhone.getText());
-                tvAccountPhone.setText(phone);
-            }
-
-        } else {
-            tvAccountPhone.setText(etAccountPhone.getHint());
-        }
-        showMessage("Guardando...");
-        //TODO: Consumir servicio de actualizacion de datos del usuario.
-        tvAccountPhone.setVisibility(View.VISIBLE);
-        /*phone = String.format(resources.getString(R.string.sr_account_info_phone),
-                etAccountPhone.getText());*/
-        etAccountPhone.setVisibility(View.INVISIBLE);
-        etAccountPhone.getText().clear();
-        tvAccountName.setTextColor(Color.BLACK);
-        tvAccountLastName.setTextColor(Color.BLACK);
-        tvAccountEmail.setTextColor(Color.BLACK);
-        tvAccountDocument.setTextColor(Color.BLACK);
-        btnNewBike.setVisibility(View.VISIBLE);
-        menu.getItem(1).setVisible(false);
-        menu.getItem(0).setVisible(true);
-        //ibtnRigthButton.setImageResource(R.mipmap.ic_edit);
-        //ibtnRigthButton.setTag(R.mipmap.ic_edit);
-    }
-
-    private boolean validateCel() {
-        boolean ok = false;
-        String num = etAccountPhone.getText().toString();
-        if (!(num.length() < 10)) {
-            ok = true;
-        }
-        return ok;
     }
 
     public void showMessage(String message) {

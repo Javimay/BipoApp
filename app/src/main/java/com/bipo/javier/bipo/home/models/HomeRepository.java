@@ -62,4 +62,16 @@ public class HomeRepository {
     public Call<BikesResponse> deleteBike(int bikeId,String token){
         return apiService.deleteBike(bikeId, token);
     }
+
+    public Call<BikesResponse> defaultBike(int bikeId,String token){
+        return apiService.defaultBike(bikeId, token);
+    }
+
+    public Call<GetBikesResponse> getBikeByName(String token, String bikeName) {
+        return apiService.getBikeByName(token, bikeName);
+    }
+
+    public Call<BikesResponse> updateBike(int bikeId, String token, int idColor, String BikeFeatures){
+        return apiService.updateBike(bikeId, token, idColor, BikeFeatures);
+    }
 }

@@ -38,6 +38,10 @@ public interface IRestClient {
     @GET("user/{email}")
     Call<EmailResponse> emailVerify(@Path("email") String email);
 
+    @FormUrlEncoded
+    @POST("recoverPass")
+    Call<BikesResponse> recoveryPass(@Field("email") String email);
+
     @GET("brands")
     Call<BikeBrandsResponse> getBikeBrands();
 
@@ -67,6 +71,9 @@ public interface IRestClient {
 
     @GET("bikes/{userName}")
     Call<GetBikesResponse> getAccountBikes(@Path("userName") String token);
+
+    @GET("bike/{userName}/{bikeName}")
+    Call<GetBikesResponse> getBikeByName(@Path("userName") String token, @Path("bikeName") String bikeName);
 
     @FormUrlEncoded
     @POST("bike")
@@ -103,82 +110,20 @@ public interface IRestClient {
     @POST("deleteBike")
     Call<BikesResponse> deleteBike(@Field("bikeId") int bikeId, @Field("token") String token);
 
-    /*@Multipart
-    @POST("bikePhoto")
-    Call<BikesResponse> registerBikePhoto(@Query("bikeName") String bikeName, @Query("token") String token,
-                                          @Part("image\"; fileName=\"bike.png\"") RequestBody bikeFile);*/
-   /* @GET("/api/Profile/GetStatus")
-    Call<GetStatusResponse> getStatus();
-
-    @GET("/api/Profile/GetImages")
-    Call<GetPhotosResponse> getPhotos();
-
-    @Multipart
-    @POST("/api/Profile/PostImage")
-    Call<PostPhotoResponse> postPhotos(@Query("photo") String photo, @Part("file\"; filename=\"image.png") RequestBody file);
-
-    @Multipart
-    @POST("api/profile/PostDocImage")
-    Call<PostPhotoResponse> postDocPhotos(@Query("photo") String photo, @Part("file\"; filename=\"image.png") RequestBody file);
-
-    @GET("api/profile/getDocImages")
-    Call<GetPhotosResponse> getDocPhotos();
-
-    @POST("/api/Account/ConfirmEmail")
-    Call<DefaultResponse> PostEmailVerification();
 
     @FormUrlEncoded
-    @POST("api/Account/ReceiveCode")
-    Call<DefaultResponse> PostCellphoneVerification(@Field("Code")String Code,@Field("Phone")String Phone );
+    @POST("defaultBike")
+    Call<BikesResponse> defaultBike(@Field("bikeId") int bikeId, @Field("token") String token);
 
     @FormUrlEncoded
-    @POST("api/Account/ConfirmPhone")
-    Call<DefaultResponse>PostCellphoneSMS (@Field("Phone")String Phone );
+    @POST("updateBike")
+    Call<BikesResponse> updateBike(@Field("bikeId") int bikeId, @Field("token") String token,
+                                   @Field("idColor") int idColor, @Field("bikeFeatures") String bikeFeatures);
 
     @FormUrlEncoded
-    @POST("api/Account/VerifyDocument")
-    Call<DocumentResponse>PostDocumentVerification (@Field("Document")String Document, @Field("ExpDate")String ExpDate,
-                                                    @Field("DocType") Integer DocType);
-
-    @GET("api/Template/GetTemplates?published=")
-    Call<GetTemplatesResponse> GetTemplates();
-
-    @FormUrlEncoded
-    @POST("api/Account/ChangePassword")
-    Call<DefaultResponse>ChangePassword (@Field("Email")String Email);
-
-    @GET("api/Account/GetByDocument")
-    Call<DocumentResponse>GetByDocument (@Query("Document")String Document, @Query("ExpDate") String ExpDate,
-                                         @Query("DocType") Integer DocType);
-
-    @GET("/api/Template/GetFolders")
-    Call<FolderResponse>GetFolders(@Query("folderparentID")String folderparentid);
-
-    @GET("/api/Template/GetDocuments")
-    Call<FolderResponse>GetFiles(@Query("folderparentID")String folderparentid);
-
-    @Multipart
-    @POST("api/profile/PostFingerPhoto")
-    Call<PostPhotoResponse> postFingerPhoto(@Query("type") String type, @Part("file\"; filename=\"image.png") RequestBody file);
-
-    @GET("api/profile/GetFingerPhotos")
-    Call<GetPhotosResponse> getFingerPhotos();
-
-    @GET("api/Template/GetContracts")
-    Call<GetContractsResponse> getContracts();
-
-    @GET("api/Template/GetDocument/")
-    Call<FileResponse> getDocument(@Query("idDocument")String id);
-
-    @FormUrlEncoded
-    @POST("api/Template/CreateContract")
-    Call<GetContractsResponse> createContract(@Field("UserName")String UserName,@Field("TemplateId")String TemplateId);
-
-    @FormUrlEncoded
-    @POST("api/Template/SaveContract")
-    Call<GetContractsResponse> saveContract(@Field("documentId")String documentId,@Field("TemplateId")String TemplateId,
-                                            @Field("UserName")String UserName,@Field("documentName")String DocumentName);
-*/
-
-
+    @POST("setPreferences")
+    Call<UserResponse> savePreferences(@Field("token") String token, @Field("emailReceiver") int emailRecv,
+                                    @Field("photoPublication") int photoPublic,
+                                    @Field("enableReportUbication") int reportUbication,
+                                    @Field("enableLocationUbication") int location);
 }

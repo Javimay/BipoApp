@@ -19,7 +19,7 @@ import com.bipo.javier.bipo.R;
 public class InsecureAreaFragment extends Fragment {
 
     private WebView wvInsecureArea;
-    private static final String BIPO_URL = "http://bipoapp.com/page/zones";
+    private static final String BIPO_URL = "http://www.bipoapp.com/page/zones";
 
     public InsecureAreaFragment() {
         // Required empty public constructor

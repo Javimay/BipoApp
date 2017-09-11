@@ -122,7 +122,6 @@ public class ReportBikesFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        System.out.println(">>>>on Resume<<<");
         mViewPager.setOffscreenPageLimit(1);
     }
 }

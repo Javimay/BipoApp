@@ -1,13 +1,19 @@
 package com.bipo.javier.bipo.login.activities;
 
+import android.animation.ObjectAnimator;
+import android.content.DialogInterface;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.content.Context;
 
 import com.bipo.javier.bipo.R;
+import com.bipo.javier.bipo.account.models.BikesResponse;
 import com.bipo.javier.bipo.login.models.AccountRepository;
 import com.bipo.javier.bipo.login.models.EmailResponse;
 
@@ -18,7 +24,7 @@ import retrofit.Retrofit;
 public class PassRestaurationActivity extends AppCompatActivity {
 
     private EditText etEmail;
-    private boolean okEmail;
+    private Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +37,6 @@ public class PassRestaurationActivity extends AppCompatActivity {
     private void initComponents() {
 
         etEmail = (EditText) findViewById(R.id.EtConfirmCorreo);
-        okEmail = false;
     }
 
     private void validateEmail() {
@@ -57,13 +62,14 @@ public class PassRestaurationActivity extends AppCompatActivity {
             return;
         }
         userExist(email);
-        if(!okEmail){
+        //recoveryPass(email);
+        /*if(!okEmail){
             return;
-        }
+        }*/
 
     }
 
-    private boolean userExist(String email) {
+    private void userExist(final String email) {
 
         AccountRepository repo = new AccountRepository(this);
         final EmailResponse emailResponse = new EmailResponse();
@@ -74,7 +80,6 @@ public class PassRestaurationActivity extends AppCompatActivity {
 
                 if (response != null && !response.isSuccess() && response.errorBody() != null) {
 
-                    okEmail = false;
                     emailResponse.setMessage(response.message());
                     showMessage("Ocurrió un error en la red.");
                     System.out.println(emailResponse.getMessage());
@@ -83,26 +88,66 @@ public class PassRestaurationActivity extends AppCompatActivity {
 
                     System.out.println(response.isSuccess());
                     System.out.println(response.message());
-                    okEmail = response.body().userExist;
-                    if (!response.body().userExist){
+
+                    if (response.body().getUserExist().size() == 0){
                         etEmail.setError("Este correo no está registrado aún en bipo.");
                     }else{
-                        //TODO: consumir servicio para restauración de contraseña.
-                        showMessage("Validando...");
+                        recoveryPass(email);
                     }
                 }
             }
             @Override
             public void onFailure(Throwable t) {
 
-                okEmail = false;
                 System.out.println("onFailure!: " + t);
                 emailResponse.setMessage(t.getMessage());
                 showMessage("No se pudo establecer la conexión de la red. " +
                         "Verifica que tengas conexión a internet.");
             }
         });
-        return okEmail;
+    }
+
+    private void recoveryPass(String email) {
+
+        AccountRepository repo = new AccountRepository(this);
+        Call<BikesResponse> call = repo.recoveryPass(email);
+        final BikesResponse bikesResponse = new BikesResponse();
+        call.enqueue(new Callback<BikesResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
+
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+
+                    bikesResponse.setMessage(response.message());
+                    showMessage("Ocurrió un error en la red.");
+                    System.out.println(bikesResponse.getMessage());
+                }
+                if (response != null && response.isSuccess() && response.message() != null) {
+
+                    AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                    alert.setTitle("Restaurando tu contraseña.");
+                    alert.setMessage("Acabamos de enviarte un correo electrónico con las intrucciones" +
+                            " para restaurar tu contraseña." +
+                                "\nCuando termines de restaurar tu contraseña podrás iniciar sesión.")
+                    .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            finish();
+                        }
+                    });
+                    alert.show();
+                }
+            }
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                bikesResponse.setMessage(t.getMessage());
+                showMessage("No se pudo establecer la conexión de la red. " +
+                        "Verifica que tengas conexión a internet.");
+            }
+        });
     }
 
 

@@ -45,7 +45,6 @@ public class BipoInfoFragment extends Fragment {
         tvInfoBipo = (TextView)view.findViewById(R.id.TvInfoBipo);
         tvInfoBipo.setMovementMethod(new ScrollingMovementMethod());
         tvInfoBipo.setMovementMethod(LinkMovementMethod.getInstance());
-        //TODO: Cambiar link de los terminos y condiciones en el archivo strings.
         jarcidcoLogo = (ImageView)view.findViewById(R.id.ImgVJarcidco);
         animIn = AnimationUtils.loadAnimation(getContext(),R.anim.anim_turn_in);
         animIn.setFillAfter(true);

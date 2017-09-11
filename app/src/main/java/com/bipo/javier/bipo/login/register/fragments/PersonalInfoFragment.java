@@ -7,11 +7,13 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.Editable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -49,6 +51,7 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
     private boolean date, validateDate, okEmail;
     private int year, month, day;
     private Calendar calendar;
+    private CheckBox chbxFotos, chbxTerminos;
 
     public PersonalInfoFragment() {
         // Required empty public constructor
@@ -84,6 +87,8 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
         etConfirmación = (EditText) v.findViewById(R.id.EtConfContraseña);
         etConfirmación.setOnFocusChangeListener(this);
         etCorreo.setOnFocusChangeListener(this);
+        chbxFotos = (CheckBox) v.findViewById(R.id.ChbxPoliticaFotos);
+        chbxTerminos = (CheckBox) v.findViewById(R.id.ChbxPoliticaTerminos);
         validateDate = false;
         date = false;
     }
@@ -95,9 +100,7 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
         if (v.getId() == R.id.BtnCancel) {
             this.getActivity().finish();
         } else if (v.getId() == R.id.BtNext) {
-            //Todo: volver a activar la validacion y quitar el metodo de ir al otro fragment
             validatePersonalFields();
-            //toHomeActivity();
         } else if (v.getId() == R.id.TvFecha) {
 
             showDatePicker();
@@ -123,6 +126,14 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
         }
         if (TextUtils.isEmpty(etApellidos.getText().toString())) {
             etApellidos.setError("Escribe tus apellidos por favor.");
+            return;
+        }
+        if(!okText(etNombres.getText().toString())){
+            etNombres.setError("Los nombres no deben contener numeros.");
+            return;
+        }
+        if (!okText(etApellidos.getText().toString())){
+            etApellidos.setError("Los apellidos no deben contener numeros");
             return;
         }
         //Validacion de edad +12
@@ -152,7 +163,6 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
             etCedula.setError("El documento debe tener minimo 8 digitos.");
             return;
         }
-
         //Validación del correo
 
         if (TextUtils.isEmpty(etCorreo.getText().toString())) {
@@ -162,8 +172,6 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
         String email = etCorreo.getText().toString();
         //userExist(email);
         if (userExist(email)) {
-
-            //etCorreo.setError("Este correo ya está registrado");
             return;
         }
         if (!passwordVerify()) {
@@ -176,8 +184,29 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
             etConfirmación.setError("Las contraseñas no coinciden.");
             return;
         }
-
+        if (!chbxFotos.isChecked()) {
+            showMessage("Debes aceptar la publicación de fotos.");
+            return;
+        }
+        if (!chbxTerminos.isChecked()) {
+            showMessage("Debes aceptar los terminos y condiciones.");
+            return;
+        }
         registerUser();
+    }
+
+    private boolean okText(String text) {
+        String letter = null;
+        char key;
+        boolean ok = true;
+        for (int i = 0; i < text.length(); i++){
+        key = text.charAt(i);
+        letter = String.valueOf(key);
+            if (letter.matches("[0-9]")) {
+                return ok = false;
+            }
+        }
+        return ok;
     }
 
     private void registerUser() {
@@ -196,17 +225,20 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
             @Override
             public void onResponse(retrofit.Response<UserResponse> response, Retrofit retrofit) {
 
-                if ((response.body().getError()) && response.message() == null){
-
-                    showMessage("Ocurrió un error en la red.");
-                    System.out.println(userResponse.getMessage());
-                    System.out.println(response.isSuccess());
-                    System.out.println(response.message());
-                    System.out.println(response.code());
-
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    if (response.code() == 400) {
+                        showMessage("No hay datos.");
+                        System.out.println(response.isSuccess());
+                        System.out.println(response.message());
+                        System.out.println(response.code());
+                        userResponse.setMessage(response.message());
+                    } else {
+                        showMessage("Ocurrió un error en la red.");
+                        System.out.println(userResponse.getMessage());
+                    }
                 }
 
-                if (response.isSuccess() && !response.body().getError()){
+                if (response != null && response.isSuccess() && response.message() != null){
 
                     System.out.println(response.message());
                     showMessage("Te has registrado exitosamente. \n¡Bienvenido a bipo!");
@@ -270,6 +302,7 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
                                     "\nNickname: " + user.getNickname() +
                                     "\nToken: " + user.getToken());
                         }
+                        savePreferences(token);
                         goToHomeActivity(name, lastName, email, birthday, phone, documentid, token);
                     }
                 }
@@ -285,6 +318,47 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
             }
         });
 
+    }
+
+    private void savePreferences(String token) {
+
+        int photoPublication = 0;
+        if (chbxFotos.isChecked()){
+            photoPublication = 1;
+        }
+        AccountRepository repo = new AccountRepository(getContext());
+        Call<UserResponse> call = repo.savePreferences(token,0,photoPublication,0,0);
+        final UserResponse userResponse = new UserResponse();
+        call.enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<UserResponse> response, Retrofit retrofit) {
+
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    if (response.code() == 400) {
+                        showMessage("Correo o contraseña incorrecta.");
+                        System.out.println(response.isSuccess());
+                        System.out.println(response.message());
+                        System.out.println(response.code());
+                        userResponse.setMessage(response.message());
+                    } else {
+                        showMessage("Ocurrió un error en la red.");
+                        System.out.println(userResponse.getMessage());
+                    }
+                }
+                if (response != null && response.isSuccess() && response.message() != null) {
+                    System.out.println("Preferencias guardadas.");
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                userResponse.setMessage(t.getMessage());
+                showMessage("No se pudo establecer la conexión de la red. " +
+                        "Verifica que tengas conexión a internet.");
+            }
+        });
     }
 
 
@@ -483,9 +557,11 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
 
                     System.out.println(response.isSuccess());
                     System.out.println(response.message());
-                    okEmail = response.body().userExist;
-                    if (response.body().userExist){
+                    if (response.body().getUserExist().size() != 0){
                         etCorreo.setError("Este correo ya está registrado.");
+                        okEmail = true;
+                    }else{
+                        okEmail = false;
                     }
                 }
             }

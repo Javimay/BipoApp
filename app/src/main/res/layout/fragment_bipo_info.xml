@@ -6,7 +6,6 @@
     android:background="#64424141"
     tools:context="com.bipo.javier.bipo.info.fragments.BipoInfoFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

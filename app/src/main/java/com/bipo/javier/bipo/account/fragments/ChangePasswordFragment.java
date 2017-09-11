@@ -18,6 +18,7 @@ import com.bipo.javier.bipo.home.models.HomeRepository;
 import com.bipo.javier.bipo.login.models.AccountRepository;
 import com.bipo.javier.bipo.login.models.LoginResponse;
 import com.bipo.javier.bipo.login.models.User;
+import com.bipo.javier.bipo.login.utilities.Teclado;
 
 import java.util.ArrayList;
 
@@ -67,6 +68,7 @@ public class ChangePasswordFragment extends Fragment implements View.OnClickList
 
     private void validateFields() {
 
+        Teclado.ocultarTeclado(getActivity());
         String oldPass = etOldPass.getText().toString();
         String newPass = etNewPass.getText().toString();
         String email = preferences.getString("email", "");
@@ -74,7 +76,6 @@ public class ChangePasswordFragment extends Fragment implements View.OnClickList
             etOldPass.setError("Escribe tu contraseña actual.");
             return;
         }
-        //TODO:Validar especificacaciones de contraseña.
         if (TextUtils.isEmpty(etNewPass.getText().toString())){
             etOldPass.setError("Escribe tu nueva contraseña.");
             return;
@@ -102,8 +103,7 @@ public class ChangePasswordFragment extends Fragment implements View.OnClickList
 
                 if (response != null && !response.isSuccess() && response.errorBody() != null) {
                     if (response.code() == 400) {
-                        showMessage("Contraseña actual incorrecta.");
-                        System.out.println(response.isSuccess());
+                        showMessage("La antigüa contraseña es incorrecta.");
                         System.out.println(response.message());
                         System.out.println(response.code());
                         bikesResponse.setMessage(response.message());

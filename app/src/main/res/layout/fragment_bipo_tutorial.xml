@@ -6,8 +6,6 @@
     android:padding="20dp"
     tools:context="com.bipo.javier.bipo.info.fragments.BipoTutorialFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <ViewFlipper
         android:id="@+id/VfTutorial"
         android:layout_width="match_parent"

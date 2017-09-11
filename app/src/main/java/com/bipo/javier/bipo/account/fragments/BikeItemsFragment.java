@@ -215,7 +215,6 @@ public class BikeItemsFragment extends Fragment implements View.OnClickListener{
 
         }else{
 
-            //Todo: Actualizar datos de la bicicleta.
             imgBtnEdit.setImageResource(R.mipmap.ic_edit);
             tvBikeColor.setVisibility(View.VISIBLE);
             spColor.setVisibility(View.INVISIBLE);

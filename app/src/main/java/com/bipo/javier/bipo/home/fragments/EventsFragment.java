@@ -199,7 +199,6 @@ public class EventsFragment extends Fragment {
                         if(idReport == 1) {
                             //Argumentos del Bundle
                             Bundle arguments = new Bundle();
-                            //arguments.putString("activity", "home");
                             arguments.putString("imageUrl", imageUrl);
                             arguments.putString("status", status);
                             arguments.putString("brand", brand);
