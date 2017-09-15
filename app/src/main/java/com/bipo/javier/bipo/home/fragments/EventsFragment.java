@@ -173,6 +173,7 @@ public class EventsFragment extends Fragment {
                         String color = reportList.get(position).getColor();
                         String coordinates = reportList.get(position).getGooglemapscoordinate();
 
+
                         if (idReport == 1){
 
                             textColor = ContextCompat.getColor(getContext(),R.color.stolenBikeColor);
@@ -187,12 +188,14 @@ public class EventsFragment extends Fragment {
                             colorArea = ContextCompat.getColor(getContext(),R.color.darkBlue);
                         }
 
-                        if (reportList.get(position).getReportPhotos() != null){
-                            if (reportList.get(position).getReportPhotos().size() !=0) {
-                                imageUrl = BASE_URL + reportList.get(position).getReportPhotos()
+                        if (reportList.get(position).getReportPhotos().size() !=0) {
+                            imageUrl = BASE_URL + reportList.get(position).getReportPhotos()
                                         .get(0).getUrl();
-                            }
+                        }else if (reportList.get(position).getBikePhotos().size() !=0) {
+                            imageUrl = BASE_URL + reportList.get(position).getBikePhotos()
+                                        .get(0).getUrl();
                         }
+
 
 
 

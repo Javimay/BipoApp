@@ -21,6 +21,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -77,6 +79,8 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
     private double longitude, latitude;
     private int idBike;
     private Long idReportType;
+    private ImageView imgVCharge;
+    private RelativeLayout rlytCharge;
 
     public MakeReportFragment() {
         // Required empty public constructor
@@ -99,6 +103,8 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
         resources = getContext().getResources();
         btnGetAddress = (ImageButton) view.findViewById(R.id.ImgBtnAdressRep);
         btnGetAddress.setOnClickListener(this);
+        rlytCharge = (RelativeLayout)view.findViewById(R.id.RlyChargeReport);
+        imgVCharge = (ImageView)view.findViewById(R.id.ImgViewCharge);
         anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
         anim.setDuration(2000);
         gpsConnection = new GpsConnection(getActivity(), getContext());
@@ -237,6 +243,7 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
     public void onClick(View v) {
 
         if (v.getId() == R.id.BtnCreateReport){
+
             createReport();
         }
         if (v.getId() == R.id.ImgBtnAdressRep){
@@ -370,6 +377,8 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
         String reportName = date + "_" + userName + "_" + idBike;
         String bikeDetails = etBikeDetails.getText().toString();
         Teclado.ocultarTeclado(getActivity());
+        rlytCharge.setVisibility(View.VISIBLE);
+        imgVCharge.startAnimation(anim);
         makeReport(token, reportName, idReportType.intValue(), coordinates, idBike, bikeDetails);
     }
 
@@ -400,6 +409,8 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
 
                     if (response.body().getError().equals("false")) {
 
+                        imgVCharge.getAnimation().cancel();
+                        rlytCharge.setVisibility(View.INVISIBLE);
                         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
                         alert.setTitle("Se ha generado un reporte.");
                         alert.setMessage("El reporte se ha generado exitosamente. " +

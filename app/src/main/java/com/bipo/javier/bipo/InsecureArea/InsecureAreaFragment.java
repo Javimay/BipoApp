@@ -34,6 +34,7 @@ public class InsecureAreaFragment extends Fragment {
         wvInsecureArea = (WebView)view.findViewById(R.id.WvInsecureArea);
         wvInsecureArea.getSettings().setJavaScriptEnabled(true);
         wvInsecureArea.setWebViewClient(new WebViewClient());
+        wvInsecureArea.clearCache(true);
         wvInsecureArea.loadUrl(BIPO_URL);
         return view;
     }
