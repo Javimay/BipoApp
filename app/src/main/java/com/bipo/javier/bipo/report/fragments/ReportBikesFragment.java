@@ -6,7 +6,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,13 +13,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.report.utils.TabRecovered;
-import com.bipo.javier.bipo.report.utils.TabStolen;
-import com.bipo.javier.bipo.report.utils.TabViews;
+import com.bipo.javier.bipo.report.utilities.TabRecovered;
+import com.bipo.javier.bipo.report.utilities.TabStolen;
+import com.bipo.javier.bipo.report.utilities.TabViews;
 
 import java.util.ArrayList;
 import java.util.List;

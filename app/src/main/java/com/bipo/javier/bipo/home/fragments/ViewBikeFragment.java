@@ -1,6 +1,5 @@
 package com.bipo.javier.bipo.home.fragments;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -11,16 +10,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -37,19 +29,14 @@ import android.widget.ViewFlipper;
 
 import com.bipo.javier.bipo.R;
 import com.bipo.javier.bipo.account.models.BikesResponse;
-import com.bipo.javier.bipo.home.models.GetReportResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
-import com.bipo.javier.bipo.report.models.Report;
 
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -57,7 +44,6 @@ import java.util.Locale;
 import okhttp3.MultipartBody;
 import retrofit.Call;
 import retrofit.Callback;
-import retrofit.Converter;
 import retrofit.Retrofit;
 
 import com.bipo.javier.bipo.utils.GpsConnection;
@@ -65,15 +51,6 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.mapbox.geocoder.android.AndroidGeocoder;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
-
-import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 
 public class ViewBikeFragment extends Fragment implements View.OnClickListener,
                                                             View.OnFocusChangeListener{
@@ -285,6 +262,8 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener,
                             }
                         }else{
                             showMessage("Reporte enviado exitosamente! \nGracias por tu cooperación!");
+                            cleanStorage();
+                            getActivity().getSupportFragmentManager().popBackStack();
                         }
                     } else {
                         reportResponse.setMessage(response.body().getMessage());
@@ -321,7 +300,6 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener,
                 .addHeader("authorization", "650E01A1B8F9A4DA4A2040FF86E699B7")
                 .build();
 
-        System.out.println("Response!!!");
         client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {
@@ -343,9 +321,23 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener,
                     uploadPhotos ++;
                     System.out.println("Se subio la foto: " + photo.getName());
                     if (uploadPhotos == totalPhotos){
-                        showMessage("Reporte enviado exitosamente! \nGracias por tu cooperación!");
-                        cleanStorage();
-                        getActivity().getSupportFragmentManager().popBackStack();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                                alert.setTitle("Reporte enviado exitosamente.");
+                                alert.setMessage("Se ha generado un reporte de bicicleta vista." +
+                                        "\n¡Gracias por tu cooperación!")
+                                        .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                cleanStorage();
+                                                getActivity().getSupportFragmentManager().popBackStack();
+                                            }
+                                        });
+                                alert.show();
+                            }
+                        });
                     }
                 }else{
                     System.out.println("Error: " + response.message());
@@ -415,7 +407,6 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener,
             getActivity();
             if (resultCode == Activity.RESULT_OK) {
                 Place place = PlacePicker.getPlace(getContext(), data);
-                //showMessage(String.format("Place: %s", place.getName()));
                 etAddress.setText(place.getAddress());
                 System.out.println("Lat: " + place.getLatLng().latitude +
                         "\nLong: " + place.getLatLng().longitude +
@@ -617,22 +608,19 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener,
     }
 
     private String getDate() {
-        String currentDate = "";
         Calendar calendar = Calendar.getInstance();
 
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        return currentDate = dateFormat(year, month, day);
+        return dateFormat(year, month, day);
     }
 
     public String dateFormat(int year, int month, int day) {
 
         month += 1;
         String monthFormat = String.valueOf(month);
-        //String monthFormat = "";
         String dayFormat = String.valueOf(day);
-        //String dayFormat = "";
         String date = "";
         if (month < 10) {
             monthFormat = "0" + month;

@@ -1,13 +1,20 @@
 package com.bipo.javier.bipo.report.models;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Javier on 11/05/2017.
  */
 
 public class ReportType {
 
+    @SerializedName("id")
     public int id;
+
+    @SerializedName("reportType")
     public String reportType;
+
+    @SerializedName("state")
     public int state;
 
     public int getId() {

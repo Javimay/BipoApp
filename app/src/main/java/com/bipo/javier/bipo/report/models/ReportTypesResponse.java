@@ -1,5 +1,7 @@
 package com.bipo.javier.bipo.report.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -9,8 +11,13 @@ import java.util.ArrayList;
 
 public class ReportTypesResponse implements Serializable{
 
+    @SerializedName("message")
     public String message;
+
+    @SerializedName("error")
     public String error;
+
+    @SerializedName("brands")
     public ArrayList<ReportType> brands;
 
     public void setMessage(String message) {

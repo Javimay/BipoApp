@@ -1,11 +1,10 @@
-package com.bipo.javier.bipo.report.utils;
+package com.bipo.javier.bipo.report.utilities;
 
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,8 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.home.utils.RVItemTouchListener;
-import com.bipo.javier.bipo.home.utils.RvEventsAdapter;
+import com.bipo.javier.bipo.home.utilities.RvEventsAdapter;
 import com.bipo.javier.bipo.home.fragments.EventItemsFragment;
 import com.bipo.javier.bipo.home.models.GetReportResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
@@ -62,7 +60,7 @@ public class TabRecovered extends Fragment {
         tvNoItem.setVisibility(View.VISIBLE);
         tvRedError = (TextView)view.findViewById(R.id.TvRedError);
         imgReload = (ImageView)view.findViewById(R.id.ImgVReload);
-        imgCharge = (ImageView)view.findViewById(R.id.ImgVCharge);
+        imgCharge = (ImageView)view.findViewById(R.id.ImgVChargeEditB);
         imgCharge.setImageResource(R.mipmap.ic_charge);
         anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
         anim.setDuration(2000);

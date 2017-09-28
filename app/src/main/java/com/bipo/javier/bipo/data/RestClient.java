@@ -32,7 +32,7 @@ public class RestClient {
     private static final String BASE_URL = "http://www.bipoapp.com/services/v1/";
     private IRestClient apiService;
 
-    //token es:650E01A1B8F9A4DA4A2040FF86E699B7 puede ponerlo quemado o crear una variable global
+    //token de autenticacion:650E01A1B8F9A4DA4A2040FF86E699B7
     public RestClient(Context context,final String token) {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")

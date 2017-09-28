@@ -2,10 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.bipo.javier.bipo.report.utils.TabRecovered">
+    tools:context="com.bipo.javier.bipo.report.utilities.TabRecovered">
 
     <ImageView
-        android:id="@+id/ImgVCharge"
+        android:id="@+id/ImgVChargeEditB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -16,7 +16,7 @@
         android:id="@+id/TvRedError"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ImgVCharge"
+        android:layout_below="@+id/ImgVChargeEditB"
         android:layout_centerHorizontal="true"
         android:layout_margin="20dp"
         android:textAlignment="center"

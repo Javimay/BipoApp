@@ -1,6 +1,7 @@
 package com.bipo.javier.bipo.home.models;
 
 import com.bipo.javier.bipo.account.models.Bike;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,8 +12,13 @@ import java.util.ArrayList;
 
 public class GetBikesResponse implements Serializable {
 
+    @SerializedName("error")
     private String error;
+
+    @SerializedName("message")
     private String message;
+
+    @SerializedName("bikes")
     private ArrayList<Bike> bikes;
 
     public String getError() {

@@ -1,22 +1,17 @@
 package com.bipo.javier.bipo.account.fragments;
 
 
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -28,18 +23,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.account.models.BikePhotos;
-import com.bipo.javier.bipo.home.utils.RVItemTouchListener;
-import com.bipo.javier.bipo.home.utils.RvBikesAdapter;
+import com.bipo.javier.bipo.home.utilities.RVItemTouchListener;
+import com.bipo.javier.bipo.home.utilities.RvBikesAdapter;
 import com.bipo.javier.bipo.account.models.Bike;
 import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
-import com.bipo.javier.bipo.login.activities.PassRestaurationActivity;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -114,7 +104,7 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
         tvAccountPhone.setText(phone);
         tvRedError = (TextView) view.findViewById(R.id.TvRedError);
         imgReload = (ImageView) view.findViewById(R.id.ImgVReload);
-        imgCharge = (ImageView) view.findViewById(R.id.ImgVCharge);
+        imgCharge = (ImageView) view.findViewById(R.id.ImgVChargeEditB);
         imgCharge.setImageResource(R.mipmap.ic_charge);
         anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
         anim.setDuration(2000);
@@ -151,8 +141,11 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
                 if (response != null && response.isSuccess() && response.message() != null) {
 
 
-                    if (response.body().getBikes() != null) {
-                        ArrayList<Bike> bikesList = response.body().getBikes();
+                    bikesResponse.setBikes(response.body().getBikes());
+                    ArrayList<Bike> bikesList = bikesResponse.getBikes();
+
+                    if (bikesList != null) {
+
                         initBikes(bikesList);
                         btnNewBike.setVisibility(View.VISIBLE);
                         imgCharge.getAnimation().cancel();
@@ -220,7 +213,6 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
                     public void onItemClick(View view, int position) {
 
                         String imageUrl = "";
-
                         String status = bikesList.get(position).getBikestate();
                         String brand = bikesList.get(position).getBrand();
                         String type = bikesList.get(position).getType();

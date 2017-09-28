@@ -1,4 +1,4 @@
-package com.bipo.javier.bipo.report.utils;
+package com.bipo.javier.bipo.report.utilities;
 
 
 import android.os.Bundle;
@@ -18,8 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.home.utils.RVItemTouchListener;
-import com.bipo.javier.bipo.home.utils.RvEventsAdapter;
+import com.bipo.javier.bipo.home.utilities.RVItemTouchListener;
+import com.bipo.javier.bipo.home.utilities.RvEventsAdapter;
 import com.bipo.javier.bipo.home.fragments.EventItemsFragment;
 import com.bipo.javier.bipo.home.models.GetReportResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
@@ -36,18 +36,19 @@ import retrofit.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TabViews extends Fragment {
+public class TabStolen extends Fragment {
 
-    private RecyclerView rvViewBikes;
+    private RecyclerView rvStolenBikes;
     private TextView tvNoItem;
     private String fhInicio = "";
     private String fhFin = "";
-    private final int VIEW_BIKES_TYPE = 4;
+    private final int STOLEN_BIKES_TYPE = 1;
     private ImageView imgCharge, imgReload;
     private Animation anim;
     private TextView tvRedError;
+    private static final String BASE_URL = "http://www.bipoapp.com/";
 
-    public TabViews() {
+    public TabStolen() {
         // Required empty public constructor
     }
 
@@ -56,12 +57,13 @@ public class TabViews extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_tab_views, container, false);
-        rvViewBikes = (RecyclerView)view.findViewById(R.id.RvViewBikes);
-        tvNoItem = (TextView)view.findViewById(R.id.TvNoView);
+        View view = inflater.inflate(R.layout.fragment_tab_stolen, container, false);
+
+        rvStolenBikes = (RecyclerView)view.findViewById(R.id.RvStolenBikes);
+        tvNoItem = (TextView)view.findViewById(R.id.TvNoStolen);
         tvRedError = (TextView)view.findViewById(R.id.TvRedError);
         imgReload = (ImageView)view.findViewById(R.id.ImgVReload);
-        imgCharge = (ImageView)view.findViewById(R.id.ImgVCharge);
+        imgCharge = (ImageView)view.findViewById(R.id.ImgVChargeEditB);
         imgCharge.setImageResource(R.mipmap.ic_charge);
         anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
         anim.setDuration(2000);
@@ -74,7 +76,7 @@ public class TabViews extends Fragment {
 
         initDates();
         HomeRepository repo = new HomeRepository(getContext());
-        Call<GetReportResponse> call = repo.getReports(VIEW_BIKES_TYPE, fhInicio, fhFin);
+        Call<GetReportResponse> call = repo.getReports(STOLEN_BIKES_TYPE, fhInicio, fhFin);
         final GetReportResponse reportResponse = new GetReportResponse();
         call.enqueue(new Callback<GetReportResponse>() {
             @Override
@@ -102,9 +104,9 @@ public class TabViews extends Fragment {
                         imgCharge.setImageResource(0);
                     }else{
                         reportResponse.setMessage(response.body().getMessage());
-                        rvViewBikes.setVisibility(View.INVISIBLE);
+                        rvStolenBikes.setVisibility(View.INVISIBLE);
                         tvNoItem.setVisibility(View.VISIBLE);
-                        tvNoItem.setText("No hay bicicletas vistas.");
+                        tvNoItem.setText("No hay bicicletas robadas.");
                         imgCharge.getAnimation().cancel();
                         imgCharge.setImageResource(0);
                     }
@@ -120,7 +122,6 @@ public class TabViews extends Fragment {
             }
         });
     }
-
     private void showRedError() {
 
         imgCharge.getAnimation().cancel();
@@ -160,13 +161,13 @@ public class TabViews extends Fragment {
         System.out.println("Fecha final: " + fhFin);
 
         calendar.set(year, month, day);
-        calendar.add(Calendar.MONTH, -3); //Resta 3 Meses de la fecha actual.
+        calendar.add(Calendar.MONTH, -3); //Resta 3 meses de la fecha actual.
         calendar.getTime();
         int inYear = calendar.get(Calendar.YEAR);
         int inMonth = calendar.get(Calendar.MONTH);
         int inDay = calendar.get(Calendar.DAY_OF_MONTH);
         fhInicio = dateFormat(inYear, inMonth, inDay);
-        System.out.println(fhInicio);
+        System.out.println("Fecha Inicio: " + fhInicio);
     }
 
     public String dateFormat(int year, int month, int day) {
@@ -191,20 +192,30 @@ public class TabViews extends Fragment {
 
 
         RvEventsAdapter rvAdapter = new RvEventsAdapter(getActivity(), reportList);
-        rvViewBikes.setAdapter(rvAdapter);
-        rvViewBikes.setLayoutManager(new LinearLayoutManager(getContext()));
-        /*rvViewBikes.addOnItemTouchListener(
+        rvStolenBikes.setAdapter(rvAdapter);
+        rvStolenBikes.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvStolenBikes.addOnItemTouchListener(
                 new RVItemTouchListener(getContext(), new RVItemTouchListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
+                        String imageUrl = "";
                         int textColor;
                         int colorArea;
                         int idReport = reportList.get(position).getIdreportType();
                         String status = reportList.get(position).getReportType();
                         String brand = reportList.get(position).getBrand();
+                        int idBike = reportList.get(position).getIdBike();
                         String type = reportList.get(position).getType();
                         String color = reportList.get(position).getColor();
-                        int image = R.drawable.wheel;
+                        String coordinates = reportList.get(position).getGooglemapscoordinate();
+
+                        if (reportList.get(position).getReportPhotos() != null){
+                            if (reportList.get(position).getReportPhotos().size() !=0){
+                                imageUrl = BASE_URL + reportList.get(position).getReportPhotos()
+                                        .get(0).getUrl();
+                            }
+                        }
+
                         if (idReport == 1){
 
                             textColor = ContextCompat.getColor(getContext(),R.color.stolenBikeColor);
@@ -218,22 +229,23 @@ public class TabViews extends Fragment {
                             textColor = ContextCompat.getColor(getContext(),R.color.darkBlue);
                             colorArea = ContextCompat.getColor(getContext(),R.color.darkBlue);
                         }
-                        //String image = reportList.get(position).getReportPhotos().get(0);
 
                         //Argumentos del Bundle
                         Bundle arguments = new Bundle();
-                        arguments.putString("activity", "reportBikes");
-                        arguments.putInt("image", image);
+                        //arguments.putString("activity", "reportBikes");
+                        arguments.putString("imageUrl", imageUrl);
                         arguments.putString("status", status);
                         arguments.putString("brand", brand);
                         arguments.putString("type", type);
                         arguments.putString("color", color);
                         arguments.putInt("textColor", textColor);
                         arguments.putInt("colorArea", colorArea);
+                        arguments.putString("coordinates",coordinates);
+                        arguments.putInt("idBike",idBike);
                         goToItemEventFragment(arguments);
                     }
                 })
-        );*/
+        );
     }
 
     private void goToItemEventFragment(Bundle arguments) {
@@ -241,7 +253,7 @@ public class TabViews extends Fragment {
         FragmentTransaction ft = fm.beginTransaction();
         EventItemsFragment itemsFragment = new EventItemsFragment();
         itemsFragment.setArguments(arguments);
-        ft.replace(R.id.pager,itemsFragment).commit();
+        ft.replace(R.id.RlyEvents,itemsFragment).addToBackStack(null).commit();
     }
 
     private void showMessage(String message) {

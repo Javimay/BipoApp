@@ -17,8 +17,6 @@ import java.util.TimerTask;
 
 public class SplashScreenActivity extends AppCompatActivity {
 
-    private SharedPreferences preferences;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,7 +24,7 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         final ImageView logo = (ImageView) findViewById(R.id.IvLogo);
 
-        preferences = this.getSharedPreferences("UserInfo",0);
+        SharedPreferences preferences = this.getSharedPreferences("UserInfo", 0);
         if(preferences.getAll().isEmpty()) {
             Animation anim = AnimationUtils.loadAnimation(this, R.anim.anim_presentacion);
             anim.setFillAfter(true);
@@ -34,7 +32,6 @@ public class SplashScreenActivity extends AppCompatActivity {
             TimerTask task = new TimerTask() {
                 @Override
                 public void run() {
-
 
                     Intent intent = new Intent(SplashScreenActivity.this, LoginActivity.class);
                     startActivity(intent);
@@ -50,7 +47,6 @@ public class SplashScreenActivity extends AppCompatActivity {
 
             Intent intent = new Intent(this, HomeActivity.class);
             startActivity(intent);
-            //overridePendingTransition(R.anim.anim_zoomforward_in, R.anim.anim_zoomforward_out);
             finish();
         }
     }

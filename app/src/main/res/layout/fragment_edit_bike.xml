@@ -179,4 +179,21 @@
         </LinearLayout>
     </ScrollView>
 
+    <RelativeLayout
+        android:id="@+id/RlytChargeEditB"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp"
+        android:background="@color/LighShadow"
+        android:visibility="invisible">
+
+        <ImageView
+            android:id="@+id/ImgVChargeEditB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/sr_cd_charge"
+            app:srcCompat="@mipmap/ic_charge" />
+    </RelativeLayout>
+
 </FrameLayout>

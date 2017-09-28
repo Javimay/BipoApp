@@ -6,7 +6,7 @@
     tools:context="com.bipo.javier.bipo.home.fragments.EventsFragment">
 
     <ImageView
-        android:id="@+id/ImgVCharge"
+        android:id="@+id/ImgVChargeEditB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/RvEvents"
@@ -18,7 +18,7 @@
         android:id="@+id/TvRedError"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ImgVCharge"
+        android:layout_below="@+id/ImgVChargeEditB"
         android:layout_centerHorizontal="true"
         android:layout_margin="20dp"
         android:textAlignment="center"

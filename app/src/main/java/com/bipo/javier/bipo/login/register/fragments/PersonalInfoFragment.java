@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -281,8 +282,9 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
                     String name = "", lastName = "", email = "", birthday = "", phone = "", documentid = "", token = "";
-                    ArrayList<User> userList = response.body().getUser();
-                    if (!response.body().getUser().isEmpty()) {
+                    loginResponse.setUser(response.body().getUser());
+                    ArrayList<User> userList = loginResponse.getUser();
+                    if (userList != null) {
 
                         for (User user : userList) {
                             name = user.getName();
@@ -304,6 +306,10 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
                         }
                         savePreferences(token);
                         goToHomeActivity(name, lastName, email, birthday, phone, documentid, token);
+                    }else{
+                        Log.e("Register/GetInHome", "Response.body empty...");
+                        showMessage("Problemas en el servidor, "+
+                                "\ncontácte al administrador.");
                     }
                 }
             }
@@ -347,6 +353,7 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
                     System.out.println("Preferencias guardadas.");
+                    Log.e("UserRegisterPreferences","Preferences saved");
                 }
             }
 
@@ -555,9 +562,8 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    System.out.println(response.isSuccess());
-                    System.out.println(response.message());
-                    if (response.body().getUserExist().size() != 0){
+                    emailResponse.setUserExist(response.body().getUserExist());
+                    if (emailResponse.getUserExist().size() != 0){
                         etCorreo.setError("Este correo ya está registrado.");
                         okEmail = true;
                     }else{

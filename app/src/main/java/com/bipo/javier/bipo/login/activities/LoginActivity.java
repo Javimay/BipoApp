@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -27,7 +28,6 @@ import retrofit.Retrofit;
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
-    private String email, password;
     private final static String TAG = SettingsFragment.class.getName();
     public final static String USER_APP_SETTINGS = TAG + ".USER_APP_SETTINGS_";
 
@@ -60,8 +60,8 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        email = etEmail.getText().toString();
-        password = etPassword.getText().toString();
+        String email = etEmail.getText().toString();
+        String password = etPassword.getText().toString();
         getInHome(email, password);
     }
 
@@ -89,9 +89,11 @@ public class LoginActivity extends AppCompatActivity {
                 if (response != null && response.isSuccess() && response.message() != null) {
                     String name = "", lastName = "", email = "", birthday = "", phone = "",
                             documentid = "", userName = "", token = "";
-                    ArrayList<User> userList = response.body().getUser();
-                    int emailReceiver = 0, photoPublication, enableReportUbication, enableLocationUbication;
-                    if (!response.body().getUser().isEmpty()) {
+                    loginResponse.setUser(response.body().getUser());
+                    ArrayList<User> userList = loginResponse.getUser();
+                    int emailReceiver = 0, photoPublication = 0,
+                            enableReportUbication = 0, enableLocationUbication = 0;
+                    if (userList != null) {
 
                         for (User user : userList) {
                             name = user.getName();
@@ -131,9 +133,17 @@ public class LoginActivity extends AppCompatActivity {
                         editor.apply();
                         SharedPreferences.Editor editorSettings = settingsPreferences.edit();
                         editorSettings.putInt("Email Notif", emailReceiver);
+                        editorSettings.putInt("Photo Public", photoPublication);
+                        editorSettings.putInt("Report Ubic", enableReportUbication);
+                        editorSettings.putInt("Location Ubic", enableLocationUbication);
                         editorSettings.apply();
                         goToHomeActivity();
                         wellcomeUser(name, lastName);
+                    }else{
+                        Log.e("getInHome", "Response.body empty...");
+                        showMessage("Problemas en el servidor, "+
+                                "\ncontácte al administrador.");
+
                     }
                 }
             }

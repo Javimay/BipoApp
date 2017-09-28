@@ -20,6 +20,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -108,10 +109,8 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         } else {
 
-            //locationManager.requestLocationUpdates(provider, 0, 0, this);
-            locationManager.requestLocationUpdates(GPS, 0, 0, this);
+            locationManager.requestLocationUpdates(provider, 0, 0, this);
             locationManager.requestLocationUpdates(NETWORK, 0, 0, this);
-
         }
     }
 
@@ -193,17 +192,18 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    if (response.body().getBikes() != null) {
-                        ArrayList<Bike> bikesList = response.body().getBikes();
-                        if (bikesList.size() == 0) {
-                            validateBikes();
-                        }else {
+                    bikesResponse.setBikes(response.body().getBikes());
+                    ArrayList<Bike> bikesList = bikesResponse.getBikes();
+                    if (bikesList != null) {
+
                             for (Bike bike : bikesList) {
                                 if (bike.getIsDefault() == 1) {
                                     idBike = bike.getId();
                                 }
                             }
-                        }
+
+                    }else{
+                        validateBikes();
                     }
 
                 }
@@ -232,6 +232,9 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
                             FragmentManager fm = getFragmentManager();
                             FragmentTransaction ft = fm.beginTransaction();
                             BikeFragment bikeFragment = new BikeFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putBoolean("isFirstBike", true);
+                            bikeFragment.setArguments(bundle);
                             ft.add(R.id.RlyEvents,bikeFragment).commit();
                         }
                     })
@@ -262,7 +265,6 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
                 isUserActive = false;
                 progressBar.setProgressDrawable(ContextCompat.getDrawable(getContext(),
                         R.drawable.circular_progress_bar));
-                //anim = ObjectAnimator.ofInt(progressBar, "progress", 0, 100);
                 progressBar.setProgress(0);
                 createReport();
             }
@@ -275,7 +277,7 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
         String userName = preferences.getString("userName", "");
         String reportName = date + "_" + userName + "_" + idBike;
         String coordinates = latitude + "," + longitude;
-        String reportDetails = "Reporte generado desde el botón de pánico.";
+        final String reportDetails = "Reporte generado desde el botón de pánico.";
 
         HomeRepository repo = new HomeRepository(getContext());
         Call<BikesResponse> call = repo.registerReport(token, reportName, STOLEN_REPORT, coordinates,
@@ -299,7 +301,8 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    if (response.body().getError().equals("false")) {
+                    reportResponse.setError(response.body().getError());
+                    if (reportResponse.getError().equals("false")) {
 
                         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
                         alert.setTitle("Se ha generado un reporte de robo.");
@@ -320,6 +323,8 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
                     } else {
                         reportResponse.setMessage(response.body().getMessage());
                         System.out.println("Error: " + reportResponse.getMessage());
+                        showMessage("Error al crear el reporte de robo. \n" +
+                                reportResponse.getMessage());
                     }
                 }
             }

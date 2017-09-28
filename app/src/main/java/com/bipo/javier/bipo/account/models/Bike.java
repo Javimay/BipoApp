@@ -1,5 +1,7 @@
 package com.bipo.javier.bipo.account.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.File;
 import java.util.List;
 
@@ -9,17 +11,40 @@ import java.util.List;
 
 public class Bike {
 
+    @SerializedName("id")
     private int id;
+
+    @SerializedName("bikename")
     private String bikename;
+
+    @SerializedName("brand")
     private String brand;
+
+    @SerializedName("color")
     private String color;
+
+    @SerializedName("hexcolor")
     private String hexcolor;
+
+    @SerializedName("idframe")
     private String idframe;
+
+    @SerializedName("type")
     private String type;
+
+    @SerializedName("bikefeatures")
     private String bikefeatures;
+
+    @SerializedName("bikestate")
     private String bikestate;
+
+    @SerializedName("isDefault")
     private int isDefault;
+
+    @SerializedName("checked")
     private boolean checked = false;
+
+    @SerializedName("bikePhotos")
     private List<BikePhotos> bikePhotos;
 
     public int getIsDefault() {

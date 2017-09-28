@@ -1,6 +1,7 @@
 package com.bipo.javier.bipo.report.models;
 
 import com.bipo.javier.bipo.account.models.BikePhotos;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
@@ -10,22 +11,55 @@ import java.util.List;
 
 public class Report {
 
+    @SerializedName("id")
     private String id;
+
+    @SerializedName("reportName")
     private String reportName;
+
+    @SerializedName("report_owner")
     private String report_owner;
+
+    @SerializedName("idreportType")
     private int idreportType;
+
+    @SerializedName("reportType")
     private String reportType;
+
+    @SerializedName("fhReport")
     private String fhReport;
+
+    @SerializedName("googlemapscoordinate")
     private String googlemapscoordinate;
+
+    @SerializedName("idBike")
     private int idBike;
+
+    @SerializedName("bikeName")
     private String bikeName;
+
+    @SerializedName("color")
     private String color;
+
+    @SerializedName("brand")
     private String brand;
+
+    @SerializedName("type")
     private String type;
+
+    @SerializedName("bike_owner")
     private String bike_owner;
+
+    @SerializedName("reportDetails")
     private String reportDetails;
+
+    @SerializedName("fhUpdated")
     private String fhUpdated;
+
+    @SerializedName("reportPhotos")
     private List<BikePhotos> reportPhotos;
+
+    @SerializedName("bikePhotos")
     private List<BikePhotos> bikePhotos;
 
     public String getColor() {

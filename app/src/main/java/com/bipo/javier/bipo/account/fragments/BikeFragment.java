@@ -9,21 +9,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -37,7 +34,6 @@ import com.bipo.javier.bipo.account.models.Bike;
 import com.bipo.javier.bipo.account.models.BikesResponse;
 import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
-import com.bipo.javier.bipo.login.models.AccountRepository;
 import com.bipo.javier.bipo.login.utilities.Teclado;
 import com.bipo.javier.bipo.report.models.BikeBrand;
 import com.bipo.javier.bipo.report.models.BikeBrandsResponse;
@@ -49,16 +45,12 @@ import com.bipo.javier.bipo.report.models.ReportRepository;
 import com.bipo.javier.bipo.utils.BikeBrandSpinner;
 import com.bipo.javier.bipo.utils.BikeColorSpinner;
 import com.bipo.javier.bipo.utils.BikeTypeSpinner;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.ResponseBody;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,7 +59,6 @@ import okhttp3.MultipartBody;
 //import okhttp3.MediaType;
 import retrofit.Call;
 import retrofit.Callback;
-import retrofit.Converter;
 import retrofit.Retrofit;
 
 
@@ -81,7 +72,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
     private EditText idMarco, confirmacionId, etBikeFeatures, etBikeName;
     private Spinner spBrand, spColor, spType;
     private ImageButton btnFoto, btnDelete, btnLeft, btnRight;
-    private ImageView imgvDefault, imgvFoto1, imgvFoto2, imgvFoto3, imgvFoto4;
+    private ImageView imgvDefault, imgvFoto1, imgvFoto2, imgvFoto3, imgvFoto4, imgVCharge;
     private ViewFlipper viewFlipper;
     private static final int CAM_REQUEST = 1313;
     private static final int GALLERY_SELECT_IMAGE = 1020;
@@ -98,6 +89,8 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
     private SharedPreferences preferences;
     private int uploadPhotos;
     private AlertDialog.Builder alert;
+    private RelativeLayout rlytCharge;
+    private Animation anim;
 
     public BikeFragment() {
         // Required empty public constructor
@@ -122,6 +115,8 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
         spBrand = (Spinner) view.findViewById(R.id.SpBrand);
         spColor = (Spinner) view.findViewById(R.id.SpColor);
         spType = (Spinner) view.findViewById(R.id.SpType);
+        rlytCharge = (RelativeLayout)view.findViewById(R.id.RlytCharge);
+        imgVCharge = (ImageView)view.findViewById(R.id.ImgVChargeEditB);
         Button BtBack = (Button) view.findViewById(R.id.BtnPrevious);
         BtBack.setOnClickListener(this);
         viewFlipper = (ViewFlipper) view.findViewById(R.id.VfpFlipper);
@@ -151,6 +146,8 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
         imgvFoto3 = new ImageView(getContext());
         imgvFoto4 = new ImageView(getContext());
         alert = new AlertDialog.Builder(getContext());
+        anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
+        anim.setDuration(2000);
         cleanStorage();
         validateButtons();
         return view;
@@ -216,10 +213,9 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    List<BikeBrand> bikes = response.body().brands;
-                    BikeBrandsResponse bikeResponse = new BikeBrandsResponse();
-                    bikeResponse.setBrands(response.body().brands);
-
+                    bikeBrandsResponse.setBrands(response.body().brands);
+                    List<BikeBrand> bikes = bikeBrandsResponse.getBrands();
+                    if (bikes != null){
                     listBrands.add(0, "Escoge una marca.");
                     for (BikeBrand bike : bikes) {
 
@@ -227,6 +223,11 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                         System.out.println("id: " + bike.getId() + "\nbrand: " + bike.getBrand());
                     }
                     brandSpinner();
+                    }else{
+                        Log.e("BikeBrandList","BandList empty...");
+                        showMessage("Error al cargar la lista de marcas."+
+                        "\nContácte al administrador.");
+                    }
                 }
             }
 
@@ -260,17 +261,23 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    List<BikeType> bikes = response.body().biketypes;
-                    BikeTypesResponse bikeResponse = new BikeTypesResponse();
-                    bikeResponse.setBiketypes(response.body().biketypes);
-                    listTypes = new ArrayList<>();
-                    listTypes.add(0, "Escoge un tipo.");
-                    for (BikeType bike : bikes) {
+                    bikeTypesResponse.setBiketypes(response.body().biketypes);
+                    List<BikeType> bikes = bikeTypesResponse.getBiketypes();
+                    if (bikes != null){
+                        listTypes = new ArrayList<>();
+                        listTypes.add(0, "Escoge un tipo.");
+                        for (BikeType bike : bikes) {
 
-                        listTypes.add(bike.getType());
-                        System.out.println("id: " + bike.getId() + "\ntype: " + bike.getType());
+                            listTypes.add(bike.getType());
+                            System.out.println("id: " + bike.getId() + "\ntype: " + bike.getType());
+                        }
+                        typeSpinner();
+                    }else{
+                        Log.e("BikeTypeList","TypeList empty...");
+                        showMessage("Error al cargar la lista de tipos."+
+                                "\nContácte al administrador.");
                     }
-                    typeSpinner();
+
                 }
             }
 
@@ -302,21 +309,23 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    List<BikeColor> bikes = response.body().bikeColor;
-                    //BikeColor color = new BikeColor();
-                    listColor = new ArrayList<>();
-                    listHex = new ArrayList<>();
-                    listColor.add(0,"Escoge un color.");
-                    //color.setId(0);
-                    //color.setColor("Escoge un color.");
-                    //listColors.add(color);
-                    for (BikeColor bike : bikes) {
+                    bikeColorsResponse.setBikeColor(response.body().bikeColor);
+                    List<BikeColor> bikes = bikeColorsResponse.getBikeColor();
+                    if (bikes != null) {
+                        listColor = new ArrayList<>();
+                        listHex = new ArrayList<>();
+                        listColor.add(0, "Escoge un color.");
+                        for (BikeColor bike : bikes) {
 
-                        //listColors.add(bike);
-                        listColor.add(bike.getColor());
-                        listHex.add(bike.getHexColor());
+                            listColor.add(bike.getColor());
+                            listHex.add(bike.getHexColor());
+                        }
+                        colorSpinner(listColor);
+                    }else{
+                        Log.e("BikeColorList","ColorList empty...");
+                        showMessage("Error al cargar la lista de colores."+
+                                "\nContácte al administrador.");
                     }
-                    colorSpinner(listColor);
                 }
             }
 
@@ -426,9 +435,8 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
             showMessage("Escoge un tipo de bicicleta por favor.");
             return;
         }
-        //rLytCharge.setVisibility(View.VISIBLE);
-        //imgvCharge.startAnimation(anim);
-        //imgvCharge.getAnimation().setDuration(2000);
+        rlytCharge.setVisibility(View.VISIBLE);
+        imgVCharge.startAnimation(anim);
         registerBike(bikeName, idBrand, idColor, id, idType, bikeFeatures, idBikeState, token);
     }
 
@@ -510,9 +518,16 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
 
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    ArrayList<Bike> bike = response.body().getBikes();
-                    int bikeId = bike.get(0).getId();
-                    setDefault(token, bikeId, bikeName);
+                    bikesResponse.setBikes(response.body().getBikes());
+                    ArrayList<Bike> bike = bikesResponse.getBikes();
+                    if (bike != null) {
+                        int bikeId = bike.get(0).getId();
+                        setDefault(token, bikeId, bikeName);
+                    }else{
+                        Log.e("FirstBike","Bike by name empty...");
+                        showMessage("No se encontro la bicicleta."+
+                                "\nContácte al administrador.");
+                    }
                 }
             }
 
@@ -574,21 +589,20 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
     private void uploadBikePhotos(final File photo, final String bikeName, final String token, final int totalPhotos) {
 
         final okhttp3.MediaType MEDIA_TYPE = okhttp3.MediaType.parse("image/jpg");
-        okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
-
+        final okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+        final BikesResponse bikesResponse = new BikesResponse();
         MultipartBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart("bikeName",bikeName)
                 .addFormDataPart("file",photo.getName(), okhttp3.RequestBody.create(MEDIA_TYPE,
                         new File(photo.getAbsolutePath())))
                 .addFormDataPart("token", token)
                 .build();
-        okhttp3.Request request = new okhttp3.Request.Builder()
+        final okhttp3.Request request = new okhttp3.Request.Builder()
                 .url("http://bipoapp.com/services/v1/bikePhoto")
                 .post(body)
                 .addHeader("authorization", "650E01A1B8F9A4DA4A2040FF86E699B7")
                 .build();
 
-        System.out.println("Response!!!");
         client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {
@@ -598,10 +612,9 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
 
-                System.out.println("Successfull?: " + response.isSuccessful());
+                bikesResponse.setMessage(response.message());
                 if (response.code() == 400) {
                     showMessage("No hay datos.");
-
 
                 } else if (response.code() == 500) {
                     showMessage("Ocurrió un error en la red.");
@@ -613,17 +626,26 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                         if (getArguments().getBoolean("isFirstBike")){
                             firstBike(token, bikeName);
                         }else{
-                            Teclado.ocultarTeclado(getActivity());
-                            alert.setTitle(bikeName + " se ha registrado exitosamente");
-                            alert.setMessage("Gracias por registrar a " + bikeName + ".")
-                                    .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            cleanStorage();
-                                            getActivity().getSupportFragmentManager().popBackStack();
-                                        }
-                                    });
-                            alert.show();
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Teclado.ocultarTeclado(getActivity());
+                                    imgVCharge.getAnimation().cancel();
+                                    rlytCharge.setVisibility(View.INVISIBLE);
+                                    alert.setTitle(bikeName + " se ha registrado exitosamente");
+                                    alert.setMessage("Gracias por registrar a " + bikeName + ".")
+                                            .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    cleanStorage();
+                                                    getActivity().getSupportFragmentManager().popBackStack();
+                                                    onDestroy();
+                                                }
+                                            });
+                                    alert.show();
+                                }
+                            });
                         }
                     }
                 }else{
@@ -633,11 +655,14 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
 
             }
         });
+
     }
 
     private void successFull(String bikeName) {
 
         Teclado.ocultarTeclado(getActivity());
+        imgVCharge.getAnimation().cancel();
+        rlytCharge.setVisibility(View.INVISIBLE);
         alert.setTitle(bikeName + " se ha registrado exitosamente");
         alert.setMessage("Gracias por registrar a " + bikeName + ".")
                 .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
@@ -645,6 +670,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                     public void onClick(DialogInterface dialog, int which) {
                         cleanStorage();
                         getActivity().getSupportFragmentManager().popBackStack();
+                        onDestroy();
                     }
                 });
         alert.show();

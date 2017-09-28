@@ -1,45 +1,27 @@
 package com.bipo.javier.bipo.home.fragments;
 
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.home.utils.RvEventsAdapter;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import javax.annotation.Resources;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -82,7 +64,7 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
         resources = getResources();
         tvStatus.setText(getArguments().getString("status"));
         tvStatus.setTextColor(getArguments().getInt("textColor"));
-        if (getArguments().getString("imageUrl").equals("")){
+        if (getArguments().getString("imageUrl") == ""){
             ivBike.setImageResource(R.mipmap.ic_no_image);
         }else {
             getBikePhotos();
@@ -101,30 +83,8 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
 
     private void getBikePhotos(){
 
-        anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
-        anim.setDuration(2000);
-        ivBike.setAnimation(anim);
         String imageUrl = getArguments().getString("imageUrl");
-        Target target = new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                ivBike.setImageBitmap(bitmap);
-                ivBike.getAnimation().cancel();
-            }
-
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-                ivBike.setImageResource(R.mipmap.ic_no_image);
-                ivBike.getAnimation().cancel();
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-                ivBike.setImageResource(R.mipmap.ic_charge);
-                ivBike.getAnimation().start();
-            }
-        };
-        Picasso.with(getContext()).load(imageUrl).into(target);
+        Picasso.with(getContext()).load(imageUrl).into(ivBike);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.bipo.javier.bipo.account.fragments;
 
 
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -15,10 +14,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.text.Editable;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,28 +25,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.account.models.Bike;
 import com.bipo.javier.bipo.account.models.BikesResponse;
-import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
-import com.bipo.javier.bipo.home.utils.RvBikesAdapter;
+import com.bipo.javier.bipo.login.utilities.Teclado;
 import com.bipo.javier.bipo.report.models.BikeColor;
 import com.bipo.javier.bipo.report.models.BikeColorsResponse;
 import com.bipo.javier.bipo.report.models.ReportRepository;
-import com.bipo.javier.bipo.utils.BikeBrandSpinner;
 import com.bipo.javier.bipo.utils.BikeColorSpinner;
-import com.bipo.javier.bipo.utils.BikeTypeSpinner;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -60,6 +53,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.MultipartBody;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Retrofit;
@@ -70,13 +64,13 @@ import retrofit.Retrofit;
 public class EditBikeFragment extends Fragment implements View.OnClickListener {
 
     private ImageButton btnFoto, btnDelete, btnLeft, btnRight;
-    private ImageView imgvDefault, imgvFoto1, imgvFoto2, imgvFoto3, imgvFoto4, imgvDefBike;
+    private ImageView imgvDefault, imgvFoto1, imgvFoto2, imgvFoto3, imgvFoto4, imgvDefBike, imgVCharge;
     private ViewFlipper viewFlipper;
     private static final int CAM_REQUEST = 1313;
     private static final int GALLERY_SELECT_IMAGE = 1020;
     private File directory;
-    private int photo;
-    private String file = "bike", format = ".png";
+    private int photo, uploadPhotos;
+    private String file = "bike", format = ".jpg";
     private Boolean activePhoto;
     private ArrayList<BikeColor> listColors;
     private long idColor;
@@ -92,6 +86,7 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
     private static final String BIPO_URL = "http://www.bipoapp.com/";
     private String token;
     private int bikeId;
+    private RelativeLayout rlytCharge;
 
     public EditBikeFragment() {
         // Required empty public constructor
@@ -109,7 +104,9 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         bikeColorsList();
         preferences = getActivity().getSharedPreferences("UserInfo", 0);
         ContextWrapper cw = new ContextWrapper(getContext());
-        directory = cw.getDir("Images", Context.MODE_PRIVATE);
+        directory = cw.getDir("Images", Context.MODE_APPEND);
+        rlytCharge = (RelativeLayout)view.findViewById(R.id.RlytChargeEditB);
+        imgVCharge = (ImageView)view.findViewById(R.id.ImgVChargeEditB);
         spColor = (Spinner) view.findViewById(R.id.SpBikeColor);
         viewFlipper = (ViewFlipper) view.findViewById(R.id.VfpFlipper);
         btnFoto = (ImageButton) view.findViewById(R.id.ImgBtnFotoNueva);
@@ -142,6 +139,8 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         etBikeFeatures.setEnabled(false);
         etBikeFeatures.setMovementMethod(new ScrollingMovementMethod());
         alert = new AlertDialog.Builder(getContext());
+        anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
+        anim.setDuration(2000);
         token = preferences.getString("token", "");
         bikeId = getArguments().getInt("id");
         cleanStorage();
@@ -231,16 +230,23 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    List<BikeColor> bikes = response.body().bikeColor;
-                    BikeColor color = new BikeColor();
-                    color.setId(0);
-                    color.setColor("Escoge un color.");
-                    listColors.add(color);
-                    for (BikeColor bike : bikes) {
+                    bikeColorsResponse.setBikeColor(response.body().bikeColor);
+                    List<BikeColor> bikes = bikeColorsResponse.getBikeColor();
+                    if (bikes != null) {
+                        BikeColor bikeColor = new BikeColor();
+                        bikeColor.setId(0);
+                        bikeColor.setColor("Escoge un color.");
+                        listColors.add(bikeColor);
+                        for (BikeColor bike : bikes) {
 
-                        listColors.add(bike);
+                            listColors.add(bike);
+                        }
+                        colorSpinner();
+                    }else{
+                        Log.e("EditBike/BikeColorList","ColorList empty");
+                        showMessage("Error al cargar la lista de colores."+
+                                "\nContácte al administrador.");
                     }
-                    colorSpinner();
                 }
             }
 
@@ -263,7 +269,6 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         spColor.setOnItemSelectedListener(bikeColorSpinner.getListener());
         spColor.setAdapter(bikeColorSpinner.getAdapter());
         spColor.setDropDownWidth(550);
-        //idColor = bikeColorSpinner.getIdColor();
     }
 
     private void cleanStorage() {
@@ -335,7 +340,7 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
 
         HomeRepository repo = new HomeRepository(getContext());
         Call<BikesResponse> call = repo.defaultBike(bikeId,token);
-        final BikesResponse reportResponse = new BikesResponse();
+        final BikesResponse bikesResponse = new BikesResponse();
         call.enqueue(new Callback<BikesResponse>() {
             @Override
             public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
@@ -346,15 +351,16 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
                         System.out.println(response.isSuccess());
                         System.out.println(response.message());
                         System.out.println(response.code());
-                        reportResponse.setMessage(response.message());
+                        bikesResponse.setMessage(response.message());
                     } else {
                         showMessage("Ocurrió un error en la red.");
-                        System.out.println(reportResponse.getMessage());
+                        System.out.println(bikesResponse.getMessage());
                     }
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    if (response.body().getError().equals("false")) {
+                    bikesResponse.setError(response.body().getError());
+                    if (bikesResponse.getError().equals("false")) {
 
                         imgvDefBike.setVisibility(View.VISIBLE);
                         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
@@ -363,8 +369,8 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
                                 +" es ahora tu bicicleta principal.");
                         alert.show();
                     } else {
-                        reportResponse.setMessage(response.body().getMessage());
-                        System.out.println("Error: " + reportResponse.getMessage());
+                        bikesResponse.setMessage(response.body().getMessage());
+                        System.out.println("Error: " + bikesResponse.getMessage());
                     }
                 }
             }
@@ -373,7 +379,7 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
             public void onFailure(Throwable t) {
 
                 System.out.println("onFailure!: " + t);
-                reportResponse.setMessage(t.getMessage());
+                bikesResponse.setMessage(t.getMessage());
                 showMessage("No se pudo establecer la conexión de la red. " +
                         "Verifica que tengas conexión a internet.");
             }
@@ -389,7 +395,13 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         tvBikeType.setTextColor(Color.GRAY);
         tvBikeIdFrame.setTextColor(Color.GRAY);
         tvBikeColor.setVisibility(View.INVISIBLE);
-        //viewFlipper.addView(imgvDefault);
+        if (listColors != null){
+            for (int i = 0; i < listColors.size() - 1;i++) {
+                if (listColors.get(i).getColor().equals(getArguments().getString("color"))) {
+                    spColor.setSelection(i);
+                }
+            }
+        }else{showMessage("No hay colores");}
         spColor.setVisibility(View.VISIBLE);
         btnFoto.setVisibility(View.VISIBLE);
         btnDelete.setVisibility(View.VISIBLE);
@@ -424,8 +436,8 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-
-                    if (response.body().getError().equals("false")) {
+                    bikesResponse.setError(response.body().getError());
+                    if (bikesResponse.getError().equals("false")) {
                         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
                         alert.setTitle("Has borrado una bicicleta.");
                         alert.setMessage(tvBikeName.getText()+ " se ha borrado exitosamente. ")
@@ -464,19 +476,34 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
         String bikeColor = String.format(resources.getString(R.string.sr_itmtxt_bike_color),
                 listColors.get((int)idColor).getColor());
         tvBikeColor.setText(bikeColor);
-        updateBike(bikeId,token, (int)idColor,etBikeFeatures.getText().toString());
-        //viewFlipper.removeView(imgvDefault);
+        if ((!listColors.get((int)idColor).getColor().equals(getArguments().getString("color")))
+                || (!etBikeFeatures.getText().toString().equals(getArguments().getString("features")))){
+            rlytCharge.setVisibility(View.VISIBLE);
+            imgVCharge.startAnimation(anim);
+            updateBike(bikeId,token, (int)idColor,etBikeFeatures.getText().toString());
+        }else{
+            File[] files = directory.listFiles();
+            if (files.length != 0) {
+                rlytCharge.setVisibility(View.VISIBLE);
+                imgVCharge.startAnimation(anim);
+                for (File item : files) {
+                    uploadBikePhotos(item, tvBikeName.getText().toString(), token,
+                            files.length);
+                }
+            }
+        }
         spColor.setVisibility(View.INVISIBLE);
         btnFoto.setVisibility(View.INVISIBLE);
         btnDelete.setVisibility(View.INVISIBLE);
         etBikeFeatures.setEnabled(false);
+        //viewFlipper.addView(imgvFoto1);
         menu.getItem(3).setVisible(false);
         menu.getItem(0).setVisible(true);
         menu.getItem(1).setVisible(true);
         menu.getItem(2).setVisible(true);
     }
 
-    private void updateBike(int bikeId, String token, int idColor, String bikeFeatures) {
+    private void updateBike(int bikeId, final String token, int idColor, String bikeFeatures) {
 
         HomeRepository repo = new HomeRepository(getContext());
         Call<BikesResponse> call = repo.updateBike(bikeId, token, idColor, bikeFeatures);
@@ -499,13 +526,30 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-
-                    if (response.body().getError().equals("false")) {
+                    bikesResponse.setError(response.body().getError());
+                    if (bikesResponse.getError().equals("false")) {
+                        imgVCharge.getAnimation().cancel();
+                        rlytCharge.setVisibility(View.INVISIBLE);
                         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
                         alert.setTitle("Se ha actualizado una bicicleta.");
-                        alert.setMessage(tvBikeName.getText()+ " se ha actualizado exitosamente. ");
+                        alert.setMessage(tvBikeName.getText() + " se ha actualizado exitosamente. ");
                         alert.show();
+                        /*File[] files = directory.listFiles();
+                        if (files.length != 0) {
+                            for (File item : files) {
+                                uploadBikePhotos(item, tvBikeName.getText().toString(), token,
+                                        files.length);
+                            }
+                        }else {
+                            imgVCharge.getAnimation().cancel();
+                            rlytCharge.setVisibility(View.INVISIBLE);
+                            AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                            alert.setTitle("Se ha actualizado una bicicleta.");
+                            alert.setMessage(tvBikeName.getText() + " se ha actualizado exitosamente. ");
+                            alert.show();
+                        }*/
                     } else {
+                        showMessage("mal");
                         bikesResponse.setMessage(response.body().getMessage());
                         System.out.println(bikesResponse.getMessage());
                     }
@@ -517,6 +561,67 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
 
                 System.out.println("onFailure!: " + t);
                 bikesResponse.setMessage(t.getMessage());
+            }
+        });
+    }
+
+    private void uploadBikePhotos(final File photo, final String bikeName, final String token, final int totalPhotos) {
+
+        final okhttp3.MediaType MEDIA_TYPE = okhttp3.MediaType.parse("image/jpg");
+        okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+
+        MultipartBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("bikeName",bikeName)
+                .addFormDataPart("file",photo.getName(), okhttp3.RequestBody.create(MEDIA_TYPE,
+                        new File(photo.getAbsolutePath())))
+                .addFormDataPart("token", token)
+                .build();
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url("http://bipoapp.com/services/v1/bikePhoto")
+                .post(body)
+                .addHeader("authorization", "650E01A1B8F9A4DA4A2040FF86E699B7")
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                System.out.println(call.request().body());
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+
+
+                System.out.println("Successfull?: " + response.isSuccessful());
+                if (response.code() == 400) {
+                    showMessage("No hay datos.");
+
+
+                } else if (response.code() == 500) {
+                    showMessage("Ocurrió un error en la red.");
+                    System.out.println(response.message());
+                } else if (response.code() == 200) {
+                    uploadPhotos ++;
+                    System.out.println("Se subio la foto: " + photo.getName());
+                    if (uploadPhotos == totalPhotos){
+                        getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Teclado.ocultarTeclado(getActivity());
+                                    imgVCharge.getAnimation().cancel();
+                                    rlytCharge.setVisibility(View.INVISIBLE);
+                                    AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                                    alert.setTitle("Se ha actualizado una bicicleta.");
+                                    alert.setMessage(tvBikeName.getText() + " se ha actualizado exitosamente. ");
+                                    alert.show();
+                                }
+                            });
+                    }
+                }else{
+                    System.out.println("Error: " + response.message());
+                    System.out.println("codigo: " + response.code());
+                }
+
             }
         });
     }
@@ -623,6 +728,7 @@ public class EditBikeFragment extends Fragment implements View.OnClickListener {
                             "/" + file + photo + format);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    Log.e("saveToInternalStorage","Save image error.");
                 } finally {
                     try {
                         assert fos != null;

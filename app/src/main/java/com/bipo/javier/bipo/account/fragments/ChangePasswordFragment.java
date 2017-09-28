@@ -114,7 +114,8 @@ public class ChangePasswordFragment extends Fragment implements View.OnClickList
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    if (response.body().getError() == "false") {
+                    bikesResponse.setError(response.body().getError());
+                    if (bikesResponse.getError().equals("false")) {
 
                         showMessage("La contraseña se ha cambiado exitosamente!");
                         getActivity().getSupportFragmentManager().popBackStack();

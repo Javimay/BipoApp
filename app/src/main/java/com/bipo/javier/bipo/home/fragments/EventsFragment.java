@@ -18,14 +18,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
-import com.bipo.javier.bipo.home.utils.RVItemTouchListener;
-import com.bipo.javier.bipo.home.utils.RvEventsAdapter;
+import com.bipo.javier.bipo.home.utilities.RVItemTouchListener;
+import com.bipo.javier.bipo.home.utilities.RvEventsAdapter;
 import com.bipo.javier.bipo.home.models.GetReportResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
 import com.bipo.javier.bipo.report.models.Report;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -57,7 +56,7 @@ public class EventsFragment extends Fragment {
         rvEvents = (RecyclerView)view.findViewById(R.id.RvEvents);
         tvRedError = (TextView)view.findViewById(R.id.TvRedError);
         imgReload = (ImageView)view.findViewById(R.id.ImgVReload);
-        imgCharge = (ImageView)view.findViewById(R.id.ImgVCharge);
+        imgCharge = (ImageView)view.findViewById(R.id.ImgVChargeEditB);
         imgCharge.setImageResource(R.mipmap.ic_charge);
         anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
         anim.setDuration(2000);
@@ -100,10 +99,17 @@ public class EventsFragment extends Fragment {
 
 
                     if (response.body().getReports() != null) {
-                        ArrayList<Report> reportList = response.body().getReports();
-                        initEvents(reportList);
-                        imgCharge.getAnimation().cancel();
-                        imgCharge.setImageResource(0);
+                        reportResponse.setReports(response.body().getReports());
+                        ArrayList<Report> reportList = reportResponse.getReports();
+                        if (reportList != null){
+                            initEvents(reportList);
+                            imgCharge.getAnimation().cancel();
+                            imgCharge.setImageResource(0);
+                        }else{
+                            imgCharge.getAnimation().cancel();
+                            showMessage("Home Events, Reports empty...");
+                        }
+
                     }else{
                         reportResponse.setMessage(response.body().getMessage());
                         tvRedError.setVisibility(View.VISIBLE);

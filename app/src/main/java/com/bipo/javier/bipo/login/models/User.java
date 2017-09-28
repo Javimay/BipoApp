@@ -1,23 +1,52 @@
 package com.bipo.javier.bipo.login.models;
 
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
+
 /**
  * Created by Javier on 15/05/2017.
  */
 
-public class User {
+public class User implements Serializable {
 
+    @SerializedName("id")
     private int id;
+
+    @SerializedName("name")
     private String name;
+
+    @SerializedName("lastname")
     private String lastname;
+
+    @SerializedName("nickname")
     private String nickname;
+
+    @SerializedName("email")
     private String email;
+
+    @SerializedName("birthdate")
     private String birthdate;
+
+    @SerializedName("cellphone")
     private String cellphone;
+
+    @SerializedName("documentid")
     private String documentid;
+
+    @SerializedName("token")
     private String token;
+
+    @SerializedName("emailReceiver")
     private int emailReceiver;
+
+    @SerializedName("photoPublication")
     private int photoPublication;
+
+    @SerializedName("enableReportUbication")
     private int enableReportUbication;
+
+    @SerializedName("enableLocationUbication")
     private int enableLocationUbication;
 
     public String getName() {

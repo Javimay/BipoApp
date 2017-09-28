@@ -25,11 +25,10 @@ public class InsecureAreaFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         View view = inflater.inflate(R.layout.fragment_insecure_area, container, false);
         wvInsecureArea = (WebView)view.findViewById(R.id.WvInsecureArea);
         wvInsecureArea.getSettings().setJavaScriptEnabled(true);
@@ -38,7 +37,4 @@ public class InsecureAreaFragment extends Fragment {
         wvInsecureArea.loadUrl(BIPO_URL);
         return view;
     }
-
-
-
 }

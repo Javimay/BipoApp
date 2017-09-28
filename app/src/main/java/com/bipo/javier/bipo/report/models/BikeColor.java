@@ -1,13 +1,20 @@
 package com.bipo.javier.bipo.report.models;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Javier on 12/05/2017.
  */
 
 public class BikeColor {
 
+    @SerializedName("id")
     public int id;
+
+    @SerializedName("color")
     public String color;
+
+    @SerializedName("hexColor")
     public String hexColor;
 
     public int getId() {

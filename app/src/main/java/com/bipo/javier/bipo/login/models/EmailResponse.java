@@ -1,5 +1,7 @@
 package com.bipo.javier.bipo.login.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -9,8 +11,13 @@ import java.util.ArrayList;
 
 public class EmailResponse implements Serializable {
 
+    @SerializedName("message")
     public String message;
+
+    @SerializedName("error")
     public String error;
+
+    @SerializedName("userExist")
     private ArrayList<User> userExist;
 
     public String getMessage() {
@@ -31,5 +38,9 @@ public class EmailResponse implements Serializable {
 
     public ArrayList<User> getUserExist() {
         return userExist;
+    }
+
+    public void setUserExist(ArrayList<User> userExist) {
+        this.userExist = userExist;
     }
 }

@@ -1,4 +1,6 @@
 package com.bipo.javier.bipo.login.models;
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -8,8 +10,13 @@ import java.util.ArrayList;
 
 public class LoginResponse implements Serializable {
 
+    @SerializedName("error")
     private String error;
+
+    @SerializedName("message")
     private String message;
+
+    @SerializedName("user")
     private ArrayList<User> user;
 
     public ArrayList<User> getUser() {

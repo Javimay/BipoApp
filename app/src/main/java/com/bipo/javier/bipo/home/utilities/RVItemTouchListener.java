@@ -1,4 +1,4 @@
-package com.bipo.javier.bipo.home.utils;
+package com.bipo.javier.bipo.home.utilities;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

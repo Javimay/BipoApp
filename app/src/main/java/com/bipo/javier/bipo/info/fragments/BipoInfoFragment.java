@@ -54,6 +54,11 @@ public class BipoInfoFragment extends Fragment {
         animOut.setDuration(2000);
         animFull = AnimationUtils.loadAnimation(getContext(),R.anim.anim_turn_full);
         animFull.setFillAfter(true);
+        android.content.res.Resources resources = getResources();
+        String bipoVersion = String.format(resources.getString(R.string.sr_txt_bipo_version),
+                "1.01");
+        tvVersion.setText(bipoVersion);
+        //<editor-fold desc="EventEgg">
         bipoLogo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,16 +66,16 @@ public class BipoInfoFragment extends Fragment {
                 if (tiempoPrimerClick + INTERVALO > System.currentTimeMillis()){
                     if (clicks == 9){
 
-                            bipoLogo.startAnimation(animIn);
-                            TimerTask task = new TimerTask() {
-                                @Override
-                                public void run() {
-                                    jarcidcoGo();
-                                }
-                             };
-                            Timer timer = new Timer();
-                            long splashTime = 2000;
-                            timer.schedule(task, splashTime);
+                        bipoLogo.startAnimation(animIn);
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                jarcidcoGo();
+                            }
+                        };
+                        Timer timer = new Timer();
+                        long splashTime = 2000;
+                        timer.schedule(task, splashTime);
                     }
                     return;
                 }else {
@@ -79,13 +84,11 @@ public class BipoInfoFragment extends Fragment {
                 tiempoPrimerClick = System.currentTimeMillis();
             }
         });
-        android.content.res.Resources resources = getResources();
-        String bipoVersion = String.format(resources.getString(R.string.sr_txt_bipo_version),
-                "1.01");
-        tvVersion.setText(bipoVersion);
+        //</editor-fold>
         return view;
     }
 
+    //<editor-fold desc="EggMethod">
     private void jarcidcoGo() {
 
         bipoLogo.getAnimation().cancel();
@@ -97,4 +100,5 @@ public class BipoInfoFragment extends Fragment {
         bipoLogo.getAnimation().start();
         clicks = 0;
     }
+    //</editor-fold>
 }

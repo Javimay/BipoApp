@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,8 +31,8 @@ import android.widget.Toast;
 import com.bipo.javier.bipo.R;
 import com.bipo.javier.bipo.account.models.Bike;
 import com.bipo.javier.bipo.account.models.BikesResponse;
-import com.bipo.javier.bipo.home.utils.RVItemTouchListener;
-import com.bipo.javier.bipo.home.utils.RvBikesAdapter;
+import com.bipo.javier.bipo.home.utilities.RVItemTouchListener;
+import com.bipo.javier.bipo.home.utilities.RvBikesAdapter;
 import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
 import com.bipo.javier.bipo.login.utilities.Teclado;
@@ -41,7 +42,6 @@ import com.bipo.javier.bipo.report.models.ReportRepository;
 import com.bipo.javier.bipo.utils.ReportTypesSpinner;
 import com.bipo.javier.bipo.utils.GpsConnection;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -142,15 +142,20 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    List<ReportType> reports = response.body().brands;
-                    List<String> listStates = new ArrayList<>();
-                    listStates.add(0, "Escoge un tipo.");
-                    for (ReportType bike : reports) {
+                    bikeStatesResponse.setBrands(response.body().brands);
+                    List<ReportType> reports = bikeStatesResponse.getBrands();
+                    if (reports != null) {
+                        List<String> listStates = new ArrayList<>();
+                        listStates.add(0, "Escoge un tipo.");
+                        for (ReportType bike : reports) {
 
-                        listStates.add(bike.getId(), bike.getReportType());
-                        System.out.println("id: " + bike.getId() + "\nstate: " + bike.getReportType());
+                            listStates.add(bike.getId(), bike.getReportType());
+                            System.out.println("id: " + bike.getId() + "\nstate: " + bike.getReportType());
+                        }
+                        reportTypesSpinner(listStates);
+                    }else{
+                        Log.e("MakeReport/ReportTypes","TypeReportList empty");
                     }
-                    reportTypesSpinner(listStates);
                 }
             }
 
@@ -186,9 +191,10 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
+                    bikesResponse.setBikes(response.body().getBikes());
+                    ArrayList<Bike> bikesList = bikesResponse.getBikes();
+                    if (bikesList != null) {
 
-                    if (response.body().getBikes() != null) {
-                        ArrayList<Bike> bikesList = response.body().getBikes();
                         initBikes(bikesList);
                     }else{
                         bikesResponse.setMessage(response.body().getMessage());
@@ -360,8 +366,7 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
                 return;
             }
         }else{
-
-            if ((idReportType == 2) && (!bikeState.equals("Robada"))){
+            if ((idReportType == 2) && (!bikeState.equals("ROBADA"))){
 
                 alert.setTitle("No se puede generar este reporte.");
                 alert.setMessage("La bicicleta seleccionada no ha sido reportada como robada. " +
@@ -396,10 +401,8 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
                 if (response != null && !response.isSuccess() && response.errorBody() != null) {
                     if (response.code() == 400) {
                         showMessage("hubo un error al enviar los datos");
-                        System.out.println(response.isSuccess());
-                        System.out.println(response.message());
-                        System.out.println(response.code());
                         reportResponse.setMessage(response.message());
+                        showMessage(reportResponse.getMessage());
                     } else {
                         showMessage("Ocurrió un error en la red.");
                         System.out.println(reportResponse.getMessage());
@@ -407,8 +410,9 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
 
-                    if (response.body().getError().equals("false")) {
-
+                    reportResponse.setError(response.body().getError());
+                    if (reportResponse.getError().equals("false")) {
+                        showMessage("Response nice");
                         imgVCharge.getAnimation().cancel();
                         rlytCharge.setVisibility(View.INVISIBLE);
                         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
@@ -427,6 +431,7 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
                     } else {
                         reportResponse.setMessage(response.body().getMessage());
                         System.out.println("Error: " + reportResponse.getMessage());
+                        showMessage("Error al generar el reporte.");
                     }
                 }
             }

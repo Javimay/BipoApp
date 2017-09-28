@@ -3,13 +3,18 @@ package com.bipo.javier.bipo.report.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Javier on 12/05/2017.
  */
 
 public class BikeBrand implements Parcelable{
 
+    @SerializedName("id")
     public int id;
+
+    @SerializedName("brand")
     public String brand;
 
     public BikeBrand(Parcel in) {

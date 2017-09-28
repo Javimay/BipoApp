@@ -94,7 +94,7 @@
     <string name="sr_txt_bipo_version">Versión: %s</string>
     <string name="sr_txt_bipo_information_app">"La información, imágenes, datos, logotipos, código fuente y demás contenido alojado en la página web www.bipoapp.com como en la aplicación móvil Bipo, pertenece a la Fundación Universitaria Los Libertadores y a sus desarrolladores.
         \nBipo se establece entre los lineamientos y normativas de las leyes colombianas para la protección de datos y las normativas para las redes sociales Facebook®  y Twitter®.
-        \nVisita nuestra página para más información sobre los <a href="bipoapp.com/page/terminos">Términos y Condiciones.</a>
+        \nVisita nuestra página para más información sobre los <a href="http://www.bipoapp.com/page/terminos">Términos y Condiciones.</a>
         \nPara contactarnos lo puedes hacer mediante el correo electrónico: contacto@bipoapp.com "</string>
     <string name="sr_cd_bipo_logo">logo bipo</string>
     <string name="sr_cd_boton_panico">Botón de pánico</string>
