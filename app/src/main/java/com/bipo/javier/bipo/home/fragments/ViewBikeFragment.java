@@ -46,6 +46,7 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Retrofit;
 
+import com.bipo.javier.bipo.report.models.ReportResponse;
 import com.bipo.javier.bipo.utils.GpsConnection;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -230,20 +231,21 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener,
                                 String coordinates, int idBike, String reportDetails) {
 
         HomeRepository repo = new HomeRepository(getContext());
-        Call<BikesResponse> call = repo.registerReport(token, reportName, reportType, coordinates,
+        Call<ReportResponse> call = repo.registerReport(token, reportName, reportType, coordinates,
                 idBike, reportDetails);
-        final BikesResponse reportResponse = new BikesResponse();
-        call.enqueue(new Callback<BikesResponse>() {
+        final ReportResponse reportResponse = new ReportResponse();
+        call.enqueue(new Callback<ReportResponse>() {
             @Override
-            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
+            public void onResponse(retrofit.Response<ReportResponse> response, Retrofit retrofit) {
 
                 if (response != null && !response.isSuccess() && response.errorBody() != null) {
+
+                    reportResponse.setMessage(response.message());
                     if (response.code() == 400) {
                         showMessage("hubo un error al enviar los datos");
                         System.out.println(response.isSuccess());
                         System.out.println(response.message());
                         System.out.println(response.code());
-                        reportResponse.setMessage(response.message());
                     } else {
                         showMessage("Ocurrió un error en la red.");
                         System.out.println(reportResponse.getMessage());
@@ -252,12 +254,13 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener,
                 if (response != null && response.isSuccess() && response.message() != null) {
 
                     if (response.body().getError().equals("false")) {
-
+                        reportResponse.setReportId(response.body().getReportId());
+                        int reportId = reportResponse.getReportId();
                         File[] files = directory.listFiles();
                         if (files.length != 0){
                             for (int i = 0; i < files.length; i++) {
                                 File item = files[i];
-                                uploadReportPhotos(item, reportName,token,files.length);
+                                uploadReportPhotos(item, reportId, token, files.length);
 
                             }
                         }else{
@@ -283,13 +286,13 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener,
         });
     }
 
-    private void uploadReportPhotos(final File photo, String reportName, String token, final int totalPhotos) {
+    private void uploadReportPhotos(final File photo, int reportId, String token, final int totalPhotos) {
 
         final okhttp3.MediaType MEDIA_TYPE_PNG = okhttp3.MediaType.parse("image/jpg");
         okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
 
         MultipartBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("reportName",reportName)
+                .addFormDataPart("reportId",String.valueOf(reportId))
                 .addFormDataPart("token", token)
                 .addFormDataPart("image",photo.getName(), okhttp3.RequestBody.create(MEDIA_TYPE_PNG,
                         new File(photo.getAbsolutePath())))

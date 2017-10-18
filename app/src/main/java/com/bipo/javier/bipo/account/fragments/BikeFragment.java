@@ -441,7 +441,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void registerBike(final String bikeName, long idBrand, long idColor, String idFrame,
-                              long idType, String bikeFeatures, int idBikeState, final String token) {
+                              long idType, final String bikeFeatures, int idBikeState, final String token) {
 
         HomeRepository repo = new HomeRepository(getContext());
         Call<BikesResponse> call = repo.bikeRegister(bikeName, (int) idBrand, (int) idColor, idFrame,
@@ -452,12 +452,12 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
             public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
 
                 if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    bikesResponse.setMessage(response.message());
                     if (response.code() == 400) {
                         showMessage("No hay datos.");
                         System.out.println(response.isSuccess());
                         System.out.println(response.message());
                         System.out.println(response.code());
-                        bikesResponse.setMessage(response.message());
                     } else {
                         showMessage("Ocurrió un error en la red.");
                         System.out.println(bikesResponse.getMessage());
@@ -465,68 +465,23 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                 }
 
                 if (response != null && response.isSuccess() && response.message() != null) {
-
-                    System.out.println("Mensaje: " + response.message());
+                    bikesResponse.setMessage(response.message());
+                    bikesResponse.setBikeId(response.body().getBikeId());
+                    int bikeId = bikesResponse.getBikeId();
+                    System.out.println("Mensaje: " + bikesResponse.getMessage());
                     File[] files = directory.listFiles();
                     if (files.length != 0){
                         for (File item : files) {
-                            uploadBikePhotos(item, bikeName, token, files.length);
+                            uploadBikePhotos(item, bikeId, token, files.length,
+                                    bikeName);
                         }
                     }else{
                         if (getArguments().getBoolean("isFirstBike")){
-                            firstBike(token, bikeName);
+                            setDefault(token, bikeId, bikeName);
                         }else{
                             successFull(bikeName);
                         }
 
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-
-                System.out.println("onFailure!: " + t);
-                bikesResponse.setMessage(t.getMessage());
-                showMessage("No se pudo establecer la conexión de la red. " +
-                        "Verifica que tengas conexión a internet.");
-            }
-        });
-    }
-
-    private void firstBike(final String token, final String bikeName) {
-
-        HomeRepository repo = new HomeRepository(getContext());
-        Call<GetBikesResponse> call = repo.getBikeByName(token, bikeName);
-        final GetBikesResponse bikesResponse = new GetBikesResponse();
-        call.enqueue(new Callback<GetBikesResponse>() {
-            @Override
-            public void onResponse(retrofit.Response<GetBikesResponse> response, Retrofit retrofit) {
-
-                if (response != null && !response.isSuccess() && response.errorBody() != null) {
-                    if (response.code() == 400) {
-                        showMessage("No hay datos.");
-                        System.out.println(response.isSuccess());
-                        System.out.println(response.message());
-                        System.out.println(response.code());
-                        bikesResponse.setMessage(response.message());
-                    } else {
-                        showMessage("Ocurrió un error en la red.");
-                        System.out.println(bikesResponse.getMessage());
-                    }
-                }
-
-                if (response != null && response.isSuccess() && response.message() != null) {
-
-                    bikesResponse.setBikes(response.body().getBikes());
-                    ArrayList<Bike> bike = bikesResponse.getBikes();
-                    if (bike != null) {
-                        int bikeId = bike.get(0).getId();
-                        setDefault(token, bikeId, bikeName);
-                    }else{
-                        Log.e("FirstBike","Bike by name empty...");
-                        showMessage("No se encontro la bicicleta."+
-                                "\nContácte al administrador.");
                     }
                 }
             }
@@ -586,13 +541,14 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-    private void uploadBikePhotos(final File photo, final String bikeName, final String token, final int totalPhotos) {
+    private void uploadBikePhotos(final File photo, final int bikeId, final String token,
+                                  final int totalPhotos, final String bikeName) {
 
         final okhttp3.MediaType MEDIA_TYPE = okhttp3.MediaType.parse("image/jpg");
         final okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
         final BikesResponse bikesResponse = new BikesResponse();
         MultipartBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("bikeName",bikeName)
+                .addFormDataPart("bikeId",String.valueOf(bikeId))
                 .addFormDataPart("file",photo.getName(), okhttp3.RequestBody.create(MEDIA_TYPE,
                         new File(photo.getAbsolutePath())))
                 .addFormDataPart("token", token)
@@ -624,7 +580,7 @@ public class BikeFragment extends Fragment implements View.OnClickListener {
                     System.out.println("Se subio la foto: " + photo.getName());
                     if (uploadPhotos == totalPhotos){
                         if (getArguments().getBoolean("isFirstBike")){
-                            firstBike(token, bikeName);
+                            setDefault(token, bikeId, bikeName);
                         }else{
 
                             getActivity().runOnUiThread(new Runnable() {

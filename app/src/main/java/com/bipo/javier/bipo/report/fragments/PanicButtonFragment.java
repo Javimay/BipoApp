@@ -45,6 +45,7 @@ import com.bipo.javier.bipo.home.fragments.SettingsFragment;
 import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
 import com.bipo.javier.bipo.login.activities.LoginActivity;
+import com.bipo.javier.bipo.report.models.ReportResponse;
 import com.bipo.javier.bipo.splashScreen.SplashScreenActivity;
 import com.bipo.javier.bipo.utils.GpsConnection;
 
@@ -280,20 +281,20 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
         final String reportDetails = "Reporte generado desde el botón de pánico.";
 
         HomeRepository repo = new HomeRepository(getContext());
-        Call<BikesResponse> call = repo.registerReport(token, reportName, STOLEN_REPORT, coordinates,
+        Call<ReportResponse> call = repo.registerReport(token, reportName, STOLEN_REPORT, coordinates,
                 idBike, reportDetails);
-        final BikesResponse reportResponse = new BikesResponse();
-        call.enqueue(new Callback<BikesResponse>() {
+        final ReportResponse reportResponse = new ReportResponse();
+        call.enqueue(new Callback<ReportResponse>() {
             @Override
-            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
+            public void onResponse(retrofit.Response<ReportResponse> response, Retrofit retrofit) {
 
                 if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    reportResponse.setMessage(response.message());
                     if (response.code() == 400) {
                         showMessage("hubo un error al enviar los datos");
                         System.out.println(response.isSuccess());
                         System.out.println(response.message());
                         System.out.println(response.code());
-                        reportResponse.setMessage(response.message());
                     } else {
                         showMessage("Ocurrió un error en la red.");
                         System.out.println(reportResponse.getMessage());
@@ -304,6 +305,7 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
                     reportResponse.setError(response.body().getError());
                     if (reportResponse.getError().equals("false")) {
 
+                        reportResponse.setReportId(response.body().getReportId());
                         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
                         alert.setTitle("Se ha generado un reporte de robo.");
                         alert.setMessage("Estaremos pendientes de cualquier noticia sobre tu bicicleta robada. " +

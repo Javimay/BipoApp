@@ -1,4 +1,4 @@
-package com.bipo.javier.bipo.account.models;
+package com.bipo.javier.bipo.report.models;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Created by Javier on 12/06/2017.
  */
 
-public class BikesResponse implements Serializable{
+public class ReportResponse implements Serializable{
 
     @SerializedName("error")
     private String error;
@@ -16,8 +16,8 @@ public class BikesResponse implements Serializable{
     @SerializedName("message")
     private String message;
 
-    @SerializedName("bikeId")
-    private int bikeId;
+    @SerializedName("reportId")
+    private int reportId;
 
     public String getError() {
         return error;
@@ -35,11 +35,11 @@ public class BikesResponse implements Serializable{
         this.message = message;
     }
 
-    public int getBikeId() {
-        return bikeId;
+    public int getReportId() {
+        return reportId;
     }
 
-    public void setBikeId(int bikeId) {
-        this.bikeId = bikeId;
+    public void setReportId(int reportId) {
+        this.reportId = reportId;
     }
 }

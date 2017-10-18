@@ -36,6 +36,7 @@ import com.bipo.javier.bipo.home.utilities.RvBikesAdapter;
 import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.HomeRepository;
 import com.bipo.javier.bipo.login.utilities.Teclado;
+import com.bipo.javier.bipo.report.models.ReportResponse;
 import com.bipo.javier.bipo.report.models.ReportType;
 import com.bipo.javier.bipo.report.models.ReportTypesResponse;
 import com.bipo.javier.bipo.report.models.ReportRepository;
@@ -391,17 +392,18 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
                                 String coordinates, int idBike, String reportDetails) {
 
         HomeRepository repo = new HomeRepository(getContext());
-        Call<BikesResponse> call = repo.registerReport(token, reportName, reportType, coordinates,
+        Call<ReportResponse> call = repo.registerReport(token, reportName, reportType, coordinates,
                 idBike, reportDetails);
-        final BikesResponse reportResponse = new BikesResponse();
-        call.enqueue(new Callback<BikesResponse>() {
+        final ReportResponse reportResponse = new ReportResponse();
+        call.enqueue(new Callback<ReportResponse>() {
             @Override
-            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
+            public void onResponse(retrofit.Response<ReportResponse> response, Retrofit retrofit) {
 
                 if (response != null && !response.isSuccess() && response.errorBody() != null) {
+
+                    reportResponse.setMessage(response.message());
                     if (response.code() == 400) {
                         showMessage("hubo un error al enviar los datos");
-                        reportResponse.setMessage(response.message());
                         showMessage(reportResponse.getMessage());
                     } else {
                         showMessage("Ocurrió un error en la red.");
@@ -411,8 +413,8 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
                 if (response != null && response.isSuccess() && response.message() != null) {
 
                     reportResponse.setError(response.body().getError());
+                    reportResponse.setReportId(response.body().getReportId());
                     if (reportResponse.getError().equals("false")) {
-                        showMessage("Response nice");
                         imgVCharge.getAnimation().cancel();
                         rlytCharge.setVisibility(View.INVISIBLE);
                         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());

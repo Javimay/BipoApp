@@ -6,6 +6,7 @@ import com.bipo.javier.bipo.data.IRestClient;
 import com.bipo.javier.bipo.data.RestClient;
 import com.bipo.javier.bipo.account.models.BikesResponse;
 import com.bipo.javier.bipo.report.models.Report;
+import com.bipo.javier.bipo.report.models.ReportResponse;
 import com.squareup.okhttp.RequestBody;
 
 import okhttp3.MultipartBody;
@@ -46,8 +47,8 @@ public class HomeRepository {
         return apiService.registerBikePhoto(bikeName, bikePhoto, token);
     }
 
-    public Call<BikesResponse> registerReport(String token, String reportName, int reporType, String coordinates,
-                                          int idBike, String reportDetails){
+    public Call<ReportResponse> registerReport(String token, String reportName, int reporType, String coordinates,
+                                               int idBike, String reportDetails){
         return apiService.registerReport(token, reportName, reporType, coordinates, idBike, reportDetails);
     }
 

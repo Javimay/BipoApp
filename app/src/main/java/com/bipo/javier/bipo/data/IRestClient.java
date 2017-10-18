@@ -5,6 +5,7 @@ import com.bipo.javier.bipo.home.models.GetBikesResponse;
 import com.bipo.javier.bipo.home.models.GetReportResponse;
 import com.bipo.javier.bipo.report.models.BikeBrandsResponse;
 import com.bipo.javier.bipo.report.models.BikeColorsResponse;
+import com.bipo.javier.bipo.report.models.ReportResponse;
 import com.bipo.javier.bipo.report.models.ReportTypesResponse;
 import com.bipo.javier.bipo.report.models.BikeTypesResponse;
 import com.bipo.javier.bipo.login.models.EmailResponse;
@@ -91,9 +92,9 @@ public interface IRestClient {
 
     @FormUrlEncoded
     @POST("report")
-    Call<BikesResponse> registerReport(@Field("token") String token, @Field("reportName") String reportName,
-                                     @Field("reportType") int reportType, @Field("coordinates") String coordinates,
-                                     @Field("idBike") int idBike, @Field("reportDetails") String reportDetails);
+    Call<ReportResponse> registerReport(@Field("token") String token, @Field("reportName") String reportName,
+                                        @Field("reportType") int reportType, @Field("coordinates") String coordinates,
+                                        @Field("idBike") int idBike, @Field("reportDetails") String reportDetails);
 
     @FormUrlEncoded
     @POST("updatePassword")
