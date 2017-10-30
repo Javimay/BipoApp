@@ -38,6 +38,9 @@ public class Report {
     @SerializedName("bikeName")
     private String bikeName;
 
+    @SerializedName("bikeFeatures")
+    private String bikeFeatures;
+
     @SerializedName("color")
     private String color;
 
@@ -192,5 +195,13 @@ public class Report {
 
     public void setBikePhotos(List<BikePhotos> bikePhotos) {
         this.bikePhotos = bikePhotos;
+    }
+
+    public String getBikeFeatures() {
+        return bikeFeatures;
+    }
+
+    public void setBikeFeatures(String bikeFeatures) {
+        this.bikeFeatures = bikeFeatures;
     }
 }

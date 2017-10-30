@@ -1,10 +1,12 @@
 package com.bipo.javier.bipo.home.fragments;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
 import com.google.android.gms.maps.CameraUpdate;
@@ -28,12 +31,12 @@ import com.squareup.picasso.Picasso;
  */
 public class EventItemsFragment extends Fragment implements View.OnClickListener, OnMapReadyCallback {
 
-    private TextView tvStatus, tvBrand, tvType, tvColor;
+    private TextView tvStatus, tvBrand, tvType, tvColor, tvDetails, tvFeatures;
     private ImageView ivBike;
     private MapView mvPlace;
     private Button btnSawBike;
     private android.content.res.Resources resources;
-    private Animation anim;
+    private SharedPreferences preferences;
 
     public EventItemsFragment() {
         // Required empty public constructor
@@ -48,6 +51,8 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
         tvBrand = (TextView) view.findViewById(R.id.TvItemBrand);
         tvType = (TextView) view.findViewById(R.id.TvItemType);
         tvColor = (TextView) view.findViewById(R.id.TvItemColor);
+        tvDetails = (TextView) view.findViewById(R.id.TvItemDetails);
+        tvFeatures = (TextView) view.findViewById(R.id.TvItemFeatures);
         ivBike = (ImageView) view.findViewById(R.id.IvItemBike);
         mvPlace = (MapView)view.findViewById(R.id.MvItemPlace);
         mvPlace.onCreate(savedInstanceState);
@@ -62,14 +67,14 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
     private void initComponents() {
 
         resources = getResources();
+        preferences = getActivity().getSharedPreferences("UserInfo",0);
         tvStatus.setText(getArguments().getString("status"));
         tvStatus.setTextColor(getArguments().getInt("textColor"));
-        if (getArguments().getString("imageUrl") == ""){
+        if ("".equals(getArguments().getString("imageUrl"))){
             ivBike.setImageResource(R.mipmap.ic_no_image);
         }else {
             getBikePhotos();
         }
-
         String bikeBrand = String.format(resources.getString(R.string.sr_itmtxt_bike_brand),
                 getArguments().getString("brand"));
         tvBrand.setText(bikeBrand);
@@ -79,6 +84,16 @@ public class EventItemsFragment extends Fragment implements View.OnClickListener
         String bikeColor = String.format(resources.getString(R.string.sr_itmtxt_bike_color),
                 getArguments().getString("color"));
         tvColor.setText(bikeColor);
+        String bikeDetails = String.format(resources.getString(R.string.sr_itmtxt_bike_details),
+                getArguments().getString("details"));
+        tvDetails.setText(bikeDetails);
+        String bikeFeatures = String.format(resources.getString(R.string.sr_itmtxt_bike_features),
+                getArguments().getString("bikeFeatures"));
+        tvFeatures.setText(bikeFeatures);
+        if (getArguments().getInt("idReport") != 1){
+            btnSawBike.setVisibility(View.INVISIBLE);
+        }
+
     }
 
     private void getBikePhotos(){

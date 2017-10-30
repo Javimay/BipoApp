@@ -43,35 +43,69 @@
                 android:layout_weight="0"
                 android:contentDescription="@string/sr_cd_bicicleta_reportada" />
 
-            <TextView
-                android:id="@+id/TvItemBrand"
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
+                android:layout_height="match_parent"
                 android:layout_weight="0"
-                android:textAlignment="center"
-                android:textSize="18sp" />
+                tools:ignore="NestedScrolling">
 
-            <TextView
-                android:id="@+id/TvItemType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_weight="0"
-                android:textAlignment="center"
-                android:textSize="18sp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/TvItemColor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_weight="0"
-                android:textAlignment="center"
-                android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/TvItemBrand"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="0"
+                        android:textAlignment="center"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/TvItemType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="0"
+                        android:textAlignment="center"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/TvItemColor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="0"
+                        android:textAlignment="center"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/TvItemDetails"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="0"
+                        android:textAlignment="center"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/TvItemFeatures"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="0"
+                        android:textAlignment="center"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
+            </ScrollView>
 
             <com.google.android.gms.maps.MapView
                 android:id="@+id/MvItemPlace"

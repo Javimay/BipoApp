@@ -21,8 +21,12 @@ public class AccountRepository {
         apiService = new RestClient(context, token).getApiService();
     }
 
-    public Call<LoginResponse> login(String email, String pwd) {
-        return apiService.login(email, pwd);
+    public Call<LoginResponse> login(String email, String password, int loggedWeb, int loggedMobile) {
+        return apiService.login(email, password, loggedWeb, loggedMobile);
+    }
+
+    public Call<BikesResponse> logout(String token, boolean loggedWeb, boolean loggedMobile){
+        return apiService.logout(token, loggedWeb, loggedMobile);
     }
 
     public Call<EmailResponse> verifyEmail(String email) {

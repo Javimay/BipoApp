@@ -1,5 +1,6 @@
 package com.bipo.javier.bipo.home.activities;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -12,6 +13,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -21,12 +23,22 @@ import android.content.Context;
 import com.bipo.javier.bipo.InsecureArea.InsecureAreaFragment;
 import com.bipo.javier.bipo.R;
 import com.bipo.javier.bipo.account.fragments.AccountInfoFragment;
+import com.bipo.javier.bipo.account.models.BikesResponse;
 import com.bipo.javier.bipo.home.fragments.EventsFragment;
 import com.bipo.javier.bipo.home.fragments.SettingsFragment;
 import com.bipo.javier.bipo.info.fragments.InfoMenuFragment;
 import com.bipo.javier.bipo.login.activities.LoginActivity;
+import com.bipo.javier.bipo.login.models.AccountRepository;
+import com.bipo.javier.bipo.login.models.LoginResponse;
+import com.bipo.javier.bipo.login.models.User;
 import com.bipo.javier.bipo.report.fragments.PanicButtonFragment;
 import com.bipo.javier.bipo.report.fragments.ReportBikesFragment;
+
+import java.util.ArrayList;
+
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Retrofit;
 
 
 public class HomeActivity extends AppCompatActivity
@@ -38,7 +50,8 @@ public class HomeActivity extends AppCompatActivity
     private FragmentTransaction ft;
     private DrawerLayout drawer;
     private Toolbar bipoActionBar;
-    //private Menu menu;
+    private final boolean loggedWeb = false;
+    private final boolean loggedApp = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,15 +144,13 @@ public class HomeActivity extends AppCompatActivity
                 return true;
 
             case R.id.logoutItem:
-                logoutAccount();
+                closeSession();
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
 
             default:
-                //drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
-                //return super.onOptionsItemSelected(item);
         }
     }
 
@@ -177,6 +188,7 @@ public class HomeActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("WrongConstant")
     private void goToHomeActivity() {
 
         Intent intent = new Intent(getBaseContext(), HomeActivity.class);
@@ -216,6 +228,7 @@ public class HomeActivity extends AppCompatActivity
         ft.replace(R.id.RlyEvents,infoFragment).addToBackStack(null).commit();
     }
 
+    @SuppressLint("WrongConstant")
     private void logoutAccount() {
         Intent intent = new Intent(this, LoginActivity.class);
         SharedPreferences.Editor editor = preferences.edit();
@@ -224,5 +237,50 @@ public class HomeActivity extends AppCompatActivity
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
+    }
+
+    private void closeSession(){
+
+        String token = preferences.getString("token","");
+        AccountRepository repo = new AccountRepository(this);
+        Call<BikesResponse> call = repo.logout(token,loggedWeb,loggedApp);
+        final BikesResponse bikesResponse = new BikesResponse();
+        call.enqueue(new Callback<BikesResponse>() {
+            @Override
+            public void onResponse(retrofit.Response<BikesResponse> response, Retrofit retrofit) {
+
+                if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                    if (response.code() == 400) {
+                        Log.d("Logout","token error.");
+                        System.out.println(response.isSuccess());
+                        System.out.println(response.message());
+                        System.out.println(response.code());
+                        bikesResponse.setMessage(response.message());
+                        logoutAccount();
+                    } else {
+                        showMessage("Ocurrió un error en la red.");
+                        System.out.println(bikesResponse.getMessage());
+                    }
+                }
+                if (response != null && response.isSuccess() && response.message() != null) {
+
+                    bikesResponse.setError(response.body().getError());
+                    if (bikesResponse.getError().equals("false")){
+                        logoutAccount();
+                    }else{
+                        Log.d("Logout","Logout account error");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+                System.out.println("onFailure!: " + t);
+                bikesResponse.setMessage(t.getMessage());
+                showMessage("No se pudo establecer la conexión de la red. " +
+                        "Verifica que tengas conexión a internet.");
+            }
+        });
     }
 }

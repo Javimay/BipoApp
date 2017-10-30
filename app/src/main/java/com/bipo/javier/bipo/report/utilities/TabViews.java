@@ -2,9 +2,11 @@ package com.bipo.javier.bipo.report.utilities;
 
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bipo.javier.bipo.R;
+import com.bipo.javier.bipo.home.utilities.RVItemTouchListener;
 import com.bipo.javier.bipo.home.utilities.RvEventsAdapter;
 import com.bipo.javier.bipo.home.fragments.EventItemsFragment;
 import com.bipo.javier.bipo.home.models.GetReportResponse;
@@ -40,20 +43,20 @@ public class TabViews extends Fragment {
     private TextView tvNoItem;
     private String fhInicio = "";
     private String fhFin = "";
+    ArrayList<Report> reportList;
     private final int VIEW_BIKES_TYPE = 4;
     private ImageView imgCharge, imgReload;
     private Animation anim;
     private TextView tvRedError;
+    private static final String BASE_URL = "http://www.bipoapp.com/";
 
     public TabViews() {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_tab_views, container, false);
         rvViewBikes = (RecyclerView)view.findViewById(R.id.RvViewBikes);
         tvNoItem = (TextView)view.findViewById(R.id.TvNoView);
@@ -64,11 +67,17 @@ public class TabViews extends Fragment {
         anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
         anim.setDuration(2000);
         imgCharge.startAnimation(anim);
-        stolenList();
+
         return view;
     }
 
-    private void stolenList() {
+    @Override
+    public void onResume() {
+        super.onResume();
+        viewList();
+    }
+
+    private void viewList() {
 
         initDates();
         HomeRepository repo = new HomeRepository(getContext());
@@ -94,17 +103,21 @@ public class TabViews extends Fragment {
 
 
                     if (response.body().getReports() != null) {
-                        ArrayList<Report> reportList = response.body().getReports();
+                        reportList = response.body().getReports();
                         initEvents(reportList);
-                        imgCharge.getAnimation().cancel();
-                        imgCharge.setImageResource(0);
+                        if (imgCharge.getAnimation() != null) {
+                            imgCharge.getAnimation().cancel();
+                            imgCharge.setImageResource(0);
+                        }
                     }else{
                         reportResponse.setMessage(response.body().getMessage());
                         rvViewBikes.setVisibility(View.INVISIBLE);
                         tvNoItem.setVisibility(View.VISIBLE);
                         tvNoItem.setText("No hay bicicletas vistas.");
-                        imgCharge.getAnimation().cancel();
-                        imgCharge.setImageResource(0);
+                        if (imgCharge.getAnimation() != null) {
+                            imgCharge.getAnimation().cancel();
+                            imgCharge.setImageResource(0);
+                        }
                     }
                 }
             }
@@ -191,47 +204,54 @@ public class TabViews extends Fragment {
         RvEventsAdapter rvAdapter = new RvEventsAdapter(getActivity(), reportList);
         rvViewBikes.setAdapter(rvAdapter);
         rvViewBikes.setLayoutManager(new LinearLayoutManager(getContext()));
-        /*rvViewBikes.addOnItemTouchListener(
+        rvViewBikes.addOnItemTouchListener(
                 new RVItemTouchListener(getContext(), new RVItemTouchListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
                         int textColor;
                         int colorArea;
+                        String imageUrl = "";
                         int idReport = reportList.get(position).getIdreportType();
                         String status = reportList.get(position).getReportType();
+                        String bikeOwner = reportList.get(position).getBike_owner();
+                        String  bikeFeatures = reportList.get(position).getBikeFeatures();
                         String brand = reportList.get(position).getBrand();
+                        int idBike = reportList.get(position).getIdBike();
                         String type = reportList.get(position).getType();
                         String color = reportList.get(position).getColor();
-                        int image = R.drawable.wheel;
-                        if (idReport == 1){
+                        String coordinates = reportList.get(position).getGooglemapscoordinate();
+                        String details = reportList.get(position).getReportDetails();
+                        textColor = ContextCompat.getColor(getContext(),R.color.darkBlue);
+                        colorArea = ContextCompat.getColor(getContext(),R.color.view_bike_area);
 
-                            textColor = ContextCompat.getColor(getContext(),R.color.stolenBikeColor);
-                            colorArea = ContextCompat.getColor(getContext(),R.color.stolen_bike_area);
-                        }else if (idReport == 2){
 
-                            textColor = ContextCompat.getColor(getContext(),R.color.recoveredBikeColor);
-                            colorArea = ContextCompat.getColor(getContext(),R.color.recovered_bike_area);
-                        }else{
-
-                            textColor = ContextCompat.getColor(getContext(),R.color.darkBlue);
-                            colorArea = ContextCompat.getColor(getContext(),R.color.darkBlue);
+                        if (reportList.get(position).getReportPhotos().size() !=0) {
+                            imageUrl = BASE_URL + reportList.get(position).getReportPhotos()
+                                    .get(0).getUrl();
+                        }else if (reportList.get(position).getBikePhotos().size() !=0) {
+                            imageUrl = BASE_URL + reportList.get(position).getBikePhotos()
+                                    .get(0).getUrl();
                         }
-                        //String image = reportList.get(position).getReportPhotos().get(0);
 
-                        //Argumentos del Bundle
-                        Bundle arguments = new Bundle();
-                        arguments.putString("activity", "reportBikes");
-                        arguments.putInt("image", image);
-                        arguments.putString("status", status);
-                        arguments.putString("brand", brand);
-                        arguments.putString("type", type);
-                        arguments.putString("color", color);
-                        arguments.putInt("textColor", textColor);
-                        arguments.putInt("colorArea", colorArea);
-                        goToItemEventFragment(arguments);
+                            //Argumentos del Bundle
+                            Bundle arguments = new Bundle();
+                            arguments.putString("imageUrl", imageUrl);
+                            arguments.putInt("idReport", idReport);
+                            arguments.putString("status", status);
+                            arguments.putString("bikeOwner", bikeOwner);
+                            arguments.putString("bikeFeatures", bikeFeatures);
+                            arguments.putString("brand", brand);
+                            arguments.putString("type", type);
+                            arguments.putString("color", color);
+                            arguments.putString("details", details);
+                            arguments.putInt("textColor", textColor);
+                            arguments.putInt("colorArea", colorArea);
+                            arguments.putInt("idBike", idBike);
+                            arguments.putString("coordinates", coordinates);
+                            goToItemEventFragment(arguments);
                     }
                 })
-        );*/
+        );
     }
 
     private void goToItemEventFragment(Bundle arguments) {
@@ -239,7 +259,7 @@ public class TabViews extends Fragment {
         FragmentTransaction ft = fm.beginTransaction();
         EventItemsFragment itemsFragment = new EventItemsFragment();
         itemsFragment.setArguments(arguments);
-        ft.replace(R.id.pager,itemsFragment).commit();
+        ft.replace(R.id.RlyEvents,itemsFragment).addToBackStack(null).commit();
     }
 
     private void showMessage(String message) {

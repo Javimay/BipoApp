@@ -17,8 +17,10 @@
     <color name="shadowWindow">#46000000</color>
     <color name="stolen_bike_area">#64fc0707</color>
     <color name="recovered_bike_area">#6415ed02</color>
+    <color name="view_bike_area">#64686DFF</color>
     <color name="BackShadow">#64000000</color>
     <color name="itemChecked">#78ffffff</color>
     <color name="LighShadow">#aaffffff</color>
+    <color name="default_bike_area">#00ffffff</color>
 
 </resources>

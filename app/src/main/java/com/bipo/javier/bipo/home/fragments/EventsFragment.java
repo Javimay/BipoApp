@@ -1,6 +1,7 @@
 package com.bipo.javier.bipo.home.fragments;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -8,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,12 +38,11 @@ import retrofit.Retrofit;
 public class EventsFragment extends Fragment {
 
     private RecyclerView rvEvents;
-    private String fhInicio = "";
-    private String fhFin = "";
     private ImageView imgCharge, imgReload;
     private Animation anim;
     private TextView tvRedError;
     private static final String BASE_URL = "http://www.bipoapp.com/";
+    private SharedPreferences preferences;
 
     public EventsFragment() {
         // Required empty public constructor
@@ -61,6 +62,7 @@ public class EventsFragment extends Fragment {
         anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
         anim.setDuration(2000);
         imgCharge.startAnimation(anim);
+        preferences = getActivity().getSharedPreferences("UserInfo",0);
         reportList();
 
         return view;
@@ -103,11 +105,13 @@ public class EventsFragment extends Fragment {
                         ArrayList<Report> reportList = reportResponse.getReports();
                         if (reportList != null){
                             initEvents(reportList);
-                            imgCharge.getAnimation().cancel();
+                            if (imgCharge.getAnimation() != null){
+                                imgCharge.getAnimation().cancel();
+                            }
                             imgCharge.setImageResource(0);
                         }else{
                             imgCharge.getAnimation().cancel();
-                            showMessage("Home Events, Reports empty...");
+                            Log.d("Home Events", "Reports empty...");
                         }
 
                     }else{
@@ -168,17 +172,19 @@ public class EventsFragment extends Fragment {
                 new RVItemTouchListener(getContext(), new RVItemTouchListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        int textColor;
-                        int colorArea;
+                        int textColor = ContextCompat.getColor(getContext(),R.color.darkGray);
+                        int colorArea = ContextCompat.getColor(getContext(),R.color.default_bike_area);
                         String imageUrl = "";
                         int idReport = reportList.get(position).getIdreportType();
                         String status = reportList.get(position).getReportType();
+                        String bikeOwner = reportList.get(position).getBike_owner();
+                        String bikeFeatures = reportList.get(position).getBikeFeatures();
                         String brand = reportList.get(position).getBrand();
                         int idBike = reportList.get(position).getIdBike();
                         String type = reportList.get(position).getType();
                         String color = reportList.get(position).getColor();
                         String coordinates = reportList.get(position).getGooglemapscoordinate();
-
+                        String details = reportList.get(position).getReportDetails();
 
                         if (idReport == 1){
 
@@ -188,10 +194,10 @@ public class EventsFragment extends Fragment {
 
                             textColor = ContextCompat.getColor(getContext(),R.color.recoveredBikeColor);
                             colorArea = ContextCompat.getColor(getContext(),R.color.recovered_bike_area);
-                        }else{
+                        }else if (idReport == 4){
 
                             textColor = ContextCompat.getColor(getContext(),R.color.darkBlue);
-                            colorArea = ContextCompat.getColor(getContext(),R.color.darkBlue);
+                            colorArea = ContextCompat.getColor(getContext(),R.color.view_bike_area);
                         }
 
                         if (reportList.get(position).getReportPhotos().size() !=0) {
@@ -202,17 +208,18 @@ public class EventsFragment extends Fragment {
                                         .get(0).getUrl();
                         }
 
-
-
-
-                        if(idReport == 1) {
+                        if(idReport != 3) {
                             //Argumentos del Bundle
                             Bundle arguments = new Bundle();
                             arguments.putString("imageUrl", imageUrl);
+                            arguments.putInt("idReport", idReport);
                             arguments.putString("status", status);
+                            arguments.putString("bikeOwner", bikeOwner);
+                            arguments.putString("bikeFeatures", bikeFeatures);
                             arguments.putString("brand", brand);
                             arguments.putString("type", type);
                             arguments.putString("color", color);
+                            arguments.putString("details", details);
                             arguments.putInt("textColor", textColor);
                             arguments.putInt("colorArea", colorArea);
                             arguments.putInt("idBike",idBike);

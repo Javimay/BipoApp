@@ -52,13 +52,11 @@ public class TabStolen extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_tab_stolen, container, false);
-
         rvStolenBikes = (RecyclerView)view.findViewById(R.id.RvStolenBikes);
         tvNoItem = (TextView)view.findViewById(R.id.TvNoStolen);
         tvRedError = (TextView)view.findViewById(R.id.TvRedError);
@@ -68,8 +66,14 @@ public class TabStolen extends Fragment {
         anim = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
         anim.setDuration(2000);
         imgCharge.startAnimation(anim);
-        stolenList();
+
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        stolenList();
     }
 
     private void stolenList() {
@@ -100,15 +104,19 @@ public class TabStolen extends Fragment {
                     if (response.body().getReports() != null) {
                         ArrayList<Report> reportList = response.body().getReports();
                         initEvents(reportList);
-                        imgCharge.getAnimation().cancel();
-                        imgCharge.setImageResource(0);
+                        if (imgCharge.getAnimation() != null) {
+                            imgCharge.getAnimation().cancel();
+                            imgCharge.setImageResource(0);
+                        }
                     }else{
                         reportResponse.setMessage(response.body().getMessage());
                         rvStolenBikes.setVisibility(View.INVISIBLE);
                         tvNoItem.setVisibility(View.VISIBLE);
                         tvNoItem.setText("No hay bicicletas robadas.");
-                        imgCharge.getAnimation().cancel();
-                        imgCharge.setImageResource(0);
+                        if (imgCharge.getAnimation() != null) {
+                            imgCharge.getAnimation().cancel();
+                            imgCharge.setImageResource(0);
+                        }
                     }
                 }
             }
@@ -198,50 +206,46 @@ public class TabStolen extends Fragment {
                 new RVItemTouchListener(getContext(), new RVItemTouchListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        String imageUrl = "";
                         int textColor;
                         int colorArea;
+                        String imageUrl = "";
                         int idReport = reportList.get(position).getIdreportType();
                         String status = reportList.get(position).getReportType();
+                        String bikeOwner = reportList.get(position).getBike_owner();
+                        String bikeFeatures = reportList.get(position).getBikeFeatures();
                         String brand = reportList.get(position).getBrand();
                         int idBike = reportList.get(position).getIdBike();
                         String type = reportList.get(position).getType();
                         String color = reportList.get(position).getColor();
                         String coordinates = reportList.get(position).getGooglemapscoordinate();
+                        String details = reportList.get(position).getReportDetails();
+                        textColor = ContextCompat.getColor(getContext(),R.color.stolenBikeColor);
+                        colorArea = ContextCompat.getColor(getContext(),R.color.stolen_bike_area);
 
-                        if (reportList.get(position).getReportPhotos() != null){
-                            if (reportList.get(position).getReportPhotos().size() !=0){
-                                imageUrl = BASE_URL + reportList.get(position).getReportPhotos()
-                                        .get(0).getUrl();
-                            }
-                        }
 
-                        if (idReport == 1){
-
-                            textColor = ContextCompat.getColor(getContext(),R.color.stolenBikeColor);
-                            colorArea = ContextCompat.getColor(getContext(),R.color.stolen_bike_area);
-                        }else if (idReport == 2){
-
-                            textColor = ContextCompat.getColor(getContext(),R.color.recoveredBikeColor);
-                            colorArea = ContextCompat.getColor(getContext(),R.color.recovered_bike_area);
-                        }else{
-
-                            textColor = ContextCompat.getColor(getContext(),R.color.darkBlue);
-                            colorArea = ContextCompat.getColor(getContext(),R.color.darkBlue);
+                        if (reportList.get(position).getReportPhotos().size() !=0) {
+                            imageUrl = BASE_URL + reportList.get(position).getReportPhotos()
+                                    .get(0).getUrl();
+                        }else if (reportList.get(position).getBikePhotos().size() !=0) {
+                            imageUrl = BASE_URL + reportList.get(position).getBikePhotos()
+                                    .get(0).getUrl();
                         }
 
                         //Argumentos del Bundle
                         Bundle arguments = new Bundle();
-                        //arguments.putString("activity", "reportBikes");
                         arguments.putString("imageUrl", imageUrl);
+                        arguments.putInt("idReport", idReport);
                         arguments.putString("status", status);
+                        arguments.putString("bikeOwner", bikeOwner);
+                        arguments.putString("bikeFeatures", bikeFeatures);
                         arguments.putString("brand", brand);
                         arguments.putString("type", type);
                         arguments.putString("color", color);
+                        arguments.putString("details", details);
                         arguments.putInt("textColor", textColor);
                         arguments.putInt("colorArea", colorArea);
-                        arguments.putString("coordinates",coordinates);
-                        arguments.putInt("idBike",idBike);
+                        arguments.putInt("idBike", idBike);
+                        arguments.putString("coordinates", coordinates);
                         goToItemEventFragment(arguments);
                     }
                 })

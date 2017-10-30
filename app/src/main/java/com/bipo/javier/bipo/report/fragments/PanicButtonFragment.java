@@ -65,7 +65,7 @@ import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PanicButtonFragment extends Fragment implements LocationListener {
+public class PanicButtonFragment extends Fragment implements LocationListener, View.OnTouchListener {
 
     private ProgressBar progressBar;
     private ImageButton imgBtnPanicButton;
@@ -78,9 +78,11 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
     private LocationManager locationManager;
     private boolean isUserActive = false;
     private int idBike;
+    private String bikeState;
     private String GPS = LocationManager.GPS_PROVIDER;
     private String NETWORK = LocationManager.NETWORK_PROVIDER;
     private static final int STOLEN_REPORT = 1;
+    ArrayList<Bike> bikesList;
 
     public PanicButtonFragment() {
         // Required empty public constructor
@@ -94,7 +96,7 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
         view = inflater.inflate(R.layout.fragment_panic_button, container, false);
         preferences = getActivity().getSharedPreferences("UserInfo",0);
         locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-        getGPSPermission(GPS);
+        getGPSPermission();
         animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_charge_rotation);
         animation.setDuration(2000);
         getAccountBikes();
@@ -104,13 +106,13 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
 
     }
 
-    public void getGPSPermission(String provider) {
+    public void getGPSPermission() {
 
         if (!checkLocationPermission()) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         } else {
 
-            locationManager.requestLocationUpdates(provider, 0, 0, this);
+            locationManager.requestLocationUpdates(GPS, 0, 0, this);
             locationManager.requestLocationUpdates(NETWORK, 0, 0, this);
         }
     }
@@ -125,48 +127,7 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
 
         imgBtnPanicButton = (ImageButton)view.findViewById(R.id.ImgBtnPanicButton);
         progressBar = (ProgressBar)view.findViewById(R.id.PgBarPanicButton);
-        imgBtnPanicButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
-                    anim = ObjectAnimator.ofInt(progressBar, "progress", progressBar.getProgress(), 100);
-                    anim.setDuration(4000);
-                    anim.setInterpolator(new DecelerateInterpolator());
-                    anim.start();
-
-                    v.post(rotationRunnable);
-
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-
-                    if (progressBar.getProgress() == 100) {
-
-                        GpsConnection gps = new GpsConnection(getActivity(), getContext());
-                        if (gps.isGpsEnabled()){
-
-                            progressBar.setProgressDrawable(ContextCompat.getDrawable(getContext(),
-                                    R.drawable.ok_circular_progress_bar));
-                            anim = ObjectAnimator.ofInt(progressBar, "progress", 99, 100);
-                            anim.start();
-                            isUserActive = true;
-                            sendReport();
-                        }else{
-                            turnOnGps();
-                        }
-
-                    } else {
-                        anim.cancel();
-                        anim = ObjectAnimator.ofInt(progressBar, "progress", progressBar.getProgress(), 0);
-                        anim.setDuration(2000);
-                        anim.setInterpolator(new DecelerateInterpolator());
-                        anim.start();
-                    }
-                }
-
-                return true;
-            }
-        });
+        imgBtnPanicButton.setOnTouchListener(this);
     }
 
     private void getAccountBikes() {
@@ -194,15 +155,15 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
                 if (response != null && response.isSuccess() && response.message() != null) {
 
                     bikesResponse.setBikes(response.body().getBikes());
-                    ArrayList<Bike> bikesList = bikesResponse.getBikes();
+                    bikesList = bikesResponse.getBikes();
                     if (bikesList != null) {
 
                             for (Bike bike : bikesList) {
                                 if (bike.getIsDefault() == 1) {
                                     idBike = bike.getId();
+                                    bikeState = bike.getBikestate();
                                 }
                             }
-
                     }else{
                         validateBikes();
                     }
@@ -306,6 +267,12 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
                     if (reportResponse.getError().equals("false")) {
 
                         reportResponse.setReportId(response.body().getReportId());
+                        if (imgBtnPanicButton.getAnimation() != null){
+                            imgBtnPanicButton.getAnimation().cancel();
+                        }
+                        imgBtnPanicButton.setImageResource(R.drawable.panic_button);
+                        imgBtnPanicButton.getAnimation().cancel();
+                        imgBtnPanicButton.setImageResource(R.drawable.panic_button);
                         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
                         alert.setTitle("Se ha generado un reporte de robo.");
                         alert.setMessage("Estaremos pendientes de cualquier noticia sobre tu bicicleta robada. " +
@@ -318,7 +285,7 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
                                         progressBar.setProgressDrawable(ContextCompat.getDrawable(getContext(),
                                                 R.drawable.circular_progress_bar));
                                         anim = ObjectAnimator.ofInt(progressBar, "progress", 0, 100);
-                                        getActivity().onBackPressed();
+                                        //getActivity().onBackPressed();
                                     }
                                 });
                         alert.show();
@@ -441,8 +408,8 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
         if (isUserActive){
             latitude = location.getLatitude();
             longitude = location.getLongitude();
-            imgBtnPanicButton.getAnimation().cancel();
-            imgBtnPanicButton.setImageResource(R.drawable.panic_button);
+            //imgBtnPanicButton.getAnimation().cancel();
+            //imgBtnPanicButton.setImageResource(R.drawable.panic_button);
             locationManager.removeUpdates(this);
             sendReport();
         }
@@ -466,5 +433,65 @@ public class PanicButtonFragment extends Fragment implements LocationListener {
     public void onDestroy() {
         super.onDestroy();
         locationManager.removeUpdates(this);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+            anim = ObjectAnimator.ofInt(progressBar, "progress", progressBar.getProgress(), 100);
+            anim.setDuration(4000);
+            anim.setInterpolator(new DecelerateInterpolator());
+            anim.start();
+
+            v.post(rotationRunnable);
+
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+
+            if (progressBar.getProgress() == 100) {
+
+                GpsConnection gps = new GpsConnection(getActivity(), getContext());
+                if (gps.isGpsEnabled()){
+
+                    if (bikeState.equals("ROBADA")){
+
+                        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                        alert.setTitle("No se puede generar un reporte de robo.");
+                        alert.setMessage("La bicicleta principal ya está reportada como robada. " +
+                                "\nAsegúrate de escoger una bicicleta que no este robada en tu perfil para generar" +
+                                "un nuevo reporte de robo.")
+                                .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        progressBar.setProgress(0);
+                                        progressBar.setProgressDrawable(ContextCompat.getDrawable(getContext(),
+                                                R.drawable.circular_progress_bar));
+                                        anim = ObjectAnimator.ofInt(progressBar, "progress", 0, 100);
+                                    }
+                                });
+                        alert.show();
+                    }else{
+                        progressBar.setProgressDrawable(ContextCompat.getDrawable(getContext(),
+                                R.drawable.ok_circular_progress_bar));
+                        anim = ObjectAnimator.ofInt(progressBar, "progress", 99, 100);
+                        anim.start();
+                        isUserActive = true;
+                        sendReport();
+                    }
+                }else{
+                    turnOnGps();
+                }
+
+            } else {
+                anim.cancel();
+                anim = ObjectAnimator.ofInt(progressBar, "progress", progressBar.getProgress(), 0);
+                anim.setDuration(2000);
+                anim.setInterpolator(new DecelerateInterpolator());
+                anim.start();
+            }
+        }
+
+        return true;
     }
 }

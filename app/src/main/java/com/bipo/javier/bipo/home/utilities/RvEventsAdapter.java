@@ -1,6 +1,7 @@
 package com.bipo.javier.bipo.home.utilities;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -28,10 +29,11 @@ public class RvEventsAdapter extends RecyclerView.Adapter<RvEventsAdapter.ViewHo
     private Context context;
     private Animation anim;
     private static final String BASE_URL = "http://www.bipoapp.com/";
+    private SharedPreferences preferences;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvBikeStatus, tvBikeBrand, tvBikeType, tvBikeColor ;
+        TextView tvBikeStatus, tvBikeBrand, tvBikeType, tvBikeColor, tvUserBike ;
         ImageView ivBike;
 
 
@@ -42,6 +44,7 @@ public class RvEventsAdapter extends RecyclerView.Adapter<RvEventsAdapter.ViewHo
             tvBikeBrand = (TextView)itemView.findViewById(R.id.TvBikeBrand);
             tvBikeType = (TextView)itemView.findViewById(R.id.TvBikeType);
             tvBikeColor = (TextView)itemView.findViewById(R.id.TvBikeColor);
+            tvUserBike = (TextView)itemView.findViewById(R.id.TvUserBike);
         }
     }
 
@@ -58,6 +61,7 @@ public class RvEventsAdapter extends RecyclerView.Adapter<RvEventsAdapter.ViewHo
         LayoutInflater inflater = LayoutInflater.from(context);
         View eventsView = inflater.inflate(R.layout.item_events,parent,false);
         resources = getContext().getResources();
+        preferences = getContext().getSharedPreferences("UserInfo",0);
         return new ViewHolder(eventsView);
 
     }
@@ -104,6 +108,10 @@ public class RvEventsAdapter extends RecyclerView.Adapter<RvEventsAdapter.ViewHo
         String bikeColor = String.format(resources.getString(R.string.sr_itmtxt_bike_color),
                 report.getColor());
         color.setText(bikeColor);
+        TextView userBike = holder.tvUserBike;
+        if (report.getReport_owner().equals(preferences.getString("nickName",""))){
+            userBike.setText(R.string.sr_txt_es_tu_bicicleta);
+        }
     }
 
     private void getReportPhotos(RvEventsAdapter.ViewHolder holder, int position){

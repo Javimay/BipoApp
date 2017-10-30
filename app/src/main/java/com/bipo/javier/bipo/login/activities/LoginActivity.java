@@ -30,6 +30,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etEmail, etPassword;
     private final static String TAG = SettingsFragment.class.getName();
     public final static String USER_APP_SETTINGS = TAG + ".USER_APP_SETTINGS_";
+    private final int loggedApp = 1;
+    private final int loggedWeb = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
     private void getInHome(String user, String password) {
 
         AccountRepository repo = new AccountRepository(this);
-        Call<LoginResponse> call = repo.login(user, password);
+        Call<LoginResponse> call = repo.login(user, password,loggedWeb,loggedApp);
         final LoginResponse loginResponse = new LoginResponse();
         call.enqueue(new Callback<LoginResponse>() {
             @Override
@@ -88,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 if (response != null && response.isSuccess() && response.message() != null) {
                     String name = "", lastName = "", email = "", birthday = "", phone = "",
-                            documentid = "", userName = "", token = "";
+                            documentid = "", userName = "", token = "", nickName = "";
                     loginResponse.setUser(response.body().getUser());
                     ArrayList<User> userList = loginResponse.getUser();
                     int emailReceiver = 0, photoPublication = 0,
@@ -99,6 +101,7 @@ public class LoginActivity extends AppCompatActivity {
                             name = user.getName();
                             lastName = user.getLastname();
                             email = user.getEmail();
+                            nickName = user.getNickname();
                             birthday = user.getBirthdate();
                             phone = user.getCellphone();
                             documentid = user.getDocumentid();
@@ -125,6 +128,7 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString("name", name);
                         editor.putString("lastName", lastName);
                         editor.putString("email", email);
+                        editor.putString("nickName", nickName);
                         editor.putString("birthdate", birthday);
                         editor.putString("phone", phone);
                         editor.putString("documentId", documentid);

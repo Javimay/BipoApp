@@ -342,7 +342,7 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
             showMessage("Por favor escoge un tipo de reporte.");
             return;
         }
-        if(idReportType == 1 || idReportType == 4){
+        if(idReportType == 1 || idReportType == 4 || idReportType == 2){
 
             if (latitude == 0 && longitude ==0){
                 if (TextUtils.isEmpty(etAddresReport.getText())){
@@ -370,8 +370,8 @@ public class MakeReportFragment extends Fragment implements View.OnClickListener
             if ((idReportType == 2) && (!bikeState.equals("ROBADA"))){
 
                 alert.setTitle("No se puede generar este reporte.");
-                alert.setMessage("La bicicleta seleccionada no ha sido reportada como robada. " +
-                        "Por lo tanto, no se puede reportar como recuperada.");
+                alert.setMessage("La bicicleta seleccionada no ha sido reportada como robada, " +
+                        "por lo tanto, no se puede reportar como recuperada.");
                 alert.show();
                 return;
             }

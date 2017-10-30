@@ -46,6 +46,7 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Retrofit;
 
+import com.bipo.javier.bipo.login.utilities.Teclado;
 import com.bipo.javier.bipo.report.models.ReportResponse;
 import com.bipo.javier.bipo.utils.GpsConnection;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -206,6 +207,7 @@ public class ViewBikeFragment extends Fragment implements View.OnClickListener,
         }
 
         String coordinates = latitude + "," + longitude;
+        Teclado.ocultarTeclado(getActivity());
         makeReportView(token, reportName, VIEW_REPORT_TYPE, coordinates, idBike, reportDetails);
     }
 

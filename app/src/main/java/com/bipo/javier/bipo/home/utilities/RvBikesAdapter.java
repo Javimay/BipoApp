@@ -43,7 +43,7 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvBikeBrand, tvBikeType, tvBikeColor, tvBikeName;
+        TextView tvBikeBrand, tvBikeType, tvBikeColor, tvBikeName, tvBikeStatus;
         ImageView ivBike, ivDefBike;
         ImageButton imgBtnCheckBike;
         RelativeLayout rlytCheckBike;
@@ -62,8 +62,7 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
             tvBikeType = (TextView)bikeView.findViewById(R.id.TvBikeType);
             tvBikeColor = (TextView)bikeView.findViewById(R.id.TvBikeColor);
             tvBikeName = (TextView)bikeView.findViewById(R.id.TvBikeName);
-
-
+            tvBikeStatus = (TextView)bikeView.findViewById(R.id.TvBikeStatus);
         }
     }
 
@@ -107,6 +106,16 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
         color.setText(bikeColor);
         TextView bikeName = holder.tvBikeName;
         bikeName.setText(bikes.getBikename());
+        TextView status = holder.tvBikeStatus;
+        if (bikes.getBikestate().equals("ROBADA")){
+
+            status.setText(bikes.getBikestate());
+            status.setTextColor(ContextCompat.getColor(getContext(),R.color.stolenBikeColor));
+        }else if (bikes.getBikestate().equals("RECUPERADA")){
+
+            status.setText(bikes.getBikestate());
+            status.setTextColor(ContextCompat.getColor(getContext(),R.color.recoveredBikeColor));
+        }
     }
 
     @Override
@@ -136,7 +145,7 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
             holder.imgBtnCheckBike.setVisibility(View.INVISIBLE);
             holder.rlytCheckBike.setBackgroundColor(Color.TRANSPARENT);
         }
-        //OnClickListener para el layout contenedor del check.
+        //OnClickListener para el layout contenedor del icono de bicicleta por default.
         holder.rlytCheckBike.setOnClickListener(new View.OnClickListener(){
 
             @Override
@@ -158,9 +167,6 @@ public class RvBikesAdapter extends RecyclerView.Adapter<RvBikesAdapter.ViewHold
 
                     showMessage(bikeList.get(position).getBikename());
                 }
-
-                //holder.imgBtnCheckBike.setVisibility(View.VISIBLE);
-                //notifyDataSetChanged();
             }
         });
 

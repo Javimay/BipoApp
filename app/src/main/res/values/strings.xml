@@ -57,6 +57,8 @@
     <string name="sr_itmtxt_bike_type">Tipo: %s</string>
     <string name="sr_itmtxt_bike_color">Color: %s</string>
     <string name="sr_itmtxt_bike_idframe">IdMarco: %s</string>
+    <string name="sr_itmtxt_bike_details">Detalles: %s</string>
+    <string name="sr_itmtxt_bike_features">Caracteristicas: %s</string>
     <string name="sr_itmtxt_bike_id">Id: %s</string>
     <string name="sr_account_info_name">Nombres: %s</string>
     <string name="sr_account_info_last_name">Apellidos: %s</string>
@@ -136,4 +138,5 @@
     <string name="sr_cd_previous">Anterior</string>
     <string name="Next">sr_cd_next</string>
     <string name="sr_cd_tuto_bienvenido">Bienvenido</string>
+    <string name="sr_txt_es_tu_bicicleta">Es tu bicicleta</string>
 </resources>

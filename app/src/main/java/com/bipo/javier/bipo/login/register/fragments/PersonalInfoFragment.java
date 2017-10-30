@@ -53,6 +53,8 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
     private int year, month, day;
     private Calendar calendar;
     private CheckBox chbxFotos, chbxTerminos;
+    private final int loggedWeb = 0;
+    private final int loggedApp = 1;
 
     public PersonalInfoFragment() {
         // Required empty public constructor
@@ -262,7 +264,7 @@ public class PersonalInfoFragment extends Fragment implements View.OnClickListen
     private void getInHome(String email, String password) {
 
         AccountRepository repo = new AccountRepository(getContext());
-        Call<LoginResponse> call = repo.login(email, password);
+        Call<LoginResponse> call = repo.login(email, password,loggedWeb,loggedApp);
         final LoginResponse loginResponse = new LoginResponse();
         call.enqueue(new Callback<LoginResponse>() {
             @Override

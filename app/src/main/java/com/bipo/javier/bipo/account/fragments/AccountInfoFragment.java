@@ -229,7 +229,6 @@ public class AccountInfoFragment extends Fragment implements View.OnClickListene
                                         .get(0).getUrl();
                             }
                         }
-                        //boolean defaultBike = true;
 
                         //Argumentos del Bundle
                         Bundle arguments = new Bundle();

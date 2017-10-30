@@ -31,9 +31,17 @@ import retrofit.http.Query;
 public interface IRestClient {
 
     //LOGIN
-    //@FormUrlEncoded
     @GET("login")
-    Call<LoginResponse> login(@Query("email") String email, @Query("password") String password);
+    Call<LoginResponse> login(@Query("email") String email, @Query("password") String password,
+                              @Query("loggedWeb") int loggedWeb,
+                              @Query("loggedMobile") int loggedMobile);
+
+    //Logout
+    @FormUrlEncoded
+    @POST("logout")
+    Call<BikesResponse> logout(@Field("token")String token, @Field("loggedWeb")boolean loggedWeb,
+                               @Field("loggedMobile")boolean loggedMobile);
+
 
     //Valida que el correo exista en el servidor
     @GET("user/{email}")
